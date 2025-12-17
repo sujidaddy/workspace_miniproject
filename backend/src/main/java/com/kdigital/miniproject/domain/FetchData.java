@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.kdigital.miniproject.service.FishService;
+import com.kdigital.miniproject.service.LocationService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FetchData {
 	private final FishService fishService;
+	private final LocationService locService;
 	
 	String[] gubunList = {"갯바위", "선상"};
 	int pageNo = 1;
@@ -62,17 +64,31 @@ public class FetchData {
 			int numOfRows = Integer.parseInt(String.valueOf(body.get("numOfRows")));
 			Object item = ((HashMap<String, String>)body.get("items")).get("item");
 			for(HashMap<String, String> i : (ArrayList<HashMap<String, String>>)item) {
+				// 위치 정보
+				String seafsPstnNm = i.get("seafsPstnNm");
+				Double lat = Double.parseDouble(String.valueOf(i.get("lat")));
+				Double lot = Double.parseDouble(String.valueOf(i.get("lot")));
+				Location loc = locService.getLocation(seafsPstnNm);
+				if(loc == null) {
+					loc = Location.builder()
+						.name(seafsPstnNm)
+						.lat(lat)
+						.lot(lot)
+						.build();
+					locService.insertLocation(loc);
+				}
+				// 어종 정보
 				String seafsTgfshNm = i.get("seafsTgfshNm");
 				Double tdvHrScr = Double.parseDouble(String.valueOf(i.get("tdlvHrScr")));
 				String totalIndex = i.get("totalIndex");
 				Double lastScr = Double.parseDouble(String.valueOf(i.get("lastScr")));
-				Fish newFish = Fish.builder()
-									.name(seafsTgfshNm)
-									.tdvHrScr(tdvHrScr)
-									.totalIndex(totalIndex)
-									.lastScr(lastScr)
-									.build();
-				fishService.insertFish(newFish);
+//				Fish newFish = Fish.builder()
+//									.name(seafsTgfshNm)
+//									.tdvHrScr(tdvHrScr)
+//									.totalIndex(totalIndex)
+//									.lastScr(lastScr)
+//									.build();
+//				fishService.insertFish(newFish);
 				
 			}
 			
