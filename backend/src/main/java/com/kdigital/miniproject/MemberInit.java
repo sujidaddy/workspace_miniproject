@@ -21,12 +21,6 @@ public class MemberInit implements ApplicationRunner{
 	public void run(ApplicationArguments args) throws Exception {
 		// TODO Auto-generated method stub
 		memberRepo.save(Member.builder()
-				.username("manager")
-				.password(encoder.encode("abcd"))
-				.role(Role.ROLE_MANAGER)
-				.enabled(true)
-				.build());
-		memberRepo.save(Member.builder()
 				.username("admin")
 				.password(encoder.encode("abcd"))
 				.role(Role.ROLE_ADMIN)

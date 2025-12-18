@@ -4,8 +4,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,14 +18,10 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Location {
+public class Area {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long location_no;
-	private String name;
-	private double lat;
-	private double lot;
-	@ManyToOne
-	@JoinColumn(name="area_no")
-	private Area area;
+	@Builder.Default
+	private int area_no = -1;
+	private String area_name;
 }
