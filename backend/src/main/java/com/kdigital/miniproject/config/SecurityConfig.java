@@ -2,37 +2,42 @@ package com.kdigital.miniproject.config;
 
 import java.util.Arrays;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import com.kdigital.miniproject.persistence.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-	private final MemberRepository memberRepo;
+	
+	@Autowired
+	private AuthenticationSuccessHandler oauth2SuccessHandler;
 	
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.cors(cors->cors.configurationSource(corsSource()));
 		// CSRF 보호 비활성화 (CsrfFilter 제거)
 		http.csrf(csrf->csrf.disable());
+		http.httpBasic(basic->basic.disable());
 		
 		// 접근권한 설정
 		http.authorizeHttpRequests(auth->auth
 				.requestMatchers("/member/**").authenticated()
 				.requestMatchers("/admin/**").hasRole("ADMIN")
 				.anyRequest().permitAll());	// AuthorizationFilter 등록
+	
+		http.oauth2Login(oauth2->oauth2.successHandler(oauth2SuccessHandler));
 		
-		http.formLogin(form->form.loginPage("/system/login").defaultSuccessUrl("/board/getBoardList", true));
+		http.formLogin(form->form.loginPage("/system/login").defaultSuccessUrl("/member/main", true));
 		http.exceptionHandling(ex->ex.accessDeniedPage("/system/accessDenied"));
 		http.logout(logout->logout.invalidateHttpSession(true).logoutSuccessUrl("/"));
 		
