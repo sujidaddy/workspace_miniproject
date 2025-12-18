@@ -21,11 +21,17 @@ public class WeatherServiceImple implements WeatherService{
 		// TODO Auto-generated method stub
 		weaRepo.save(wea);
 	}
+	
+	@Override
+	public void updateWeather(Weather wea) {
+		// TODO Auto-generated method stub
+		weaRepo.save(wea);
+	}
 
 	@Override
-	public List<Weather> getWeather(Location loc, Date ymd) {
+	public Weather getWeather(Location loc, Date ymd, String predcNoonSeCd) {
 		// TODO Auto-generated method stub
-		return weaRepo.findByLocationAndPredcYmd(loc, ymd);
+		return weaRepo.findByLocationAndPredcYmdAndPredcNoonSeCd(loc, ymd, predcNoonSeCd);
 	}
 	
 	

@@ -1,5 +1,10 @@
 package com.kdigital.miniproject.service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,23 +18,22 @@ public class FetchScheduler {
 	@Autowired
 	private FetchData fetch;
 	
+	// 실행시 동작
 	@Bean
-	@Scheduled(cron = "0 0 1,13 * * *")
+	// 매일 1시에 동작
+	@Scheduled(cron = "0 0 1 * * *")
 	public String Init() {
 		if(fetch == null)
 			return "fetch not load";
-		fetch.startFetch();
+		Calendar cal = Calendar.getInstance();
+		Date date = cal.getTime();
+		for(int i = 0; i < 7; ++i) {
+			System.out.println(date.toString());
+			fetch.setDate(date);
+			fetch.startFetch();
+			cal.add(Calendar.DATE, 1);
+			date = cal.getTime();
+		}
 		return "";
 	}
-	/*
-	//@Scheduled(cron = "45 21 10 * * ?")
-	//@Scheduled(fixedRate  = 1000 * 60) 1분에 1번씩
-	@Scheduled(cron = "0 0 0/1 * * *")
-	@PostConstruct
-	public void searchOnceinHour() {
-		if(fetch == null)
-			return;
-		fetch.startFetch();
-	}
-	*/
 }

@@ -56,7 +56,9 @@ public class FetchData {
 		ResponseEntity<Map> resultMap = (ResponseEntity<Map>)fetch(callUrl);
 		int locationcount = 0;
 		int weathercount = 0;
+		int weatherupdate = 0;
 		int fishcount = 0;
+		int fishupdate = 0;
 		while(resultMap != null) {
 			//System.out.println("url = " + callUrl);
 			HashMap<String, String> header = (HashMap<String, String>)resultMap.getBody().get("header");
@@ -106,9 +108,8 @@ public class FetchData {
 				Double maxCrsp = Double.parseDouble(String.valueOf(i.get("maxCrsp")));
 				Double minWspd = Double.parseDouble(String.valueOf(i.get("minWspd")));
 				Double maxWspd = Double.parseDouble(String.valueOf(i.get("maxWspd")));
-				List<Weather> weaList = weaService.getWeather(loc, predcYmd); 
-				Weather wea = null;
-				if(weaList == null || weaList.size() == 0) {
+				Weather wea = weaService.getWeather(loc, predcYmd, predcNoonSeCd); 
+				if(wea == null) {
 					wea = Weather.builder()
 							.predcYmd(predcYmd)
 							.predcNoonSeCd(predcNoonSeCd)
@@ -127,16 +128,27 @@ public class FetchData {
 					weaService.insertWeather(wea);
 					++weathercount;
 				} else {
-					wea = weaList.get(0);
+					wea.setMinWvhgt(minWvhgt);
+					wea.setMaxWvhgt(maxWvhgt);
+					wea.setMinWtem(minWtem);
+					wea.setMaxWtem(maxWtem);
+					wea.setMinArtmp(minArtmp);
+					wea.setMaxArtmp(maxArtmp);
+					wea.setMinCrsp(minCrsp);
+					wea.setMaxCrsp(maxCrsp);
+					wea.setMinWspd(minWspd);
+					wea.setMaxWspd(maxWspd);
+					++weatherupdate;
 				}
 				// 어종 정보
 				String seafsTgfshNm = i.get("seafsTgfshNm");
 				Double tdvHrScr = Double.parseDouble(String.valueOf(i.get("tdlvHrScr")));
 				String totalIndex = i.get("totalIndex");
 				Double lastScr = Double.parseDouble(String.valueOf(i.get("lastScr")));
-				if(fishService.getFish(loc, wea, seafsTgfshNm) == null)
+				Fish fish = fishService.getFish(loc, wea, seafsTgfshNm); 
+				if(fish == null)
 				{
-					Fish newFish = Fish.builder()
+					fish = Fish.builder()
 										.name(seafsTgfshNm)
 										.tdvHrScr(tdvHrScr)
 										.totalIndex(totalIndex)
@@ -144,13 +156,18 @@ public class FetchData {
 										.weather(wea)
 										.location(loc)
 										.build();
-					fishService.insertFish(newFish);
+					fishService.insertFish(fish);
 					++fishcount;
+				} else {
+					fish.setTdvHrScr(tdvHrScr);
+					fish.setTotalIndex(totalIndex);
+					fish.setLastScr(lastScr);
+					++fishupdate;
 				}
 			}
 			
 			this.dataSize += itemlist.size();
-			System.out.println("dataSize : " + this.dataSize + ", tot : " + tot);
+			//System.out.println("dataSize : " + this.dataSize + ", tot : " + tot);
 			if(this.dataSize >= tot && gubunIndex == 1)
 				break;			
 			++pageNo;
@@ -165,7 +182,8 @@ public class FetchData {
 			callUrl = Baseurl + DateParam + GubunParam + PageParam + NumParam;
 			resultMap = (ResponseEntity<Map>)fetch(callUrl);
 		}
-		System.out.println(locationcount + "개의 위치와 " + weathercount + "개의 날씨와 " + fishcount + "개의 어종의 추가되었습니다.");
+		System.out.println(reqDate + " : " + locationcount + "개의 위치와 " + weathercount + "개의 날씨와 " + fishcount + "개의 어종이 추가되었습니다.");
+		System.out.println(weatherupdate + "개의 날씨와 " + fishupdate + "개의 어종이 갱신되었습니다.");
 	}
 	
 	public ResponseEntity<Map> fetch(String url) {
