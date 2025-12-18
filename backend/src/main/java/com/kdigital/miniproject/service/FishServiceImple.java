@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.kdigital.miniproject.domain.Fish;
+import com.kdigital.miniproject.domain.Location;
+import com.kdigital.miniproject.domain.Weather;
 import com.kdigital.miniproject.persistence.FishRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -25,11 +27,29 @@ public class FishServiceImple implements FishService{
 		// TODO Auto-generated method stub
 		return fishRepo.findByName(name);
 	}
+	
+	@Override
+	public List<Fish> getFishList(Location loc) {
+		// TODO Auto-generated method stub
+		return fishRepo.findByLocation(loc);
+	}
+	
+	@Override
+	public List<Fish> getFishList(Weather wea) {
+		// TODO Auto-generated method stub
+		return fishRepo.findByWeather(wea);
+	}
 
 	@Override
-	public List<Fish> getFishList(Long location_no, Long weather_no) {
+	public List<Fish> getFishList(Location loc, Weather wea) {
 		// TODO Auto-generated method stub
-		return null;
+		return fishRepo.findByLocationAndWeather(loc, wea);
+	}
+	
+	@Override
+	public Fish getFish(Location loc, Weather wea, String name) {
+		// TODO Auto-generated method stub
+		return fishRepo.findByLocationAndWeatherAndName(loc, wea, name);
 	}
 	
 }

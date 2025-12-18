@@ -12,19 +12,8 @@ import com.kdigital.miniproject.domain.FetchData;
 @SpringBootApplication
 public class BackendApplication {
 	
-	@Autowired
-	private FetchData fetch;
-	
 	public static void main(String[] args) {
 		SpringApplication.run(BackendApplication.class, args);
-	}
-	
-	//@Scheduled(cron = "45 21 10 * * ?")
-	@Scheduled(fixedRate  = 10000)
-	public void searchOnceinDay() {
-		if(fetch == null)
-			return;
-		fetch.startFetch();
 	}
 
 }
