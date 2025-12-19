@@ -78,7 +78,7 @@ public class FetchData {
 				String seafsPstnNm = i.get("seafsPstnNm");
 				Double lat = Double.parseDouble(String.valueOf(i.get("lat")));
 				Double lot = Double.parseDouble(String.valueOf(i.get("lot")));
-				Location loc = locService.getLocation(seafsPstnNm);
+				Location loc = locService.getLocationByName(seafsPstnNm);
 				if(loc == null) {
 					loc = Location.builder()
 						.name(seafsPstnNm)

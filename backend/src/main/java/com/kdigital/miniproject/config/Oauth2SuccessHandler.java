@@ -39,7 +39,7 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 						.enabled(true)
 						.build());
 		try {
-			response.sendRedirect("http://localhost:8080/member/main");
+			response.sendRedirect("http://miniproject.myapp.com:8080/member/main");
 		}catch(IOException e) {
 			e.printStackTrace();
 		}

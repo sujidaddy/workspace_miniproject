@@ -52,7 +52,12 @@ public class SecurityConfig {
 					"http://localhost:5173", 
 					"http://127.0.0.1:5173", 
 					"http://localhost:3000", 
-					"http://127.0.0.1:3000"));
+					"http://127.0.0.1:3000",
+					"http://10.125.121.*:3000",
+					"http://10.125.121.*:5173",
+					"http://miniproject.myapp.com:8080",
+					"http://miniproject.myapp.com:3000",
+					"http://miniproject.myapp.com:5173"));
 		config.addAllowedMethod(CorsConfiguration.ALL);		// 요청을 허용할 Method
 		config.addAllowedHeader(CorsConfiguration.ALL);		// 요청을 허용할 Header
 		config.setAllowCredentials(true);					// 요청/응답에 자격증명정보/쿠키 포함을 허용 여부
