@@ -27,11 +27,12 @@ import net.minidev.json.annotate.JsonIgnore;
 public class Location {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long location_no;
-	private String name;
-	private double lat;
-	private double lot;
+	protected long location_no;
+	protected String name;
+	protected double lat;
+	protected double lot;
 	@ManyToOne
 	@JoinColumn(name="area_no")
+	@JsonProperty(access = Access.WRITE_ONLY)
 	private Area area;
 }

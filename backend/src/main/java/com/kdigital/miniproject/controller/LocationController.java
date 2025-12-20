@@ -1,5 +1,6 @@
 package com.kdigital.miniproject.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kdigital.miniproject.domain.Area;
 import com.kdigital.miniproject.domain.Location;
+import com.kdigital.miniproject.domain.LocationSimple;
 import com.kdigital.miniproject.service.LocationService;
 
 import lombok.RequiredArgsConstructor;
@@ -19,15 +21,23 @@ import lombok.RequiredArgsConstructor;
 public class LocationController {
 	private final LocationService locservice;
 	
-	@GetMapping("/location")
-	public List<Location> getLocations()
+	public List<LocationSimple> toSimple(List<Location> list)
 	{
-		return locservice.getLocations();
+		List<LocationSimple> ret = new ArrayList<>();
+		for(Location l : list)
+			ret.add(new LocationSimple(l));
+		return ret;
 	}
 	
-	@GetMapping("/location/{area}")
-	public List<Location> getLocations(@PathVariable Integer area) throws Exception {
-		return locservice.getLocationsByArea(Area.builder().area_no(area).build());
+	@GetMapping("/v1/location")
+	public List<LocationSimple> getLocations()
+	{
+		return toSimple(locservice.getLocations());
+	}
+	
+	@GetMapping("/v1/location/{area}")
+	public List<LocationSimple> getLocations(@PathVariable Integer area) throws Exception {
+		return toSimple(locservice.getLocationsByArea(Area.builder().area_no(area).build()));
 	}
 	
 }

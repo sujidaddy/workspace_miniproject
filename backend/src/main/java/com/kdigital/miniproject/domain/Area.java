@@ -24,4 +24,9 @@ public class Area {
 	@Builder.Default
 	private int area_no = -1;
 	private String area_name;
+	private double center_lat;
+	private double center_lng;
+	private int radius;
+	private String fillColor;
+	private short level;
 }
