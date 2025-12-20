@@ -10,6 +10,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import com.kdigital.miniproject.domain.LoginSession;
 import com.kdigital.miniproject.domain.Member;
 import com.kdigital.miniproject.domain.Role;
 import com.kdigital.miniproject.persistence.MemberRepository;
@@ -54,9 +55,13 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 			memberRepo.save(user);
 		}
 		HttpSession session = request.getSession();
-		session.setAttribute("user", user);
+		LoginSession ls = LoginSession.builder()
+				.username(user.getUsername())
+				.role(user.getRole())
+				.provider(map.get("provider"))
+				.build();
+		session.setAttribute("user", ls);
 		try {
-			//response.sendRedirect("http://miniproject.myapp.com:8080/member/main");
 			response.sendRedirect("http://localhost:8080/member/main");
 		}catch(IOException e) {
 			e.printStackTrace();

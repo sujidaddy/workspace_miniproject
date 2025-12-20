@@ -37,9 +37,15 @@ public class SecurityConfig {
 	
 		http.oauth2Login(oauth2->oauth2.successHandler(oauth2SuccessHandler));
 		
-		http.formLogin(form->form.loginPage("/system/login").defaultSuccessUrl("/member/main", true));
+		//http.formLogin(form->form.loginPage("/system/login").defaultSuccessUrl("/member/main", true));
 		http.exceptionHandling(ex->ex.accessDeniedPage("/system/accessDenied"));
-		http.logout(logout->logout.invalidateHttpSession(true).logoutSuccessUrl("/"));
+		http.logout(logout->logout
+				.logoutUrl("/system/logout")	// 로그아웃 요청 주소
+				.logoutSuccessUrl("/")			// 로그 아웃 성공 후 이동할 주소
+				.invalidateHttpSession(true)	// 세션 삭제
+				.clearAuthentication(true)		// 인증 정보 삭제
+				.deleteCookies("JSESSIONID")	// 쿠키 삭제
+				);
 		
 		
 		return http.build();
@@ -49,15 +55,8 @@ public class SecurityConfig {
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowedOriginPatterns(
 			Arrays.asList(
-					"http://localhost:5173", 
-					"http://127.0.0.1:5173", 
 					"http://localhost:3000", 
-					"http://127.0.0.1:3000",
-					"http://10.125.121.*:3000",
-					"http://10.125.121.*:5173",
-					"http://miniproject.myapp.com:8080",
-					"http://miniproject.myapp.com:3000",
-					"http://miniproject.myapp.com:5173"));
+					"http://127.0.0.1:3000"));
 		config.addAllowedMethod(CorsConfiguration.ALL);		// 요청을 허용할 Method
 		config.addAllowedHeader(CorsConfiguration.ALL);		// 요청을 허용할 Header
 		config.setAllowCredentials(true);					// 요청/응답에 자격증명정보/쿠키 포함을 허용 여부
