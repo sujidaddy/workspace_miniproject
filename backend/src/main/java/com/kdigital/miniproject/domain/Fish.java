@@ -1,5 +1,8 @@
 package com.kdigital.miniproject.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,15 +26,16 @@ import lombok.ToString;
 public class Fish {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long fish_no;
-	private String name;
-	private double tdvHrScr;
-	private String totalIndex;
-	private double lastScr;
+	protected long fish_no;
+	protected String name;
+	protected double tdvHrScr;
+	protected String totalIndex;
+	protected double lastScr;
 	@ManyToOne
 	@JoinColumn(name="weather_no")
 	private Weather weather;
 	@ManyToOne
 	@JoinColumn(name="location_no")
+	@JsonProperty(access = Access.WRITE_ONLY)
 	private Location location;
 }

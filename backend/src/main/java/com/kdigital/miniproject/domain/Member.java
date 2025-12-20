@@ -1,5 +1,8 @@
 package com.kdigital.miniproject.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -21,6 +24,7 @@ import lombok.ToString;
 public class Member {
 	@Id
 	private String username;
+	@JsonProperty(access = Access.WRITE_ONLY)
 	private String password;
 	@Enumerated(EnumType.STRING)
 	private Role role;

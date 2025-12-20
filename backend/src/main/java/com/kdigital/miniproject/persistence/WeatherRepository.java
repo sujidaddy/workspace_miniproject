@@ -11,5 +11,7 @@ import java.util.Date;
 public interface WeatherRepository extends JpaRepository<Weather, Long> {
 	List<Weather> findByLocation(Location location);
 	List<Weather> findByPredcYmd(Date predcYmd);
+	List<Weather> findByLocationAndPredcYmd(Location location, Date predcYmd);
 	Weather findByLocationAndPredcYmdAndPredcNoonSeCd(Location location, Date predcYmd, String predcNoonSeCd);
+	
 }

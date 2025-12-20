@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.kdigital.miniproject.domain.Location;
 import com.kdigital.miniproject.domain.Weather;
+import com.kdigital.miniproject.domain.WeatherSimple;
 import com.kdigital.miniproject.persistence.WeatherRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -29,11 +30,14 @@ public class WeatherServiceImple implements WeatherService{
 	}
 
 	@Override
+	public List<Weather> getWeather(Location loc, Date ymd) {
+		// TODO Auto-generated method stub
+		return weaRepo.findByLocationAndPredcYmd(loc, ymd);
+	}
+
+	@Override
 	public Weather getWeather(Location loc, Date ymd, String predcNoonSeCd) {
 		// TODO Auto-generated method stub
 		return weaRepo.findByLocationAndPredcYmdAndPredcNoonSeCd(loc, ymd, predcNoonSeCd);
 	}
-	
-	
-
 }

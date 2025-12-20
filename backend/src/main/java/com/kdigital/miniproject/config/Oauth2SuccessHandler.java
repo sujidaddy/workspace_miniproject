@@ -2,6 +2,7 @@ package com.kdigital.miniproject.config;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -16,6 +17,7 @@ import com.kdigital.miniproject.persistence.MemberRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -32,14 +34,30 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 		
 		String username = map.get("provider") + "_" + map.get("email");
 		
-		memberRepo.save(Member.builder()
-						.username(username)
-						.password(encoder.encode("1a2s3d4f"))
-						.role(Role.ROLE_MEMBER)
-						.enabled(true)
-						.build());
+		Optional<Member> find =  memberRepo.findById(username);
+		
+		Member user = null;
+		
+		if(find.isPresent()) {
+			// 기존 로그인 유저
+			System.out.println("기존 로그인 유저");
+			user = find.get();
+		} else {
+			// 신규 가입
+			System.out.println("신규 가입 유저");
+			user = Member.builder()
+					.username(username)
+					.password(encoder.encode("1a2s3d4f"))
+					.role(Role.ROLE_MEMBER)
+					.enabled(true)
+					.build();
+			memberRepo.save(user);
+		}
+		HttpSession session = request.getSession();
+		session.setAttribute("user", user);
 		try {
-			response.sendRedirect("http://miniproject.myapp.com:8080/member/main");
+			//response.sendRedirect("http://miniproject.myapp.com:8080/member/main");
+			response.sendRedirect("http://localhost:8080/member/main");
 		}catch(IOException e) {
 			e.printStackTrace();
 		}

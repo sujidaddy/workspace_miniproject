@@ -10,11 +10,11 @@ import com.kdigital.miniproject.domain.Weather;
 
 
 public interface FishRepository extends JpaRepository<Fish, Long> {
-	
-	List<Fish> findByName(String name);
+	Fish findByLocationAndWeatherAndName(Location loc, Weather wea, String name);
+	List<Fish> findByNameContains(String name);
 	List<Fish> findByLocation(Location loc);
 	List<Fish> findByWeather(Weather wea);
 	List<Fish> findByLocationAndWeather(Location loc, Weather wea);
-	Fish findByLocationAndWeatherAndName(Location loc, Weather wea, String name);
+	List<Fish> findByLocationAndWeatherAndNameContains(Location loc, Weather wea, String name);
 
 }

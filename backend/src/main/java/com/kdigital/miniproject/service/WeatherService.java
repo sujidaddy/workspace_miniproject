@@ -9,5 +9,6 @@ import com.kdigital.miniproject.domain.Weather;
 public interface WeatherService {
 	void insertWeather(Weather wea);
 	void updateWeather(Weather wea);
+	List<Weather> getWeather(Location loc, Date ymd);
 	Weather getWeather(Location loc, Date ymd, String predcNoonSeCd);
 }

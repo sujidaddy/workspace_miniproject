@@ -21,11 +21,17 @@ public class FishServiceImple implements FishService{
 		fishRepo.save(fish);
 		
 	}
+	
+	@Override
+	public Fish getFish(Location loc, Weather wea, String name) {
+		// TODO Auto-generated method stub
+		return fishRepo.findByLocationAndWeatherAndName(loc, wea, name);
+	}
 
 	@Override
 	public List<Fish> getFishList(String name) {
 		// TODO Auto-generated method stub
-		return fishRepo.findByName(name);
+		return fishRepo.findByNameContains(name);
 	}
 	
 	@Override
@@ -47,9 +53,9 @@ public class FishServiceImple implements FishService{
 	}
 	
 	@Override
-	public Fish getFish(Location loc, Weather wea, String name) {
+	public List<Fish> getFishList(Location loc, Weather wea, String name) {
 		// TODO Auto-generated method stub
-		return fishRepo.findByLocationAndWeatherAndName(loc, wea, name);
+		return fishRepo.findByLocationAndWeatherAndNameContains(loc, wea, name);
 	}
 	
 }

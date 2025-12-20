@@ -2,6 +2,9 @@ package com.kdigital.miniproject.domain;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,20 +30,20 @@ import lombok.ToString;
 public class Weather {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long weather_no;
+	protected long weather_no;
 	@Temporal(TemporalType.DATE)
-	private Date predcYmd;
-	private String predcNoonSeCd;
-	private double minWvhgt;
-	private double maxWvhgt;
-	private double minWtem;
-	private double maxWtem;
-	private double minArtmp;
-	private double maxArtmp;
-	private double minCrsp;
-	private double maxCrsp;
-	private double minWspd;
-	private double maxWspd;
+	protected Date predcYmd;
+	protected String predcNoonSeCd;
+	protected double minWvhgt;
+	protected double maxWvhgt;
+	protected double minWtem;
+	protected double maxWtem;
+	protected double minArtmp;
+	protected double maxArtmp;
+	protected double minCrsp;
+	protected double maxCrsp;
+	protected double minWspd;
+	protected double maxWspd;
 	@ManyToOne
 	@JoinColumn(name="location_no")
 	private Location location;
