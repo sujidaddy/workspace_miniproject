@@ -11,9 +11,6 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
-@AllArgsConstructor
-@NoArgsConstructor
 public class FishSimple extends Fish {
 	private long weather_no;
 	private long location_no;

@@ -11,9 +11,6 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
-@AllArgsConstructor
-@NoArgsConstructor
 public class LocationSimple extends Location {
 	private long area_no;
 	@JsonProperty(access = Access.WRITE_ONLY)

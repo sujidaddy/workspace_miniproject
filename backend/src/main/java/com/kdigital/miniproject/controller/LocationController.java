@@ -1,16 +1,22 @@
 package com.kdigital.miniproject.controller;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kdigital.miniproject.domain.Area;
+import com.kdigital.miniproject.domain.Fish;
 import com.kdigital.miniproject.domain.Location;
+import com.kdigital.miniproject.domain.LocationLog;
 import com.kdigital.miniproject.domain.LocationSimple;
+import com.kdigital.miniproject.domain.Member;
+import com.kdigital.miniproject.persistence.LocationLogRepository;
 import com.kdigital.miniproject.service.LocationService;
 
 import lombok.RequiredArgsConstructor;
@@ -20,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LocationController {
 	private final LocationService locservice;
+	private final LocationLogRepository logRepo;
 	
 	public List<LocationSimple> toSimple(List<Location> list)
 	{
@@ -40,6 +47,17 @@ public class LocationController {
 	@GetMapping("/v1/location/{area}")
 	public List<LocationSimple> getLocations(@PathVariable Integer area) throws Exception {
 		return toSimple(locservice.getLocationsByArea(Area.builder().area_no(area).build()));
+	}
+	
+	// 위치 선택(선택한 적이 있는 위치에 대한 History를 쌓기 위한 로그 만들기
+	@GetMapping("/v1/location/select")
+	public List<Fish> getLocationSelect(@RequestParam("username") String username, @RequestParam("location") Long location) throws Exception {
+		logRepo.save(LocationLog.builder()
+						.member(Member.builder().username(username).build())
+						.location(Location.builder().location_no(location).build())
+						.selectTime(LocalDateTime.now())
+						.build());
+		return null;
 	}
 	
 }

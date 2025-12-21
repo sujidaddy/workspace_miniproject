@@ -11,9 +11,6 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
-@AllArgsConstructor
-@NoArgsConstructor
 public class WeatherSimple extends Weather {
 	private long location_no;
 	@JsonProperty(access = Access.WRITE_ONLY)
