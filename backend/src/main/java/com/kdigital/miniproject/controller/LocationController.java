@@ -29,12 +29,14 @@ public class LocationController {
 		return ret;
 	}
 	
+	// 전체 위치 정보 조회
 	@GetMapping("/v1/location")
 	public List<LocationSimple> getLocations()
 	{
 		return toSimple(locservice.getLocations());
 	}
 	
+	// 권역별 위치 정보 조회
 	@GetMapping("/v1/location/{area}")
 	public List<LocationSimple> getLocations(@PathVariable Integer area) throws Exception {
 		return toSimple(locservice.getLocationsByArea(Area.builder().area_no(area).build()));

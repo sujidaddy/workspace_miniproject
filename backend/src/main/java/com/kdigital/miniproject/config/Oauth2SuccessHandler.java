@@ -47,6 +47,7 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 			// 기존 로그인 유저
 			System.out.println("기존 로그인 유저");
 			user = find.get();
+			// 최종 접속 시간 처리
 			user.setLastLoginTime(LocalDateTime.now());
 			memberRepo.save(user);
 		} else {
@@ -57,15 +58,20 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 					.password(encoder.encode("1a2s3d4f"))
 					.role(Role.ROLE_MEMBER)
 					.enabled(true)
+					// 생성 시간 처리
 					.createTime(LocalDateTime.now())
+					// 최종 접속 시간 처리
 					.lastLoginTime(LocalDateTime.now())
 					.build();
 			memberRepo.save(user);
 		}
+		// 로그인 기록 추가
 		loginRepo.save(LoginLog.builder()
 				.member(user)
 				.loginTime(LocalDateTime.now())
 				.build());
+		
+		// 프런트로 전달할 세션 정보 구성
 		HttpSession session = request.getSession();
 		LoginSession ls = LoginSession.builder()
 				.username(user.getUsername())
@@ -74,6 +80,7 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 				.build();
 		session.setAttribute("user", ls);
 		try {
+			// 로그인 후 초기 페이지
 			response.sendRedirect("http://localhost:8080/member/main");
 		}catch(IOException e) {
 			e.printStackTrace();
@@ -89,6 +96,7 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 		
 		OAuth2User user = (OAuth2User)oAuth2Token.getPrincipal();
 		String email = "unknown";
+		// 로그인 방법별 데이터 구성
 		if(provider.equalsIgnoreCase("naver")) {			// naver
 			email = (String)((Map<String, Object>)user.getAttribute("response")).get("email");
 		} else if(provider.equalsIgnoreCase("google")) {	// google

@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class AreaController {
 	private final AreaService areaservice;
 	
+	// 권역 전체 데이터
 	@GetMapping("/v1/area")
 	public List<Area> getAreas()
 	{

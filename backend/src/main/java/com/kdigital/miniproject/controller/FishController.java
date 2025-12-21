@@ -33,11 +33,13 @@ public class FishController {
 		return ret;
 	}
 	
+	// 어종 이름 검색
 	@GetMapping("v1/fish/{name}")
 	public List<Fish> getFishs(@PathVariable String name) throws Exception {
 		return fishservice.getFishList(name);
 	}
 	
+	// 위치 별 어종 정보
 	@GetMapping("v1/fish/location")
 	public List<Fish> getFishsByLocation(@RequestParam("location") Long location) throws Exception {
 		List<Fish> ret = fishservice.getFishList(Location.builder().location_no(location).build());
@@ -46,6 +48,7 @@ public class FishController {
 		return ret;
 	}
 	
+	// 해당 위치의 날짜의 어종 정보
 	@GetMapping("v1/fish/weather")
 	public List<Fish> getFishsByWeather(@RequestParam("weather") Long weather) throws Exception {
 		List<Fish> ret = fishservice.getFishList(Weather.builder().weather_no(weather).build());
@@ -54,17 +57,9 @@ public class FishController {
 		return ret;
 	}
 	
-	@GetMapping("v1/fish/locAndWea")
-	public List<Fish> getFishsByLocationAndWeather(@RequestParam("location") Long location, @RequestParam("weather") Long weather) throws Exception {
-		List<Fish> ret= fishservice.getFishList(Location.builder().location_no(location).build(), Weather.builder().weather_no(weather).build());
-		for(Fish f : ret)
-			f.setWeather(new WeatherSimple(f.getWeather()));
-		return ret;
-	}
-	
 	@GetMapping("v1/fish/{name}/")
-	public List<Fish> getFishsByNameAndLocationAndWeather(@PathVariable String name,@RequestParam("location") Long location, @RequestParam("weather") Long weather) throws Exception {
-		return fishservice.getFishList(Location.builder().location_no(location).build(), Weather.builder().weather_no(weather).build(), name);
+	public List<Fish> getFishsByNameAndLocationAndWeather(@PathVariable String name, @RequestParam("weather") Long weather) throws Exception {
+		return fishservice.getFishList(Weather.builder().weather_no(weather).build(), name);
 	}
 	
 }

@@ -31,6 +31,7 @@ public class WeatherController {
 		return ret;
 	}
 	
+	// 위치 별 날짜 검색
 	@GetMapping("/v1/weather/{location}/{date}")
 	public List<WeatherSimple> getWeather(@PathVariable Long location, 
 			@PathVariable@DateTimeFormat(pattern = "yyyy-MM-dd") Date date) 

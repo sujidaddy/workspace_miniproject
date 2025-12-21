@@ -47,15 +47,9 @@ public class FishServiceImple implements FishService{
 	}
 
 	@Override
-	public List<Fish> getFishList(Location loc, Weather wea) {
+	public List<Fish> getFishList(Weather wea, String name) {
 		// TODO Auto-generated method stub
-		return fishRepo.findByLocationAndWeather(loc, wea);
-	}
-	
-	@Override
-	public List<Fish> getFishList(Location loc, Weather wea, String name) {
-		// TODO Auto-generated method stub
-		return fishRepo.findByLocationAndWeatherAndNameContains(loc, wea, name);
+		return fishRepo.findByWeatherAndNameContains(wea, name);
 	}
 	
 }

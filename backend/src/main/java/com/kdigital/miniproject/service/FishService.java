@@ -12,6 +12,5 @@ public interface FishService {
 	List<Fish> getFishList(String name);
 	List<Fish> getFishList(Location loc);
 	List<Fish> getFishList(Weather wea);
-	List<Fish> getFishList(Location loc, Weather wea);
-	List<Fish> getFishList(Location loc, Weather wea, String name);
+	List<Fish> getFishList(Weather wea, String name);
 }
