@@ -1,5 +1,7 @@
 package com.kdigital.miniproject;
 
+import java.time.LocalDateTime;
+
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,7 @@ public class MemberInit implements ApplicationRunner{
 				.password(encoder.encode("abcd"))
 				.role(Role.ROLE_ADMIN)
 				.enabled(true)
+				.createTime(LocalDateTime.of(2025, 12, 1, 0, 0, 0))
 				.build());
 	}
 

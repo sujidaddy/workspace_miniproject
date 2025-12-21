@@ -1,12 +1,17 @@
 package com.kdigital.miniproject.domain;
 
+import java.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,4 +34,10 @@ public class Member {
 	@Enumerated(EnumType.STRING)
 	private Role role;
 	private Boolean enabled;
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(updatable = false)
+	private LocalDateTime createTime;
+	@Temporal(TemporalType.TIMESTAMP)
+	private LocalDateTime lastLoginTime;
+	
 }

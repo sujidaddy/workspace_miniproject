@@ -1,6 +1,7 @@
 package com.kdigital.miniproject.config;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -10,9 +11,11 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import com.kdigital.miniproject.domain.LoginLog;
 import com.kdigital.miniproject.domain.LoginSession;
 import com.kdigital.miniproject.domain.Member;
 import com.kdigital.miniproject.domain.Role;
+import com.kdigital.miniproject.persistence.LoginLogRepository;
 import com.kdigital.miniproject.persistence.MemberRepository;
 
 import jakarta.servlet.ServletException;
@@ -26,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 	private final MemberRepository memberRepo;
 	private final PasswordEncoder encoder;
+	private final LoginLogRepository loginRepo;
 	
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -43,6 +47,8 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 			// 기존 로그인 유저
 			System.out.println("기존 로그인 유저");
 			user = find.get();
+			user.setLastLoginTime(LocalDateTime.now());
+			memberRepo.save(user);
 		} else {
 			// 신규 가입
 			System.out.println("신규 가입 유저");
@@ -51,9 +57,15 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 					.password(encoder.encode("1a2s3d4f"))
 					.role(Role.ROLE_MEMBER)
 					.enabled(true)
+					.createTime(LocalDateTime.now())
+					.lastLoginTime(LocalDateTime.now())
 					.build();
 			memberRepo.save(user);
 		}
+		loginRepo.save(LoginLog.builder()
+				.member(user)
+				.loginTime(LocalDateTime.now())
+				.build());
 		HttpSession session = request.getSession();
 		LoginSession ls = LoginSession.builder()
 				.username(user.getUsername())
