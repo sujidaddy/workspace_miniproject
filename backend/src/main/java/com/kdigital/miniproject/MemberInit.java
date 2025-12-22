@@ -28,6 +28,7 @@ public class MemberInit implements ApplicationRunner{
 				.role(Role.ROLE_ADMIN)
 				.enabled(true)
 				.createTime(LocalDateTime.of(2025, 12, 1, 0, 0, 0))
+				.lastLoginTime(LocalDateTime.now())
 				.build());
 	}
 
