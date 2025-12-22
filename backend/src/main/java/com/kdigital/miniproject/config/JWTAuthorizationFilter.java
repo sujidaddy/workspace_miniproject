@@ -37,7 +37,8 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 		}
 		// 토큰에서 username 추출
 		String username = JWTUtil.getClaim(jwtToken, JWTUtil.usernameClaim);
-		User user = null;
+		SecurityUser user = null;
+		Member member;
 		if (username != null) {
 			Optional<Member> opt = memberRepo.findById(username);
 			if(!opt.isPresent()) {
@@ -45,16 +46,22 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 				filterChain.doFilter(request, response);
 				return;
 			}
-			Member member = opt.get();
+			member = opt.get();
 			System.out.println("[JWTAuthorizationFilter]" + member);
-			// DB에서 읽은 사용자 정보를 이용해서 UserDetails 타입의 객체를 만들어서
-			user = new User(member.getUsername(), member.getPassword(), AuthorityUtils.createAuthorityList(member.getRole().toString()));
 		} else {
 			String provider = JWTUtil.getClaim(jwtToken, JWTUtil.providerClaim);
 			String email = JWTUtil.getClaim(jwtToken, JWTUtil.emailClaim);
 			System.out.println("JWTAuthorizationFilter]username:" + provider + "_" + email);
-			user = new User(provider + "_" + email, "****", AuthorityUtils.createAuthorityList(Role.ROLE_MEMBER.toString()));
+			member = Member.builder()
+							.username(provider + "_" + email)
+							.password("****")
+							.provider(provider)
+							.email(email)
+							.role(Role.ROLE_MEMBER)
+							.build();
 		}
+		// DB에서 읽은 사용자 정보를 이용해서 UserDetails 타입의 객체를 만들어서
+		user = new SecurityUser(member);
 		// 인증 객체 생성 : 사용자명과 권한 관리를 위한 정보를 입력(암호는 필요 없음)
 		Authentication auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 		// SecurityContext에 등록

@@ -1,3 +1,5 @@
+'use server'
+
 import { cookies } from "next/headers";
 import { jwtDecode } from "jwt-decode";
 
@@ -8,11 +10,12 @@ export interface TokenType {
     exp: number;
 }
 
-export default async function getUserData() : Promise<TokenType | null> {
+
+export default async function getAuthHeaders(): Promise<TokenType | null> {
     try {
             const cookieStore = await cookies();
             const token = cookieStore.get("jwtToken");
-            console.log("token = ", token?.value);
+            //console.log("token = ", token?.value);
             if(token == null)
                 return null;
             const decodedToken = jwtDecode<TokenType>(token?.value);

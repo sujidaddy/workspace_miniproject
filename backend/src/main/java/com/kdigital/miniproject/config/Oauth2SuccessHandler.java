@@ -41,7 +41,8 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 
 		String provider = map.get("provider");
 		String email = map.get("email");
-		String username = provider  + "_" + email;
+		String name = map.get("name");
+		String username = name + "@" + provider;
 		
 		Optional<Member> find =  memberRepo.findById(username);
 		
@@ -89,7 +90,8 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 		
 		try {
 			// 로그인 후 초기 페이지
-			response.sendRedirect("http://localhost:3000/member/main");
+			//response.sendRedirect("http://localhost:3000/member/main");
+			response.sendRedirect("http://localhost:3000/KakaoMap");
 		}catch(IOException e) {
 			e.printStackTrace();
 		}
@@ -100,20 +102,24 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 		OAuth2AuthenticationToken oAuth2Token = (OAuth2AuthenticationToken)authentication;
 		
 		String provider = oAuth2Token.getAuthorizedClientRegistrationId();
-		System.out.println("[OAuth2SuccessHandler]provider: " + provider);
+		//System.out.println("[OAuth2SuccessHandler]provider: " + provider);
 		
 		OAuth2User user = (OAuth2User)oAuth2Token.getPrincipal();
 		String email = "unknown";
+		String name = "unknown";
 		// 로그인 방법별 데이터 구성
 		if(provider.equalsIgnoreCase("naver")) {			// naver
-			email = (String)((Map<String, Object>)user.getAttribute("response")).get("email");
+			Map<String, Object> response = (Map<String, Object>)user.getAttribute("response");
+			name = (String)response.get("name");
+			email = (String)response.get("email");
 		} else if(provider.equalsIgnoreCase("google")) {	// google
+			name = (String)user.getAttributes().get("name");
 			email = (String)user.getAttributes().get("email");
 		} else if(provider.equalsIgnoreCase("kakao")) {		// kakao
 			Map<String, String> properties = (Map<String, String>)user.getAttributes().get("properties");  
-			email = properties.get("nickname");
+			name = properties.get("nickname");
 		}
-		System.out.println("[OAuth2SuccessHandler]email: " + email);
-		return Map.of("provider", provider, "email", email);
+		//System.out.println("[OAuth2SuccessHandler]email: " + email);
+		return Map.of("provider", provider, "email", email, "name", name);
 	}
 }
