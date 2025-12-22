@@ -17,8 +17,10 @@ import com.kdigital.miniproject.domain.Member;
 import com.kdigital.miniproject.domain.Role;
 import com.kdigital.miniproject.persistence.LoginLogRepository;
 import com.kdigital.miniproject.persistence.MemberRepository;
+import com.kdigital.miniproject.util.JWTUtil;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -36,8 +38,10 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 			Authentication authentication) throws IOException, ServletException {
 		// TODO Auto-generated method stub
 		Map<String, String> map = getUseInfo(authentication);
-		
-		String username = map.get("provider") + "_" + map.get("email");
+
+		String provider = map.get("provider");
+		String email = map.get("email");
+		String username = provider  + "_" + email;
 		
 		Optional<Member> find =  memberRepo.findById(username);
 		
@@ -55,6 +59,8 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 			System.out.println("신규 가입 유저");
 			user = Member.builder()
 					.username(username)
+					.provider(provider)
+					.email(email)
 					.password(encoder.encode("1a2s3d4f"))
 					.role(Role.ROLE_MEMBER)
 					.enabled(true)
@@ -70,18 +76,20 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 				.member(user)
 				.loginTime(LocalDateTime.now())
 				.build());
+		// JWT 생성
+		String token = JWTUtil.getJWT(username, provider, email);
+		System.out.println("token : " + token);
+		// Cookie에 jwt 추가
+		Cookie cookie = new Cookie("jwtToken", token.replaceAll(JWTUtil.prefix, ""));
+		cookie.setHttpOnly(true);	// JS에서 접근 못 하게
+		cookie.setSecure(false);	// HTTPS에서만 동작
+		cookie.setPath("/");
+		cookie.setMaxAge(5);		// 5초
+		response.addCookie(cookie);
 		
-		// 프런트로 전달할 세션 정보 구성
-		HttpSession session = request.getSession();
-		LoginSession ls = LoginSession.builder()
-				.username(user.getUsername())
-				.role(user.getRole())
-				.provider(map.get("provider"))
-				.build();
-		session.setAttribute("user", ls);
 		try {
 			// 로그인 후 초기 페이지
-			response.sendRedirect("http://localhost:8080/member/main");
+			response.sendRedirect("http://localhost:3000/member/main");
 		}catch(IOException e) {
 			e.printStackTrace();
 		}

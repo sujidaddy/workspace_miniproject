@@ -4,6 +4,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,6 +62,12 @@ public class LocationController {
 						.selectTime(LocalDateTime.now())
 						.build());
 		return null;
+	}
+	
+	@GetMapping("/v1/location/history")
+	public Page<LocationLog> getLocationHistory(@RequestParam("username") String username) throws Exception {
+		Pageable pageable= PageRequest.of(0, 10, Sort.Direction.DESC, "log_no");
+		return logRepo.findByMember(Member.builder().username(username).build(), pageable);
 	}
 	
 }

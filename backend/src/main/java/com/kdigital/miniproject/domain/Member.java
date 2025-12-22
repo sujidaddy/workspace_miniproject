@@ -39,5 +39,7 @@ public class Member {
 	private LocalDateTime createTime;
 	@Temporal(TemporalType.TIMESTAMP)
 	private LocalDateTime lastLoginTime;
+	private String provider;
+	private String email;
 	
 }
