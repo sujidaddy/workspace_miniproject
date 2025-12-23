@@ -90,8 +90,8 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 		
 		try {
 			// 로그인 후 초기 페이지
-			//response.sendRedirect("http://localhost:3000/member/main");
-			response.sendRedirect("http://localhost:3000/KakaoMap");
+			response.sendRedirect("http://localhost:3000/system/main");
+			//response.sendRedirect("http://localhost:3000/KakaoMap");
 		}catch(IOException e) {
 			e.printStackTrace();
 		}
