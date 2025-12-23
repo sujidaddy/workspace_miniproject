@@ -19,7 +19,7 @@ public class FetchScheduler {
 	private FetchData fetch;
 	
 	// 실행시 동작
-	//@Bean
+	@Bean
 	// 매일 1시에 동작
 	@Scheduled(cron = "0 0 1 * * *")
 	public String Init() {
