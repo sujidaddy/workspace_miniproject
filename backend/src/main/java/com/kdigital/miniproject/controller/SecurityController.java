@@ -12,9 +12,17 @@ public class SecurityController {
 	@GetMapping("/system/accessDenied")
 	public void accessDenied() {}
 	
+	// 로그인 처리
+	@GetMapping("system/login")
+	public void login() {}
+	
 	// 로그아웃 처리
 	@GetMapping("/system/logout")
 	public void logout() {}
+	
+	// 회원 가입 처리
+	@GetMapping("/system/addMember")
+	public void addMember() {}
 	
 	// 관리자 페이지(사용할지 안할지 모름)
 	@GetMapping("/admin/adminPage")
