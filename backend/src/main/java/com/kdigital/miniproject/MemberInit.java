@@ -22,14 +22,20 @@ public class MemberInit implements ApplicationRunner{
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		// TODO Auto-generated method stub
-		memberRepo.save(Member.builder()
-				.username("admin")
+		if(memberRepo.findById(0L).isEmpty())
+		{
+			memberRepo.save(Member.builder()
+				.user_no(0)
+				.userid("admin")
 				.password(encoder.encode("abcd"))
+				.username("admin")
+				.email("admin@miniproject.kdigital.com")
 				.role(Role.ROLE_ADMIN)
 				.enabled(true)
 				.createTime(LocalDateTime.of(2025, 12, 1, 0, 0, 0))
 				.lastLoginTime(LocalDateTime.now())
 				.build());
+		}
 	}
 
 }

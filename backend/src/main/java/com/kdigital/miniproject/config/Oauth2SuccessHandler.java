@@ -40,37 +40,49 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 		Map<String, String> map = getUseInfo(authentication);
 
 		String provider = map.get("provider");
-		String email = map.get("email");
 		String name = map.get("name");
+		String userid = "";
 		String username = name + "@" + provider;
+		String email = "";
 		
-		Optional<Member> find =  memberRepo.findById(username);
+		Optional<Member> find = null;
+		switch (provider) {
+			case "google":
+				find = memberRepo.getByGoogle(username);
+				break;
+			case "naver":
+				find = memberRepo.getByNaver(username);
+				break;
+			case "kakao":
+				find = memberRepo.getByKakao(username);
+				break;
+		}
 		
 		Member user = null;
 		
-		if(find.isPresent()) {
-			// 기존 로그인 유저
-			System.out.println("기존 로그인 유저");
-			user = find.get();
-			// 최종 접속 시간 처리
-			user.setLastLoginTime(LocalDateTime.now());
-			memberRepo.save(user);
+		if(find != null && find.isPresent()) {
+//			// 기존 로그인 유저
+//			System.out.println("기존 로그인 유저");
+//			user = find.get();
+//			// 최종 접속 시간 처리
+//			user.setLastLoginTime(LocalDateTime.now());
+//			memberRepo.save(user);
 		} else {
-			// 신규 가입
-			System.out.println("신규 가입 유저");
-			user = Member.builder()
-					.username(username)
-					.provider(provider)
-					.email(email)
-					.password(encoder.encode("1a2s3d4f"))
-					.role(Role.ROLE_MEMBER)
-					.enabled(true)
-					// 생성 시간 처리
-					.createTime(LocalDateTime.now())
-					// 최종 접속 시간 처리
-					.lastLoginTime(LocalDateTime.now())
-					.build();
-			memberRepo.save(user);
+//			// 신규 가입
+//			System.out.println("신규 가입 유저");
+//			user = Member.builder()
+//					.username(username)
+//					.provider(provider)
+//					.email(email)
+//					.password(encoder.encode("1a2s3d4f"))
+//					.role(Role.ROLE_MEMBER)
+//					.enabled(true)
+//					// 생성 시간 처리
+//					.createTime(LocalDateTime.now())
+//					// 최종 접속 시간 처리
+//					.lastLoginTime(LocalDateTime.now())
+//					.build();
+//			memberRepo.save(user);
 		}
 		// 로그인 기록 추가
 		loginRepo.save(LoginLog.builder()
@@ -78,14 +90,14 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 				.loginTime(LocalDateTime.now())
 				.build());
 		// JWT 생성
-		String token = JWTUtil.getJWT(username, provider, email);
+		String token = JWTUtil.getJWT(userid, username, email);
 		System.out.println("token : " + token);
 		// Cookie에 jwt 추가
 		Cookie cookie = new Cookie("jwtToken", token.replaceAll(JWTUtil.prefix, ""));
 		cookie.setHttpOnly(true);	// JS에서 접근 못 하게
 		cookie.setSecure(false);	// HTTPS에서만 동작
 		cookie.setPath("/");
-		cookie.setMaxAge(5);		// 5초
+		cookie.setMaxAge(60 * 60);		// 60초 * 60 = 1시간
 		response.addCookie(cookie);
 		
 		try {
@@ -105,21 +117,21 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 		//System.out.println("[OAuth2SuccessHandler]provider: " + provider);
 		
 		OAuth2User user = (OAuth2User)oAuth2Token.getPrincipal();
-		String email = "unknown";
+		//String email = "unknown";
 		String name = "unknown";
 		// 로그인 방법별 데이터 구성
 		if(provider.equalsIgnoreCase("naver")) {			// naver
 			Map<String, Object> response = (Map<String, Object>)user.getAttribute("response");
 			name = (String)response.get("name");
-			email = (String)response.get("email");
+			//email = (String)response.get("email");
 		} else if(provider.equalsIgnoreCase("google")) {	// google
 			name = (String)user.getAttributes().get("name");
-			email = (String)user.getAttributes().get("email");
+			//email = (String)user.getAttributes().get("email");
 		} else if(provider.equalsIgnoreCase("kakao")) {		// kakao
 			Map<String, String> properties = (Map<String, String>)user.getAttributes().get("properties");  
 			name = properties.get("nickname");
 		}
 		//System.out.println("[OAuth2SuccessHandler]email: " + email);
-		return Map.of("provider", provider, "email", email, "name", name);
+		return Map.of("provider", provider, "name", name);
 	}
 }

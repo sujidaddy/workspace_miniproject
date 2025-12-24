@@ -38,9 +38,9 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 		// 토큰에서 username 추출
 		String username = JWTUtil.getClaim(jwtToken, JWTUtil.usernameClaim);
 		SecurityUser user = null;
-		Member member;
+		Member member = null;
 		if (username != null) {
-			Optional<Member> opt = memberRepo.findById(username);
+			Optional<Member> opt = memberRepo.getByUsername(username);
 			if(!opt.isPresent()) {
 				System.out.println("[JWTAuthorizationFilter]not found user!");
 				filterChain.doFilter(request, response);
@@ -49,16 +49,16 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 			member = opt.get();
 			System.out.println("[JWTAuthorizationFilter]" + member);
 		} else {
-			String provider = JWTUtil.getClaim(jwtToken, JWTUtil.providerClaim);
-			String email = JWTUtil.getClaim(jwtToken, JWTUtil.emailClaim);
-			System.out.println("JWTAuthorizationFilter]username:" + provider + "_" + email);
-			member = Member.builder()
-							.username(provider + "_" + email)
-							.password("****")
-							.provider(provider)
-							.email(email)
-							.role(Role.ROLE_MEMBER)
-							.build();
+//			String provider = JWTUtil.getClaim(jwtToken, JWTUtil.providerClaim);
+//			String email = JWTUtil.getClaim(jwtToken, JWTUtil.emailClaim);
+//			System.out.println("JWTAuthorizationFilter]username:" + provider + "_" + email);
+//			member = Member.builder()
+//							.username(provider + "_" + email)
+//							.password("****")
+//							.provider(provider)
+//							.email(email)
+//							.role(Role.ROLE_MEMBER)
+//							.build();
 		}
 		// DB에서 읽은 사용자 정보를 이용해서 UserDetails 타입의 객체를 만들어서
 		user = new SecurityUser(member);

@@ -57,7 +57,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		// TODO Auto-generated method stub
 		SecurityUser user = (SecurityUser)authResult.getPrincipal();					// loadUserByUsername에서 만든 객체가 authResult에 담겨져 있다.
 		System.out.println("[JWTAuthenticationFilter]auth:" + user);	// user 객체를 콘솔에 출력해서 확인
-		String token = JWTUtil.getJWT(user.getUsername(), user.getMember().getProvider(), user.getMember().getEmail());				// username으로 JWT 생성. 이것은 예시로서 필요에 따라 정보 추가
+		String token = JWTUtil.getJWT(user.getMember());				// username으로 JWT 생성. 이것은 예시로서 필요에 따라 정보 추가
 		response.addHeader(HttpHeaders.AUTHORIZATION, token);			// Response Header[Authorization]에 JWT를 저장해서 응답한다.
 		response.setStatus(HttpStatus.OK.value());						// 자격 증명 성공 응답코드 리턴
 	}

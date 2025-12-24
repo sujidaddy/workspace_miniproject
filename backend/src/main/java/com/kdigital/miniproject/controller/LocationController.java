@@ -56,18 +56,18 @@ public class LocationController {
 	// 위치 선택(선택한 적이 있는 위치에 대한 History를 쌓기 위한 로그 만들기
 	@GetMapping("/v1/location/select")
 	public List<Fish> getLocationSelect(@RequestParam("username") String username, @RequestParam("location") Long location) throws Exception {
-		logRepo.save(LocationLog.builder()
-						.member(Member.builder().username(username).build())
-						.location(Location.builder().location_no(location).build())
-						.selectTime(LocalDateTime.now())
-						.build());
+//		logRepo.save(LocationLog.builder()
+//						.member(Member.builder().username(username).build())
+//						.location(Location.builder().location_no(location).build())
+//						.selectTime(LocalDateTime.now())
+//						.build());
 		return null;
 	}
 	
-	@GetMapping("/v1/location/history")
-	public Page<LocationLog> getLocationHistory(@RequestParam("username") String username) throws Exception {
-		Pageable pageable= PageRequest.of(0, 10, Sort.Direction.DESC, "log_no");
-		return logRepo.findByMember(Member.builder().username(username).build(), pageable);
-	}
+//	@GetMapping("/v1/location/history")
+//	public Page<LocationLog> getLocationHistory(@RequestParam("username") String username) throws Exception {
+//		Pageable pageable= PageRequest.of(0, 10, Sort.Direction.DESC, "log_no");
+//		return logRepo.findByMember(Member.builder().username(username).build(), pageable);
+//	}
 	
 }

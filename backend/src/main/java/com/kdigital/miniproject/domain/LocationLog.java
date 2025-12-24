@@ -29,7 +29,7 @@ public class LocationLog {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long log_no;
 	@ManyToOne
-	@JoinColumn(name="username")
+	@JoinColumn(name="user_no")
 	private Member member;
 	@ManyToOne
 	@JoinColumn(name="location_no")

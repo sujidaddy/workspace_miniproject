@@ -6,7 +6,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
 public class LoginSession {
 	private String username;
 	private Role role;

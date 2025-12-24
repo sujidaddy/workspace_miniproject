@@ -29,7 +29,7 @@ public class LoginLog {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long log_no;
 	@ManyToOne
-	@JoinColumn(name="username")
+	@JoinColumn(name="user_no")
 	private Member member;
 	@Temporal(TemporalType.TIMESTAMP)
 	private LocalDateTime loginTime;
