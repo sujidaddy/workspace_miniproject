@@ -10,9 +10,9 @@ import com.kdigital.miniproject.domain.Member;
 
 public interface MemberRepository extends JpaRepository<Member, Long>{
 	Optional<Member> getByUsername(String username);
-	List<Member> findByUsername(String username);
-	List<Member> findByUserid(String userid);
-	List<Member> findByEmail(String email);
+	Optional<Member> findByUsername(String username);
+	Optional<Member> findByUserid(String userid);
+	Optional<Member> findByEmail(String email);
 	Optional<Member> getByGoogle(String google);
 	Optional<Member> getByNaver(String naver);
 	Optional<Member> getByKakao(String kakao);

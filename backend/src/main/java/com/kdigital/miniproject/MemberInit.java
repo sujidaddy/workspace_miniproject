@@ -1,6 +1,7 @@
 package com.kdigital.miniproject;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -25,10 +26,10 @@ public class MemberInit implements ApplicationRunner{
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		// TODO Auto-generated method stub
-		if(memberRepo.findById(0L).isEmpty())
+		Optional<Member> admin =memberRepo.getByUsername("admin");  
+		if(admin.isEmpty())
 		{
 			memberRepo.save(Member.builder()
-				.user_no(0)
 				.userid("admin")
 				.password(encoder.encode("abcd"))
 				.username("admin")

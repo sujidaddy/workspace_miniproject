@@ -3,6 +3,8 @@ package com.kdigital.miniproject.controller;
 import java.time.LocalDateTime;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kdigital.miniproject.config.PasswordEncoder;
 import com.kdigital.miniproject.domain.LoginLog;
 import com.kdigital.miniproject.domain.Member;
 import com.kdigital.miniproject.domain.Role;
@@ -28,31 +31,27 @@ import lombok.RequiredArgsConstructor;
 public class memberJoinController {
 	private final MemberRepository memberRepo;
 	private final LoginLogRepository loginRepo;
+	private PasswordEncoder encoder = new PasswordEncoder();
 
 	// 등록된 ID 확인
-	@GetMapping("/v1/join/validID/{id}")
-	public String getValiedID(@PathVariable String id) throws Exception {
-		String ret = memberRepo.findByUserid(id).size() == 0 ? "True" : "False";
-		return ret;
-	}
-	
-	// 등록된 이름 확인
-	@GetMapping("/v1/join/validName/{name}")
-	public String getValiedName(@PathVariable String name) throws Exception {
-		String ret = memberRepo.findByUsername(name).size() == 0 ? "True" : "False";
-		return ret;
+	@GetMapping("/v1/join/validateID/{id}")
+	public ResponseEntity<Object> getValiedID(@PathVariable String id) throws Exception {
+		String ret = memberRepo.findByUserid(id).isPresent() ? "False" : "True";
+		System.out.println("validateID result : " + ret);
+		return ResponseEntity.ok(ret);
 	}
 	
 	// 등록된 이메일 확인
-	@GetMapping("/v1/join/validEmail/{email}")
-	public String getValiedEmail(@PathVariable String email) throws Exception {
-		String ret = memberRepo.findByEmail(email).size() == 0 ? "True" : "False";
-		return ret;
+	@GetMapping("/v1/join/validateEmail/{email}")
+	public ResponseEntity<Object> getValiedEmail(@PathVariable String email) throws Exception {
+		String ret = memberRepo.findByEmail(email).isPresent() ? "False" : "True";
+		System.out.println("validateEmail result : " + ret);
+		return ResponseEntity.ok(ret);
 	}
 	
 	// 회원가입
 	@GetMapping("/v1/join/joinUser")
-	public Member getJoinUser(
+	public ResponseEntity<Object> getJoinUser(
 			HttpServletResponse response,
 			@RequestParam("userid") String userid,
 			@RequestParam("password") String password,
@@ -60,7 +59,7 @@ public class memberJoinController {
 			@RequestParam("email") String email) {
 		Member member = Member.builder()
 							.userid(userid)
-							.password(password)
+							.password(encoder.encode(password))
 							.username(username)
 							.email(email)
 							.role(Role.ROLE_MEMBER)
@@ -68,7 +67,12 @@ public class memberJoinController {
 							.createTime(LocalDateTime.now())
 							.lastLoginTime(LocalDateTime.now())
 							.build();
+		if(memberRepo.findByUserid(userid).isPresent())
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 가입한 ID 입니다");
+		if(memberRepo.findByEmail(email).isPresent())
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 이메일 입니다");
 		memberRepo.save(member);
+		System.out.println("getJoinUser result : " + member.getUser_no());
 		// 로그인 기록 추가
 		loginRepo.save(LoginLog.builder()
 				.member(member)
@@ -85,6 +89,6 @@ public class memberJoinController {
 		cookie.setMaxAge(60 * 60);		// 60초 * 60 = 1시간
 		response.addCookie(cookie);			
 			
-		return member;
+		return ResponseEntity.ok(member);
 	}
 }
