@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import NextAuthProvider from "@/components/NextAuthProvider";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import WaveHeros from "@/components/layout/WaveHeros"
+// import WaveHeros from "@/components/layout/WaveHeros"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,14 +31,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="w-full h-screen flex flex-col overflow-y-hidden">
-          <Header />
-          <div className="container mx-auto flex flex-col grow overflow-y-auto">
-            <WaveHeros/>
-            {children}
+        <NextAuthProvider>
+          <div className="w-full h-screen flex flex-col overflow-y-hidden">
+            <Header />
+            <div className="container mx-auto flex flex-col grow overflow-y-auto">
+              {/* <WaveHeros/> */}
+              {children}
+            </div>
+            <Footer />
           </div>
-          <Footer />
-        </div>
+        </NextAuthProvider>
       </body>
     </html>
   );
