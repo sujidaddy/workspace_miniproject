@@ -1,15 +1,113 @@
 package com.kdigital.miniproject.controller;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.kdigital.miniproject.config.PasswordEncoder;
+import com.kdigital.miniproject.domain.LoginLog;
+import com.kdigital.miniproject.domain.LoginRequestDTO;
+import com.kdigital.miniproject.domain.Member;
+import com.kdigital.miniproject.domain.OAuth2RequestDTO;
+import com.kdigital.miniproject.persistence.LoginLogRepository;
+import com.kdigital.miniproject.persistence.MemberRepository;
+import com.kdigital.miniproject.util.JWTUtil;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 
-@Controller
-// 로그인 후 메인 페이지
-@RequestMapping("/member/")
+@RestController
+@RequestMapping("/api")
+@RequiredArgsConstructor
 public class MemberController {
-	@GetMapping("/main")
-	public void main() {}
+	private final MemberRepository memberRepo;
+	private final LoginLogRepository loginRepo;
+	private PasswordEncoder encoder = new PasswordEncoder();
+	
+	public Cookie AddLogAndGetCookie(Member member)
+	{
+		loginRepo.save(LoginLog.builder()
+				.member(member)
+				.loginTime(LocalDateTime.now())
+				.build());
+		String token = JWTUtil.getJWT(member);
+		//System.out.println("token : " + token);
+		// Cookie에 jwt 추가
+		Cookie cookie = new Cookie("jwtToken", token.replaceAll(JWTUtil.prefix, ""));
+		cookie.setHttpOnly(true);	// JS에서 접근 못 하게
+		cookie.setSecure(false);	// HTTPS에서만 동작
+		cookie.setPath("/");
+		cookie.setMaxAge(60 * 60);		// 60초 * 60 = 1시간
+		return cookie;
+	}
+	
+	@PostMapping("/v1/login_id")
+	public ResponseEntity<Object> login_id(
+			HttpServletResponse response,
+			@RequestBody LoginRequestDTO request) {
+		Optional<Member> opt = memberRepo.getByUserid(request.getId());
+		if(opt.isEmpty())
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("회원 정보가 존재하지 않습니다.");
+		Member member = opt.get();
+		if(!encoder.matches(request.getPassword(), member.getPassword()))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("회원 정보가 존재하지 않습니다.");
+		
+		Cookie cookie = AddLogAndGetCookie(member);
+		response.addCookie(cookie);
+		return ResponseEntity.ok().body(member);
+	}
+	
+	@PostMapping("/v1/loginGoogle")
+	public ResponseEntity<Object> loginGoogle(
+			HttpServletResponse response,
+			@RequestBody OAuth2RequestDTO request) {
+		Optional<Member> opt = memberRepo.getByGoogle(request.getProvider());
+		if(opt.isEmpty())
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("회원 정보가 존재하지 않습니다.");
+		Member member = opt.get();
+		Cookie cookie = AddLogAndGetCookie(member);
+		response.addCookie(cookie);
+		return ResponseEntity.ok().body(member);
+	}
+	
+	@PostMapping("/v1/loginNaver")
+	public ResponseEntity<Object> loginNaver(
+			HttpServletResponse response,
+			@RequestBody OAuth2RequestDTO request) {
+		Optional<Member> opt = memberRepo.getByNaver(request.getProvider());
+		if(opt.isEmpty())
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("회원 정보가 존재하지 않습니다.");
+		Member member = opt.get();
+		
+		Cookie cookie = AddLogAndGetCookie(member);
+		response.addCookie(cookie);
+		return ResponseEntity.ok().body(member);
+	}
+	
+	@PostMapping("/v1/loginKakao")
+	public ResponseEntity<Object> loginKakao(
+			HttpServletResponse response,
+			@RequestBody OAuth2RequestDTO request) {
+		Optional<Member> opt = memberRepo.getByKakao(request.getProvider());
+		if(opt.isEmpty())
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("회원 정보가 존재하지 않습니다.");
+		Member member = opt.get();
+		
+		Cookie cookie = AddLogAndGetCookie(member);
+		response.addCookie(cookie);
+		return ResponseEntity.ok().body(member);
+	}
 	
 }
