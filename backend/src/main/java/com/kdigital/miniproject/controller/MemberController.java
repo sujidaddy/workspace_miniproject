@@ -38,6 +38,7 @@ public class MemberController {
 	
 	public Cookie AddLogAndGetCookie(Member member)
 	{
+		System.out.println(member.toString());
 		loginRepo.save(LoginLog.builder()
 				.member(member)
 				.loginTime(LocalDateTime.now())
@@ -53,8 +54,8 @@ public class MemberController {
 		return cookie;
 	}
 	
-	@PostMapping("/v1/login_id")
-	public ResponseEntity<Object> login_id(
+	@PostMapping("/v1/loginid")
+	public ResponseEntity<Object> loginId(
 			HttpServletResponse response,
 			@RequestBody LoginRequestDTO request) {
 		Optional<Member> opt = memberRepo.getByUserid(request.getId());
@@ -69,7 +70,7 @@ public class MemberController {
 		return ResponseEntity.ok().body(member);
 	}
 	
-	@PostMapping("/v1/loginGoogle")
+	@PostMapping("/v1/logingoogle")
 	public ResponseEntity<Object> loginGoogle(
 			HttpServletResponse response,
 			@RequestBody OAuth2RequestDTO request) {
@@ -82,7 +83,7 @@ public class MemberController {
 		return ResponseEntity.ok().body(member);
 	}
 	
-	@PostMapping("/v1/loginNaver")
+	@PostMapping("/v1/loginnaver")
 	public ResponseEntity<Object> loginNaver(
 			HttpServletResponse response,
 			@RequestBody OAuth2RequestDTO request) {
@@ -96,10 +97,11 @@ public class MemberController {
 		return ResponseEntity.ok().body(member);
 	}
 	
-	@PostMapping("/v1/loginKakao")
+	@PostMapping("/v1/loginkakao")
 	public ResponseEntity<Object> loginKakao(
 			HttpServletResponse response,
 			@RequestBody OAuth2RequestDTO request) {
+		System.out.println(request.toString());
 		Optional<Member> opt = memberRepo.getByKakao(request.getProvider());
 		if(opt.isEmpty())
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("회원 정보가 존재하지 않습니다.");

@@ -34,7 +34,23 @@ const handler = NextAuth({
       }
     }),
   ],
+  callbacks: {
+    async jwt({ token, account }) {
+      // 최초 로그인 시 account 객체에 provider 정보가 들어있습니다.
+      if(account) {
+        token.provider = account.provider;
+      }
+      return token
+    },
+    async session({ session, token }) {
+      // 세션 객체에 provider 정보를 전달
+      session.provider = token.provider;
+      return session;
+    }
+  },
+
   secret: process.env.NEXTAUTH_SECRET,
+  //debug: true,
 })
 
 export { handler as GET, handler as POST }
