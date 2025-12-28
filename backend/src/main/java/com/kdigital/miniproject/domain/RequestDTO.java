@@ -7,6 +7,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class OAuth2RequestDTO {
-	private String provider;
+public class RequestDTO {
+	private String text;
+	private int number;
 }

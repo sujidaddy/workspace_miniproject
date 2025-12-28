@@ -16,23 +16,66 @@ export interface LocationData {
     name: string,
     lat: number,
     lot: number,
-    area_no: number,
+    area: AreaData,
 }
 
 export const locationData = atom(null);
 
 export const fetchLocationData = atom( async() => {
-    let url = 'http://localhost:8080/api/v1/location';
-    const response = await fetch(url);
-    const data: LocationData[] = await response.json();
-    return data;
+    try {
+        const response = await fetch('http://localhost:8080/api/v1/location', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if(!response.ok) {
+            return null;
+        }
+
+        const result = await response.json();
+        console.log(result);
+        if(!result.success)
+            alert('위치 정보 로딩에 실패했습니다.');
+        else
+        {
+            const data: LocationData[] = result.data;
+            return data;
+        }
+
+    } catch(error) {
+        console.log(error);
+    }
+    return null;
 });
 
 export const areaData = atom(null);
 
 export const fetchAreaData = atom( async() => {
-    let url = 'http://localhost:8080/api/v1/area';;
-    const response = await fetch(url);
-    const data: AreaData[] = await response.json();
-    return data;
+    try {
+        const response = await fetch('http://localhost:8080/api/v1/area', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if(!response.ok) {
+            return null;
+        }
+
+        const result = await response.json();
+        if(!result.success)
+            alert('권역 정보 로딩에 실패했습니다.');
+        else
+        {
+            const data: AreaData[] = result.data;
+            return data;
+        }
+
+    } catch(error) {
+        console.log(error);
+    }
+    return null;
 });

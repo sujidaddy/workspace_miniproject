@@ -81,49 +81,27 @@ export default function AddMemberPage() {
         await localStorage.setItem('joinData', JSON.stringify({ id, password, password2, name, email, googleProvider, naverProvider, kakaoProvider, isValidateID, isValidateEmail }));
     }
 
-    const fetchValidateID = async (id: string) => {
-        try {
-            const response = await fetch('http://localhost:8080/api/v1/join/validateID', {
-                method : 'POST',
-                headers : {
-                    'Content-Type' : 'application/json'
-                },
-                body: id
-            });
+    // const fetchValidateEmail = async (email: string) => {
+    //     try {
+    //         const response = await fetch('http://localhost:8080/api/v1/join/validateEmail', {
+    //             method : 'POST',
+    //             headers : {
+    //                 'Content-Type' : 'application/json'
+    //             },
+    //             body: email
+    //         });
 
-            if (!response.ok) {
-                return false;
-            }
+    //         if (!response.ok) {
+    //             return false;
+    //         }
             
-            const result = await response.text();
-            return result === 'True';
-        } catch (error) {
-            alert('서버와의 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
-        }
-        return false;
-    }
-
-    const fetchValidateEmail = async (email: string) => {
-        try {
-            const response = await fetch('http://localhost:8080/api/v1/join/validateEmail', {
-                method : 'POST',
-                headers : {
-                    'Content-Type' : 'application/json'
-                },
-                body: email
-            });
-
-            if (!response.ok) {
-                return false;
-            }
-            
-            const result = await response.text();
-            return result === 'True';
-        } catch (error) {
-            alert('서버와의 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
-        }
-        return false;
-    }
+    //         const result = await response.text();
+    //         return result === 'True';
+    //     } catch (error) {
+    //         alert('서버와의 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    //     }
+    //     return false;
+    // }
 
     const fetchValidateOAuth = async (provider : string,  user: string) => {
         try {
@@ -182,13 +160,30 @@ export default function AddMemberPage() {
                 return;
             }
 
-            result = await fetchValidateID(value);
-            setIsValidateID(result);
+            try {
+                const response = await fetch('http://localhost:8080/api/v1/join/validateID', {
+                    method : 'POST',
+                    headers : {
+                        'Content-Type' : 'application/json'
+                    },
+                    body: JSON.stringify({ 'text' : value }),
+                });
 
-            if(result)
-                alert(`사용 가능한 ${type}입니다.`);
-            else
-                alert(`사용 가능할 수 없는 ${type}입니다.`);
+                if (!response.ok) {
+                    alert('비정상적인 응답입니다.');
+                    return;
+                }
+                
+                const result = await response.json();                
+                setIsValidateID(result.success);
+                if(result.success)
+                    alert(`사용 가능한 ${type}입니다.`);
+                else
+                    alert(result.error);
+            } catch (error) {
+                alert('서버와의 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+                return;
+            }
         }
         if (type === 'email') {
             value = emailRef.current?.value;
@@ -201,13 +196,30 @@ export default function AddMemberPage() {
                 return;
             }
 
-            result = await fetchValidateEmail(value);
-            setIsValidateEmail(result);
+            try {
+                const response = await fetch('http://localhost:8080/api/v1/join/validateEmail', {
+                    method : 'POST',
+                    headers : {
+                        'Content-Type' : 'application/json'
+                    },
+                    body: JSON.stringify({ 'text' : value }),
+                });
 
-            if(result)
-                alert(`사용 가능한 ${type}입니다.`);
-            else
-                alert(`사용 가능할 수 없는 ${type}입니다.`);
+                if (!response.ok) {
+                    alert('비정상적인 응답입니다.');
+                    return;
+                }
+                
+                const result = await response.json();                
+                setIsValidateEmail(result.success);
+                if(result.success)
+                    alert(`사용 가능한 ${type}입니다.`);
+                else
+                    alert(result.error);
+            } catch (error) {
+                alert('서버와의 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+                return;
+            }
         }
         if (type === 'google' || type === 'naver' || type === 'kakao') {
             const str = {
@@ -215,27 +227,47 @@ export default function AddMemberPage() {
                 'naver' : '네이버',
                 'kakao' : '카카오',
             };
-            result = await fetchValidateOAuth(type, user);
+            
+            try {
+                const response = await fetch(`http://localhost:8080/api/v1/join/validate${type}`, {
+                    method : 'POST',
+                    headers : {
+                        'Content-Type' : 'application/json'
+                    },
+                    body: JSON.stringify({ 'text' : user }),
+                });
 
-            if(result){
-                alert(`${str[type]} 인증되었습니다.`);
-                switch (type) {
-                    case 'google':
-                        setGoogleProvider(user);
-                        setGoogleOAuthText('구글 인증 완료');
-                        break;
-                    case 'naver':
-                        setNaverProvider(user);
-                        setNaverOAuthText('네이버 인증 완료');
-                        break;
-                    case 'kakao':
-                        setKakaoProvider(user);
-                        setKakaoOAuthText('카카오 인증 완료');
-                        break;
+                if (!response.ok) {
+                    alert('비정상적인 응답입니다.');
+                    return;
                 }
+                
+                const result = await response.json();                
+                if(result.success)
+                {
+                    alert(`${str[type]} 인증되었습니다.`);
+                    switch (type) {
+                        case 'google':
+                            setGoogleProvider(user);
+                            setGoogleOAuthText('구글 인증 완료');
+                            break;
+                        case 'naver':
+                            setNaverProvider(user);
+                            setNaverOAuthText('네이버 인증 완료');
+                            break;
+                        case 'kakao':
+                            setKakaoProvider(user);
+                            setKakaoOAuthText('카카오 인증 완료');
+                            break;
+                    }
+                }
+                else
+                    alert(result.error);
+            } catch (error) {
+                console.log(error);
+                alert('서버와의 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+                return;
             }
-            else
-                alert(`이미 사용 중인 ${str[type]} 계정입니다.`);
         }
     }
 
@@ -349,15 +381,22 @@ export default function AddMemberPage() {
             });
 
             if(!response.ok) {
-                alert('회원가입에 실패했습니다.');
+                alert('비정상적인 응답입니다.');
                 return;
             }
 
             const result = await response.json();
-            console.log(result);
+            //console.log(result);
 
-            alert('회원가입이 완료되었습니다.');
-            router.push('/system/login');
+            if(result.success)
+            {
+                alert('회원가입이 완료되었습니다.');
+                router.push('/system/login');
+            }
+            else
+            {
+                alert(result.error);
+            }
             
         } catch (error) {
             alert('서버와의 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');

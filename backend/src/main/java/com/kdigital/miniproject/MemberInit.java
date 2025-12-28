@@ -30,9 +30,9 @@ public class MemberInit implements ApplicationRunner{
 		if(admin.isEmpty())
 		{
 			memberRepo.save(Member.builder()
-				.userid("admin")
-				.password(encoder.encode("abcd"))
-				.username("admin")
+				.userid("administrator")
+				.password(encoder.encode("Abcd1234!@#$"))
+				.username("관리자")
 				.email("admin@miniproject.kdigital.com")
 				.role(Role.ROLE_ADMIN)
 				.enabled(true)

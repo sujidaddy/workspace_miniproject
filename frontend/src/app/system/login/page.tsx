@@ -3,7 +3,9 @@ import { KeyboardEvent, FormEvent, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signIn, useSession, signOut, getSession} from "next-auth/react";
 import { useAtom } from "jotai";
-import { type Member, loginMemberAtom } from "@/atoms/atoms";
+import { jwtDecode } from "jwt-decode";
+import { type TokenType, loginTokenAtom } from "@/components/JWTToken";
+
 
 
 export default function SystemLogin() {
@@ -12,7 +14,7 @@ export default function SystemLogin() {
     const router = useRouter();
 
     const { data: session, status, update} = useSession();
-    const [loginMember, setLoginMember] = useAtom(loginMemberAtom);
+    const [loginToken, setLoginToken] = useAtom(loginTokenAtom);
 
     useEffect(() => {
         fetchSession();
@@ -32,16 +34,36 @@ export default function SystemLogin() {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ 'provider' : provider }),
+                    body: JSON.stringify({ 'text' : provider }),
                 });
 
+                if (!response.ok) {
+                    alert('비정상적인 응답입니다.');
+                    return;
+                }
                 const result = await response.json();
-                //console.log('result:', result);
-                setLoginMember(result);
-                router.push('/system/main');
+                //console.log("result : ", result);
+
+                if(result.success)
+                {
+                    const jwtToken = await result.data[0];
+                    //console.log('jwtToken : ', jwtToken);
+                    const decodedToken = jwtDecode<TokenType>(jwtToken);
+                    // console.log("decodedToken = ", decodedToken);
+                    setLoginToken(decodedToken);
+                    
+                    router.push('/system/main');
+                }
+                else
+                {
+                    alert(result.error);
+                    passwordRef.current!.value = '';
+                    passwordRef.current?.focus();
+                }
             }
         } catch (error) {
             console.error('Error fetching session:', error);
+            alert('로그인 중 문제가 발생했습니다.')
         } finally {
             await signOut({ redirect: false, callbackUrl: "/" })
         }
@@ -78,7 +100,6 @@ export default function SystemLogin() {
 
         if (!validateId(id)) {
             alert('아이디는 7~16자의 영문, 숫자, 밑줄(_)만 사용 가능합니다.');
-            alert('아이디는 7~16자의 영문, 숫자, 밑줄(_)만 사용 가능합니다.');
             idRef.current?.focus();
             return;
         }
@@ -99,17 +120,31 @@ export default function SystemLogin() {
             });
 
             if (!response.ok) {
-                alert('로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.');
-                passwordRef.current!.value = '';
-                passwordRef.current?.focus();
+                alert('비정상적인 응답입니다.');
+                
                 return;
             }
-
             const result = await response.json();
-            //console.log('fetchLogin response:', result);
-            setLoginMember(result);
+            //console.log("result : ", result);
+
+            if(result.success)
+            {
+                const jwtToken = await result.data[0];
+                //console.log('jwtToken : ', jwtToken);
+                const decodedToken = jwtDecode<TokenType>(jwtToken);
+                // console.log("decodedToken = ", decodedToken);
+                setLoginToken(decodedToken);
+                
+                router.push('/system/main');
+            }
+            else
+            {
+                alert(result.error);
+                passwordRef.current!.value = '';
+                passwordRef.current?.focus();
+            }
+
             
-            router.push('/system/main');
         } catch (error) {
             console.error('Error during login:', error);
             alert('로그인 중 문제가 발생했습니다.')

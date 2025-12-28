@@ -1,5 +1,11 @@
 import {atom} from "jotai"
 
+export interface TokenType {
+    userid: string;
+    username: string;
+    email: string;
+}
+
 export interface Member {
     user_no : number;
     userid : string;
@@ -14,4 +20,4 @@ export interface Member {
     kakao : string | null;
 }
 
-export const loginMemberAtom = atom<Member | null>(null);
+export const loginTokenAtom = atom<TokenType | null>(null);

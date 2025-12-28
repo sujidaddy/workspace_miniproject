@@ -26,10 +26,7 @@
     {
       "success": false,
       "data": null,
-      "error": {
-        "code": "ERROR_CODE",
-        "message": "에러 메시지"
-      }
+      "error": "에러 메시지"
     }
     ```
 
