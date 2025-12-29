@@ -4,9 +4,11 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kdigital.miniproject.config.PasswordEncoder;
@@ -53,10 +55,22 @@ public class MemberController {
 	public ResponseEntity<Object> loginId(
 			HttpServletResponse response,
 			@RequestBody LoginRequestDTO request) {
+		return ResponseloginId(request.getUserid(), request.getPassword());
+	}
+	
+	@GetMapping("/v1/loginid")
+	public ResponseEntity<Object> loginId(
+			HttpServletResponse response,
+			@RequestParam("userid") String userid, @RequestParam("password")String password) {
+		return ResponseloginId(userid, password);
+	}
+	
+	public ResponseEntity<Object> ResponseloginId(
+			String userid, String password) {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
-		Optional<Member> opt = memberRepo.getByUserid(request.getId());
+		Optional<Member> opt = memberRepo.getByUserid(userid);
 		Member member = null;
 		if(opt.isEmpty())
 		{
@@ -66,14 +80,14 @@ public class MemberController {
 		else
 		{
 			member = opt.get();
-			if(!encoder.matches(request.getPassword(), member.getPassword()))
+			if(!encoder.matches(password, member.getPassword()))
 			{
 				res.setSuccess(false);
 				res.setError("회원 정보가 존재하지 않습니다. ID와 비밀번호를 확인해주세요.");
 			}
 		}
 		
-		if(member != null) 
+		if(res.isSuccess()) 
 		{
 			loginRepo.save(LoginLog.builder()
 					.member(member)
@@ -90,10 +104,20 @@ public class MemberController {
 	public ResponseEntity<Object> loginGoogle(
 			HttpServletResponse response,
 			@RequestBody RequestDTO request) {
+		return ResponseloginGoogle(request.getText());
+	}
+	
+	@GetMapping("/v1/logingoogle")
+	public ResponseEntity<Object> loginGoogle(
+			@RequestParam("google") String google) {
+		return ResponseloginGoogle(google);
+	}
+	
+	public ResponseEntity<Object> ResponseloginGoogle(String google) {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
-		Optional<Member> opt = memberRepo.getByGoogle(request.getText());
+		Optional<Member> opt = memberRepo.getByGoogle(google);
 		Member member = null;
 		if(opt.isEmpty())
 		{
@@ -120,12 +144,21 @@ public class MemberController {
 	
 	@PostMapping("/v1/loginnaver")
 	public ResponseEntity<Object> loginNaver(
-			HttpServletResponse response,
 			@RequestBody RequestDTO request) {
+		return ResponseloginNaver(request.getText());
+	}
+	
+	@GetMapping("/v1/loginnaver")
+	public ResponseEntity<Object> loginNaver(
+			@RequestParam String naver) {
+		return ResponseloginNaver(naver);
+	}
+	
+	public ResponseEntity<Object> ResponseloginNaver(String naver) {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
-		Optional<Member> opt = memberRepo.getByNaver(request.getText());
+		Optional<Member> opt = memberRepo.getByNaver(naver);
 		Member member = null;
 		if(opt.isEmpty())
 		{
@@ -152,12 +185,21 @@ public class MemberController {
 	
 	@PostMapping("/v1/loginkakao")
 	public ResponseEntity<Object> loginKakao(
-			HttpServletResponse response,
 			@RequestBody RequestDTO request) {
+		return ResponseloginKakao(request.getText());
+	}
+	
+	@GetMapping("/v1/loginkakao")
+	public ResponseEntity<Object> loginKakao(
+			@RequestParam String kakao) {
+		return ResponseloginKakao(kakao);
+	}
+	
+	public ResponseEntity<Object> ResponseloginKakao(String kakao) {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
-		Optional<Member> opt = memberRepo.getByKakao(request.getText());
+		Optional<Member> opt = memberRepo.getByKakao(kakao);
 		Member member = null;
 		if(opt.isEmpty())
 		{

@@ -20,8 +20,9 @@ import lombok.ToString;
 @Entity
 public class Area {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Builder.Default
+	// H2에서 초기화 될때 area_no를 지정할수 없기 때문에
+	//@GeneratedValue(strategy = GenerationType.IDENTITY)
+	//@Builder.Default
 	private int area_no = -1;
 	private String area_name;
 	private double center_lat;

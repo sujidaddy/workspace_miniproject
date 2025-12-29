@@ -41,9 +41,7 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 
 		String provider = map.get("provider");
 		String name = map.get("name");
-		String userid = "";
 		String username = name + "@" + provider;
-		String email = "";
 		
 		Optional<Member> find = null;
 		switch (provider) {
@@ -90,7 +88,7 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 				.loginTime(LocalDateTime.now())
 				.build());
 		// JWT 생성
-		String token = JWTUtil.getJWT(userid, username, email);
+		String token = JWTUtil.getJWT(user);
 		System.out.println("token : " + token);
 		// Cookie에 jwt 추가
 		Cookie cookie = new Cookie("jwtToken", token.replaceAll(JWTUtil.prefix, ""));

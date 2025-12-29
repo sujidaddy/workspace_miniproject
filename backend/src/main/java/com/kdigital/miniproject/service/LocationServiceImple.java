@@ -36,7 +36,6 @@ public class LocationServiceImple implements LocationService{
 	@Override
 	public List<Location> getLocationsByArea(Area area) {
 		// TODO Auto-generated method stub
-		System.out.println("getLocationsByArea : " + area.toString());
 		List<Location> result = locRepo.findByArea(area);
 		System.out.println(result.size());
 		return result;

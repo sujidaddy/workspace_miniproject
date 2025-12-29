@@ -26,7 +26,7 @@ public class MemberInit implements ApplicationRunner{
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		// TODO Auto-generated method stub
-		Optional<Member> admin =memberRepo.getByUsername("admin");  
+		Optional<Member> admin =memberRepo.getByUserid("administrator");  
 		if(admin.isEmpty())
 		{
 			memberRepo.save(Member.builder()

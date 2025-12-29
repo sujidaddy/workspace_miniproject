@@ -9,5 +9,5 @@ import lombok.ToString;
 @ToString
 public class RequestDTO {
 	private String text;
-	private int number;
+	private long number;
 }
