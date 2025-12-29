@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class FishController {
 	private final FishService fishservice;
 	
-	public List<FishSimple> toSimple(List<Fish> list)
+	public static List<FishSimple> toSimple(List<Fish> list)
 	{
 		List<FishSimple> ret = new ArrayList<>();
 		for(Fish f : list)
@@ -42,19 +42,13 @@ public class FishController {
 	// 위치 별 어종 정보
 	@GetMapping("v1/fish/location")
 	public List<Fish> getFishsByLocation(@RequestParam("location") Long location) throws Exception {
-		List<Fish> ret = fishservice.getFishList(Location.builder().location_no(location).build());
-		for(Fish f : ret)
-			f.setWeather(new WeatherSimple(f.getWeather()));
-		return ret;
+		return fishservice.getFishList(Location.builder().location_no(location).build());
 	}
 	
 	// 해당 위치의 날짜의 어종 정보
 	@GetMapping("v1/fish/weather")
 	public List<Fish> getFishsByWeather(@RequestParam("weather") Long weather) throws Exception {
-		List<Fish> ret = fishservice.getFishList(Weather.builder().weather_no(weather).build());
-		for(Fish f : ret)
-			f.setWeather(new WeatherSimple(f.getWeather()));
-		return ret;
+		return fishservice.getFishList(Weather.builder().weather_no(weather).build());
 	}
 	
 	@GetMapping("v1/fish/{name}/")

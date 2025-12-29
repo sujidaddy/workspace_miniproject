@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kdigital.miniproject.config.PasswordEncoder;
 import com.kdigital.miniproject.domain.Area;
 import com.kdigital.miniproject.domain.Location;
 import com.kdigital.miniproject.domain.LocationLog;

@@ -150,7 +150,7 @@ public class MemberController {
 	
 	@GetMapping("/v1/loginnaver")
 	public ResponseEntity<Object> loginNaver(
-			@RequestParam String naver) {
+			@RequestParam("naver") String naver) {
 		return ResponseloginNaver(naver);
 	}
 	
@@ -191,7 +191,7 @@ public class MemberController {
 	
 	@GetMapping("/v1/loginkakao")
 	public ResponseEntity<Object> loginKakao(
-			@RequestParam String kakao) {
+			@RequestParam("kakao") String kakao) {
 		return ResponseloginKakao(kakao);
 	}
 	
