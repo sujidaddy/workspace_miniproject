@@ -60,7 +60,6 @@ public class MemberController {
 	
 	@GetMapping("/v1/loginid")
 	public ResponseEntity<Object> loginId(
-			HttpServletResponse response,
 			@RequestParam("userid") String userid, @RequestParam("password")String password) {
 		return ResponseloginId(userid, password);
 	}

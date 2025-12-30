@@ -1,6 +1,7 @@
 package com.kdigital.miniproject.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,11 @@ public class LocationServiceImple implements LocationService{
 	public Location getLocationByName(String name) {
 		// TODO Auto-generated method stub
 		return locRepo.findByName(name);
+	}
+	
+	@Override
+	public Optional<Location> getLocationByNo(Long no) {
+		return locRepo.findById(no);
 	}
 
 	@Override

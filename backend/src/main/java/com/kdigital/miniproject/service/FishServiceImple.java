@@ -45,11 +45,22 @@ public class FishServiceImple implements FishService{
 		// TODO Auto-generated method stub
 		return fishRepo.findByWeather(wea);
 	}
+	
+	@Override
+	public List<Fish> getFishListByDate(String date) {
+		// TODO Auto-generated method stub
+		return fishRepo.findByDate(date);
+	}
 
 	@Override
 	public List<Fish> getFishList(Weather wea, String name) {
 		// TODO Auto-generated method stub
 		return fishRepo.findByWeatherAndNameContains(wea, name);
+	}
+	
+	@Override
+	public List<String> findFishList() {
+		return fishRepo.findFishList();
 	}
 	
 }
