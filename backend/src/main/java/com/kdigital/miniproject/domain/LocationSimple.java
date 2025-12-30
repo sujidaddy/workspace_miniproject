@@ -17,7 +17,7 @@ public class LocationSimple extends Location{
 		this.location_no = loc.location_no;
 		this.name = loc.name;
 		this.lat = loc.lat;
-		this.lot = loc.lat;
+		this.lot = loc.lot;
 		this.area_no = loc.getArea().getArea_no();
 		this.area_name = loc.getArea().getArea_name();
 	}
