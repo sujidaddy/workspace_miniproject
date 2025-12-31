@@ -89,37 +89,25 @@ public class LocationController {
 	// 위치 선택(선택한 적이 있는 위치에 대한 History를 쌓기 위한 로그 만들기
 	@PostMapping("/v1/location/select")
 	public ResponseEntity<Object> getLocationSelect(@RequestBody RequestDTO request) throws Exception {
-		return responseGetLocationSelect(request.getNumber(), request.getText());
+		return responseGetLocationSelect(request.getNumber());
 	}
 	
 	@GetMapping("/v1/location/select")
-	public ResponseEntity<Object> getLocationSelect(@RequestParam("user")long user_no, @RequestParam("location_name")String location_name) throws Exception {
-		return responseGetLocationSelect(user_no, location_name);
+	public ResponseEntity<Object> getLocationSelect(@RequestParam("location_no")Long location_no) throws Exception {
+		return responseGetLocationSelect(location_no);
 	}
 	
-	public ResponseEntity<Object> responseGetLocationSelect(long user_no, String location_name) throws Exception {
+	public ResponseEntity<Object> responseGetLocationSelect(Long location_no) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build(); 
 		
-		Optional<Member> mOpt = memberRepo.findById(user_no);
-		//System.out.println(mOpt);
-		Optional<Location> lOpt = locRepo.findByName(location_name);
-		if(mOpt.isEmpty()) {
-			res.setSuccess(false);
-			res.setError("회원정보 오류 입니다.");
-		}
-		else if(lOpt.isEmpty()) {
+		Optional<Location> lOpt = locRepo.findById(location_no);
+		if(lOpt.isEmpty()) {
 			res.setSuccess(false);
 			res.setError("위치정보 오류 입니다.");
 		}
 		else {
-			Member member = mOpt.get();
-			logRepo.save(LocationLog.builder()
-					.member(member)
-					.location(lOpt.get())
-					.selectTime(LocalDateTime.now())
-					.build());
 			List<Fish> list = fishRepo.findFishForecastByLocation(lOpt.get().getLocation_no());
 			for(Fish f : list)
 				res.addData(new FishSimple(f));
