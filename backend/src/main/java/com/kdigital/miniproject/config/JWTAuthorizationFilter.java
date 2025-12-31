@@ -6,13 +6,10 @@ import java.util.Optional;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.kdigital.miniproject.domain.Member;
-import com.kdigital.miniproject.domain.Role;
 import com.kdigital.miniproject.persistence.MemberRepository;
 import com.kdigital.miniproject.util.JWTUtil;
 
@@ -40,7 +37,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 		SecurityUser user = null;
 		Member member = null;
 		if (username != null) {
-			Optional<Member> opt = memberRepo.getByUsername(username);
+			Optional<Member> opt = memberRepo.findByUsername(username);
 			if(!opt.isPresent()) {
 				System.out.println("[JWTAuthorizationFilter]not found user!");
 				filterChain.doFilter(request, response);

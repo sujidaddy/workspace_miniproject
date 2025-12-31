@@ -1,7 +1,5 @@
 package com.kdigital.miniproject.service;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -12,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import com.kdigital.miniproject.domain.FetchData;
 
+@SuppressWarnings("unused")
 @Configuration
 public class FetchScheduler {
 	

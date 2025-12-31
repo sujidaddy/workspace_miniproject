@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kdigital.miniproject.domain.Area;
 import com.kdigital.miniproject.domain.ResponseDTO;
-import com.kdigital.miniproject.service.AreaService;
+import com.kdigital.miniproject.persistence.AreaRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class AreaController {
-	private final AreaService areaservice;
+	private final AreaRepository areaRepo;
 	
 	// 권역 전체 데이터
 	@GetMapping("/v1/area")
@@ -26,7 +26,7 @@ public class AreaController {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
-		List<Area> list = areaservice.getAreas();
+		List<Area> list = areaRepo.findAll();
 		for(Area area : list)
 			res.addData(area);
 		//System.out.println(res);

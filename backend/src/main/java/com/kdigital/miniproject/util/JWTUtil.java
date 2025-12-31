@@ -13,6 +13,7 @@ public class JWTUtil {
 	private static final String JWT_KEY = "com.kdigital.miniproject.jwtkey";
 	
 	public static final String prefix = "Bearer ";
+	public static final String usernoClaim = "Userno";
 	public static final String useridClaim = "Userid";
 	public static final String usernameClaim = "Username";
 	public static final String emailClaim = "Email";
@@ -24,8 +25,9 @@ public class JWTUtil {
 		return token;
 	}
 	
-	public static String getJWT(String userid, String username, String email, Role role, Boolean enabled) {
+	public static String getJWT(Long userno, String userid, String username, String email, Role role, Boolean enabled) {
 		String src = JWT.create()
+				.withClaim(usernoClaim, userno)
 				.withClaim(useridClaim, userid)
 				.withClaim(usernameClaim, username)
 				.withClaim(emailClaim, email)
@@ -37,7 +39,7 @@ public class JWTUtil {
 	}
 	public static String getJWT(Member member)
 	{
-		return getJWT(member.getUserid(), member.getUsername(), member.getEmail(), member.getRole(), member.getEnabled());
+		return getJWT(member.getUser_no(), member.getUserid(), member.getUsername(), member.getEmail(), member.getRole(), member.getEnabled());
 	}
 	
 	// JWT에서 Claim 추출할 때 호출

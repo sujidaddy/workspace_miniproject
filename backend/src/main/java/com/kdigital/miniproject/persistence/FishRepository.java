@@ -1,6 +1,7 @@
 package com.kdigital.miniproject.persistence;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -9,9 +10,8 @@ import com.kdigital.miniproject.domain.Fish;
 import com.kdigital.miniproject.domain.Location;
 import com.kdigital.miniproject.domain.Weather;
 
-
 public interface FishRepository extends JpaRepository<Fish, Long> {
-	Fish findByLocationAndWeatherAndName(Location loc, Weather wea, String name);
+	Optional<Fish> findByLocationAndWeatherAndName(Location loc, Weather wea, String name);
 	List<Fish> findByNameContains(String name);
 	List<Fish> findByLocation(Location loc);
 	List<Fish> findByWeather(Weather wea);
@@ -20,5 +20,7 @@ public interface FishRepository extends JpaRepository<Fish, Long> {
 	List<Fish> findByWeatherAndNameContains(Weather wea, String name);
 	@Query(value="SELECT distinct name FROM fish WHERE name IS NOT NULL;", nativeQuery=true)
 	List<String> findFishList();
+	@Query(value="SELECT fish.* FROM fish LEFT OUTER JOIN weather ON fish.weather_no = weather.weather_no LEFT OUTER JOIN location ON fish.location_no = location.location_no WHERE fish.location_no = :location_no AND weather.predc_ymd >= curdate() ORDER BY weather.predc_ymd;", nativeQuery=true)
+	List<Fish> findFishForecastByLocation(Long location_no);
 
 }

@@ -3,12 +3,15 @@ package com.kdigital.miniproject.controller;
 import java.time.LocalDateTime;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.kdigital.miniproject.config.PasswordEncoder;
 import com.kdigital.miniproject.domain.Member;
@@ -20,30 +23,40 @@ import com.kdigital.miniproject.persistence.MemberRepository;
 import lombok.RequiredArgsConstructor;
 
 @RestController
+@RestControllerAdvice
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class memberJoinController {
 	private final MemberRepository memberRepo;
 	private PasswordEncoder encoder = new PasswordEncoder();
+	
+	@ExceptionHandler(MissingServletRequestParameterException.class)
+	public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex) {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(false)
+				.error(ex.getParameterName() + " 파라메터가 누락되었습니다.")
+				.build();
+		return ResponseEntity.ok().body(res);
+	}
 
 	// 등록된 ID 확인
 	@PostMapping("/v1/join/validateID")
 	public ResponseEntity<Object> validateID(@RequestBody RequestDTO request) throws Exception {
 		System.out.println(request);
-		return ResponseValidateID(request.getText());
+		return responseValidateID(request.getText());
 	}
 	
 	@GetMapping("/v1/join/validateID")
 	public ResponseEntity<Object> validateID(@RequestParam("userid")String userid) throws Exception {
-		return ResponseValidateID(userid);
+		return responseValidateID(userid);
 	}
 	
-	ResponseEntity<Object> ResponseValidateID(String userid) throws Exception {
+	ResponseEntity<Object> responseValidateID(String userid) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(false)
 				.build();
 		try {
-			boolean validate = memberRepo.getByUserid(userid).isPresent();
+			boolean validate = memberRepo.findByUserid(userid).isPresent();
 			//System.out.println("validateID result : " + validate);
 			res.setSuccess(!validate);
 			if(validate)
@@ -59,20 +72,20 @@ public class memberJoinController {
 	// 등록된 이메일 확인
 	@PostMapping("/v1/join/validateEmail")
 	public ResponseEntity<Object> validateEmail(@RequestBody RequestDTO request) throws Exception {
-		return ResponseValidateEmail(request.getText());
+		return responseValidateEmail(request.getText());
 	}
 	
 	@GetMapping("/v1/join/validateEmail")
 	public ResponseEntity<Object> validateEmail(@RequestParam("email")String email) throws Exception {
-		return ResponseValidateEmail(email);
+		return responseValidateEmail(email);
 	}
 	
-	ResponseEntity<Object> ResponseValidateEmail(String email) throws Exception {
+	ResponseEntity<Object> responseValidateEmail(String email) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(false)
 				.build();
 		try {
-			boolean validate = memberRepo.getByEmail(email).isPresent();
+			boolean validate = memberRepo.findByEmail(email).isPresent();
 			System.out.println("validateEmail result : " + validate);
 			res.setSuccess(!validate);
 			if(validate)
@@ -88,20 +101,20 @@ public class memberJoinController {
 	// 등록된 구글 계정 확인
 	@PostMapping("/v1/join/validategoogle")
 	public ResponseEntity<Object> validateGoogle(@RequestBody RequestDTO request) throws Exception {
-		return ResponseValidateGoogle(request.getText());
+		return responseValidateGoogle(request.getText());
 	}
 	
 	@GetMapping("/v1/join/validategoogle")
 	public ResponseEntity<Object> validateGoogle(@RequestParam("google")String google) throws Exception {
-		return ResponseValidateGoogle(google);
+		return responseValidateGoogle(google);
 	}
 	
-	ResponseEntity<Object> ResponseValidateGoogle(String google) throws Exception {
+	ResponseEntity<Object> responseValidateGoogle(String google) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(false)
 				.build();
 		try {
-			boolean validate = memberRepo.getByGoogle(google).isPresent();
+			boolean validate = memberRepo.findByGoogle(google).isPresent();
 			res.setSuccess(!validate);
 			if(validate)
 				res.setError("이미 사용중인 구글 계정 입니다.");
@@ -116,20 +129,20 @@ public class memberJoinController {
 	// 등록된 네이버 계정 확인
 	@PostMapping("/v1/join/validatenaver")
 	public ResponseEntity<Object> validateNaver(@RequestBody RequestDTO request) throws Exception {
-		return ResponseValidateNaver(request.getText());
+		return responseValidateNaver(request.getText());
 	}
 	
 	@GetMapping("/v1/join/validatenaver")
 	public ResponseEntity<Object> validateNaver(@RequestParam("naver")String naver) throws Exception {
-		return ResponseValidateNaver(naver);
+		return responseValidateNaver(naver);
 	}
 	
-	public ResponseEntity<Object> ResponseValidateNaver(String naver) throws Exception {
+	public ResponseEntity<Object> responseValidateNaver(String naver) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(false)
 				.build();
 		try {
-			boolean validate = memberRepo.getByNaver(naver).isPresent();
+			boolean validate = memberRepo.findByNaver(naver).isPresent();
 			//System.out.println("validateID result : " + validate);
 			res.setSuccess(!validate);
 			if(validate)
@@ -145,20 +158,20 @@ public class memberJoinController {
 	// 등록된 카카오 계정 확인
 	@PostMapping("/v1/join/validatekakao")
 	public ResponseEntity<Object> validateKakao(@RequestBody RequestDTO request) throws Exception {
-		return ResponseValidateKakao(request.getText());
+		return responseValidateKakao(request.getText());
 	}
 	
 	@GetMapping("/v1/join/validatekakao")
 	public ResponseEntity<Object> validateKakao(@RequestParam("kakao")String kakao) throws Exception {
-		return ResponseValidateKakao(kakao);
+		return responseValidateKakao(kakao);
 	}
 	
-	public ResponseEntity<Object> ResponseValidateKakao(String kakao) throws Exception {
+	public ResponseEntity<Object> responseValidateKakao(String kakao) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(false)
 				.build();
 		try {
-			boolean validate = memberRepo.getByKakao(kakao).isPresent();
+			boolean validate = memberRepo.findByKakao(kakao).isPresent();
 			//System.out.println("validateID result : " + validate);
 			res.setSuccess(!validate);
 			if(validate)
@@ -176,7 +189,7 @@ public class memberJoinController {
 	public ResponseEntity<Object> joinUser(
 			@RequestBody Member member) {
 		//System.out.println(member);
-		return ResponseJoinUser(member);
+		return responseJoinUser(member);
 	}
 	
 	@GetMapping("/v1/join/joinUser")
@@ -188,7 +201,7 @@ public class memberJoinController {
 			@RequestParam("google")String google,
 			@RequestParam("naver")String naver,
 			@RequestParam("kakao")String kakao) {
-		return ResponseJoinUser(Member.builder()
+		return responseJoinUser(Member.builder()
 								.userid(userid)
 								.password(password)
 								.username(username)
@@ -199,32 +212,84 @@ public class memberJoinController {
 								.build());
 	}
 	
-	public ResponseEntity<Object> ResponseJoinUser(Member member) {
+	boolean validateId(String userid) {
+		String regex = "^[a-zA-Z0-9_]{7,16}$";
+		return userid.matches(regex);
+	}
+	
+	boolean validatePassword(String password) {
+		return password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{10,20}$");
+	}
+	
+	boolean validateName(String username) {
+		return username.matches("^[a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣]{3,20}$");
+	}
+	
+	boolean validateMail(String email) {
+		return email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
+	}
+	
+	public ResponseEntity<Object> responseJoinUser(Member member) {
 		//System.out.println(member);
 		ResponseDTO res = ResponseDTO.builder()
 				.success(false)
 				.build();
-		if(memberRepo.getByUserid(member.getUserid()).isPresent())
+		String userid = member.getUserid(); 
+		String password = member.getPassword();
+		String username = member.getUsername();
+		String email = member.getEmail();
+		String google = member.getGoogle();
+		String naver = member.getNaver();
+		String kakao = member.getKakao();
+		if(userid == null || userid.length() == 0
+				|| password == null || password.length() == 0
+				|| username == null || username.length() == 0
+				|| email == null || email.length() == 0)
+		{
+			res.setSuccess(false);
+			res.setError("누락된 데이터가 있습니다.");
+		}
+		else if(!validateId(userid))
+		{
+			res.setSuccess(false);
+			res.setError("아이디는 7~16자의 영문, 숫자, 밑줄(_)만 사용 가능합니다.");
+		}
+		else if(!validatePassword(password))
+		{
+			res.setSuccess(false);
+			res.setError("비밀번호는 10~20자이며, 영문 대/소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 합니다.");
+		}
+		else if(!validateName(username))
+		{
+			res.setSuccess(false);
+			res.setError("이름은 3~20자의 한글 또는 영문으로만 구성되어야 합니다.");
+		}
+		else if(!validateMail(email))
+		{
+			res.setSuccess(false);
+			res.setError("유효하지 않은 이메일 주소입니다.");
+		}
+		else if(memberRepo.findByUserid(userid).isPresent())
 		{
 			res.setSuccess(false);
 			res.setError("이미 사용중인 ID 입니다.");
 		}
-		else if(memberRepo.getByEmail(member.getEmail()).isPresent())
+		else if(memberRepo.findByEmail(email).isPresent())
 		{
 			res.setSuccess(false);
 			res.setError("이미 사용중인 Email 입니다.");
 		}
-		else if(member.getGoogle() != null && memberRepo.getByGoogle(member.getGoogle()).isPresent())
+		else if(google != null && memberRepo.findByGoogle(google).isPresent())
 		{
 			res.setSuccess(false);
 			res.setError("이미 사용중인 구글 계정 입니다.");
 		}
-		else if(member.getNaver() != null && memberRepo.getByNaver(member.getNaver()).isPresent())
+		else if(naver != null && memberRepo.findByNaver(naver).isPresent())
 		{
 			res.setSuccess(false);
 			res.setError("이미 사용중인 네이버 계정 입니다.");
 		}
-		else if(member.getKakao() != null && memberRepo.getByKakao(member.getKakao()).isPresent())
+		else if(kakao != null && memberRepo.findByKakao(kakao).isPresent())
 		{
 			res.setSuccess(false);
 			res.setError("이미 사용중인 카카오 계정 입니다.");

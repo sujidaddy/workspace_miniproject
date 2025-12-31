@@ -5,10 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-import org.json.simple.JSONObject;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,18 +16,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.kdigital.miniproject.service.FishService;
-import com.kdigital.miniproject.service.LocationService;
-import com.kdigital.miniproject.service.WeatherService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kdigital.miniproject.persistence.FishRepository;
+import com.kdigital.miniproject.persistence.LocationRepository;
+import com.kdigital.miniproject.persistence.WeatherRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class FetchData {
-	private final FishService fishService;
-	private final LocationService locService;
-	private final WeatherService weaService;
+	private final FishRepository fishRepo;
+	private final LocationRepository locRepo;
+	private final WeatherRepository weaRepo;
 	
 	String[] gubunList = {"갯바위", "선상"};
 	int pageNo = 1;
@@ -53,41 +55,51 @@ public class FetchData {
 		String NumParam = "&numOfRows=300";
 		
 		String callUrl = Baseurl + DateParam + GubunParam + PageParam + NumParam;
-		ResponseEntity<Map> resultMap = (ResponseEntity<Map>)fetch(callUrl);
+		ResponseEntity<Map<String, Object>> resultMap = fetch(callUrl);
 		int locationcount = 0;
 		int weathercount = 0;
 		int weatherupdate = 0;
 		int fishcount = 0;
 		int fishupdate = 0;
+		ObjectMapper mapper = new ObjectMapper();
 		while(resultMap != null) {
 			//System.out.println("url = " + callUrl);
-			HashMap<String, String> header = (HashMap<String, String>)resultMap.getBody().get("header");
-			String resultCode = header.get("resultCode");
-			String resultMsg = header.get("resultMsg");
+			HashMap<String, Object> header = mapper.convertValue(resultMap.getBody().get("header"), new TypeReference<>() {});
+			//System.out.println("header = " + header);
+			//String resultCode = header.get("resultCode");
+			String resultCode = (String)header.get("resultCode");
+			//String resultMsg = (String)header.get("resultMsg");
 			if(!resultCode.equals("00"))
 				return;
-			JSONObject body = new JSONObject((HashMap<String, String>)resultMap.getBody().get("body"));
-			//System.out.println(body.toString());
+			
+			HashMap<String, Object> body = mapper.convertValue(resultMap.getBody().get("body"), new TypeReference<>() {});
+			//System.out.println(body);
 			int tot = Integer.parseInt(String.valueOf(body.get("totalCount")));
-			//int pageNo = Integer.parseInt(String.valueOf(body.get("pageNo")));
-			int numOfRows = Integer.parseInt(String.valueOf(body.get("numOfRows")));
-			Object item = ((HashMap<String, String>)body.get("items")).get("item");
-			ArrayList<HashMap<String, String>> itemlist = (ArrayList<HashMap<String, String>>)item; 
+			int pageNo = Integer.parseInt(String.valueOf(body.get("pageNo")));
+			//int numOfRows = Integer.parseInt(String.valueOf(body.get("numOfRows")));
+			//System.out.println(tot + ", " + pageNo + ", " + numOfRows);
+			HashMap<String, Object> items = mapper.convertValue(body.get("items"), new TypeReference<>() {});
+			//System.out.println(items);
+			ArrayList<HashMap<String, String>> itemlist = mapper.convertValue(items.get("item"), new TypeReference<>() {});
+			//System.out.println(itemlist);
 			for(HashMap<String, String> i : itemlist) {
 				// 위치 정보
 				String seafsPstnNm = i.get("seafsPstnNm");
 				Double lat = Double.parseDouble(String.valueOf(i.get("lat")));
 				Double lot = Double.parseDouble(String.valueOf(i.get("lot")));
-				Location loc = locService.getLocationByName(seafsPstnNm);
-				if(loc == null) {
+				Optional<Location> locOpt = locRepo.findByName(seafsPstnNm);
+				Location loc;
+				if(locOpt.isEmpty()) {
 					loc = Location.builder()
 						.name(seafsPstnNm)
 						.lat(lat)
 						.lot(lot)
 						.build();
-					locService.insertLocation(loc);
+					locRepo.save(loc);
 					++locationcount;
 				}
+				else 
+					loc = locOpt.get();
 				// 날씨 정보
 				SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd");
 				Date predcYmd = null;
@@ -108,8 +120,11 @@ public class FetchData {
 				Double maxCrsp = Double.parseDouble(String.valueOf(i.get("maxCrsp")));
 				Double minWspd = Double.parseDouble(String.valueOf(i.get("minWspd")));
 				Double maxWspd = Double.parseDouble(String.valueOf(i.get("maxWspd")));
-				Weather wea = weaService.getWeather(loc, predcYmd, predcNoonSeCd); 
-				if(wea == null) {
+				
+				
+				Optional<Weather> weaOpt = weaRepo.findByLocationAndPredcYmdAndPredcNoonSeCd(loc, predcYmd, predcNoonSeCd);
+				Weather wea;
+				if(weaOpt.isEmpty()) {
 					wea = Weather.builder()
 							.predcYmd(predcYmd)
 							.predcNoonSeCd(predcNoonSeCd)
@@ -125,9 +140,9 @@ public class FetchData {
 							.maxWspd(maxWspd)
 							.location(loc)
 							.build();
-					weaService.insertWeather(wea);
 					++weathercount;
 				} else {
+					wea = weaOpt.get();
 					wea.setMinWvhgt(minWvhgt);
 					wea.setMaxWvhgt(maxWvhgt);
 					wea.setMinWtem(minWtem);
@@ -140,30 +155,33 @@ public class FetchData {
 					wea.setMaxWspd(maxWspd);
 					++weatherupdate;
 				}
+				weaRepo.save(wea);
 				// 어종 정보
 				String seafsTgfshNm = i.get("seafsTgfshNm");
 				Double tdvHrScr = Double.parseDouble(String.valueOf(i.get("tdlvHrScr")));
 				String totalIndex = i.get("totalIndex");
 				Double lastScr = Double.parseDouble(String.valueOf(i.get("lastScr")));
-				Fish fish = fishService.getFish(loc, wea, seafsTgfshNm); 
-				if(fish == null)
+				Optional<Fish> fishOpt = fishRepo.findByLocationAndWeatherAndName(loc, wea, seafsTgfshNm); 
+				Fish fish;
+				if(fishOpt.isEmpty())
 				{
 					fish = Fish.builder()
-										.name(seafsTgfshNm)
-										.tdvHrScr(tdvHrScr)
-										.totalIndex(totalIndex)
-										.lastScr(lastScr)
-										.weather(wea)
-										.location(loc)
-										.build();
-					fishService.insertFish(fish);
+						.name(seafsTgfshNm)
+						.tdvHrScr(tdvHrScr)
+						.totalIndex(totalIndex)
+						.lastScr(lastScr)
+						.weather(wea)
+						.location(loc)
+						.build();
 					++fishcount;
 				} else {
+					fish = fishOpt.get();
 					fish.setTdvHrScr(tdvHrScr);
 					fish.setTotalIndex(totalIndex);
 					fish.setLastScr(lastScr);
 					++fishupdate;
 				}
+				fishRepo.save(fish);
 			}
 			
 			this.dataSize += itemlist.size();
@@ -180,18 +198,24 @@ public class FetchData {
 			GubunParam = "&gubun=" + gubunList[gubunIndex];
 			PageParam = "&pageNo=" + pageNo;
 			callUrl = Baseurl + DateParam + GubunParam + PageParam + NumParam;
-			resultMap = (ResponseEntity<Map>)fetch(callUrl);
+			resultMap = fetch(callUrl);
 		}
 		System.out.println(reqDate + " : " + locationcount + "개의 위치와 " + weathercount + "개의 날씨와 " + fishcount + "개의 어종이 추가되었습니다.");
 		System.out.println(weatherupdate + "개의 날씨와 " + fishupdate + "개의 어종이 갱신되었습니다.");
 	}
 	
-	public ResponseEntity<Map> fetch(String url) {
+	public ResponseEntity<Map<String, Object>> fetch(String url) {
 		try
 		{
 			RestTemplate restTemplate = new RestTemplate();
 			HttpEntity<?> entity = new HttpEntity<>(new HttpHeaders());
-			ResponseEntity<Map> resultMap = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+			ResponseEntity<Map<String, Object>> resultMap 
+				= restTemplate.exchange(
+						url, 
+						HttpMethod.GET, 
+						entity, 
+						new ParameterizedTypeReference<Map<String, Object>>() {
+						});
 			return resultMap;
 		}catch (Exception e) {
 			e.printStackTrace();

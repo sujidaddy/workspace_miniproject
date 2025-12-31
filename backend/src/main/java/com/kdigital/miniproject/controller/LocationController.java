@@ -5,36 +5,50 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.kdigital.miniproject.domain.Area;
+import com.kdigital.miniproject.domain.Fish;
+import com.kdigital.miniproject.domain.FishSimple;
 import com.kdigital.miniproject.domain.Location;
 import com.kdigital.miniproject.domain.LocationLog;
 import com.kdigital.miniproject.domain.LocationSimple;
 import com.kdigital.miniproject.domain.Member;
 import com.kdigital.miniproject.domain.RequestDTO;
 import com.kdigital.miniproject.domain.ResponseDTO;
+import com.kdigital.miniproject.persistence.FishRepository;
 import com.kdigital.miniproject.persistence.LocationLogRepository;
 import com.kdigital.miniproject.persistence.LocationRepository;
 import com.kdigital.miniproject.persistence.MemberRepository;
-import com.kdigital.miniproject.service.LocationService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
+@RestControllerAdvice
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class LocationController {
-
-	private final LocationService locservice;
-	private final MemberRepository memberRepo;
 	private final LocationRepository locRepo;
+	private final MemberRepository memberRepo;
 	private final LocationLogRepository logRepo;
+	private final FishRepository fishRepo;
+	
+	@ExceptionHandler(MissingServletRequestParameterException.class)
+	public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex) {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(false)
+				.error(ex.getParameterName() + " 파라메터가 누락되었습니다.")
+				.build();
+		return ResponseEntity.ok().body(res);
+	}
 	
 	// 전체 위치 정보 조회
 	@GetMapping("/v1/location")
@@ -43,9 +57,8 @@ public class LocationController {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
-		List<Location> list =  locservice.getLocations();
+		List<Location> list =  locRepo.findAll();
 		for(Location loc : list)
-			//res.addData(loc);
 			res.addData(new LocationSimple(loc));
 		return ResponseEntity.ok().body(res);
 	}
@@ -54,19 +67,19 @@ public class LocationController {
 	@PostMapping("/v1/location/area")
 	public ResponseEntity<Object> getLocations(@RequestBody RequestDTO request) throws Exception {
 		//System.out.println(request.toString());
-		return ResponsegetLocations((int)request.getNumber());
+		return responseGetLocations((int)request.getNumber());
 	}
 	
 	@GetMapping("/v1/location/area")
 	public ResponseEntity<Object> getLocations(@RequestParam("area")int area) throws Exception {
-		return ResponsegetLocations(area);
+		return responseGetLocations(area);
 	}
 	
-	ResponseEntity<Object> ResponsegetLocations(int area) throws Exception {
+	ResponseEntity<Object> responseGetLocations(int area) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
-		List<Location> list =  locservice.getLocationsByArea(Area.builder().area_no(area).build());
+		List<Location> list = locRepo.findByArea(Area.builder().area_no(area).build());
 		for(Location loc : list)
 			//res.addData(loc);
 			res.addData(new LocationSimple(loc));
@@ -76,38 +89,40 @@ public class LocationController {
 	// 위치 선택(선택한 적이 있는 위치에 대한 History를 쌓기 위한 로그 만들기
 	@PostMapping("/v1/location/select")
 	public ResponseEntity<Object> getLocationSelect(@RequestBody RequestDTO request) throws Exception {
-		return ResponsegetLocationSelect(request.getNumber(), request.getText());
+		return responseGetLocationSelect(request.getNumber(), request.getText());
 	}
 	
 	@GetMapping("/v1/location/select")
 	public ResponseEntity<Object> getLocationSelect(@RequestParam("user")long user_no, @RequestParam("location_name")String location_name) throws Exception {
-		return ResponsegetLocationSelect(user_no, location_name);
+		return responseGetLocationSelect(user_no, location_name);
 	}
 	
-	public ResponseEntity<Object> ResponsegetLocationSelect(long user_no, String location_name) throws Exception {
+	public ResponseEntity<Object> responseGetLocationSelect(long user_no, String location_name) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build(); 
 		
-		Optional<Member> opt = memberRepo.findById(user_no);
-		System.out.println(opt);
-		Location loc = locRepo.findByName(location_name);
-		if(opt.isEmpty()) {
+		Optional<Member> mOpt = memberRepo.findById(user_no);
+		//System.out.println(mOpt);
+		Optional<Location> lOpt = locRepo.findByName(location_name);
+		if(mOpt.isEmpty()) {
 			res.setSuccess(false);
 			res.setError("회원정보 오류 입니다.");
 		}
-		else if(loc == null) {
+		else if(lOpt.isEmpty()) {
 			res.setSuccess(false);
 			res.setError("위치정보 오류 입니다.");
 		}
 		else {
-			Member member = opt.get();
+			Member member = mOpt.get();
 			logRepo.save(LocationLog.builder()
 					.member(member)
-					.location(loc)
+					.location(lOpt.get())
 					.selectTime(LocalDateTime.now())
 					.build());
-			// 요구 데이터 전달
+			List<Fish> list = fishRepo.findFishForecastByLocation(lOpt.get().getLocation_no());
+			for(Fish f : list)
+				res.addData(new FishSimple(f));
 		}
 		
 		return ResponseEntity.ok().body(res);

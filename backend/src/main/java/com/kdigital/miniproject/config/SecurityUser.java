@@ -1,11 +1,13 @@
 package com.kdigital.miniproject.config;
 
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 
 import com.kdigital.miniproject.domain.Member;
 
 public class SecurityUser extends User{
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private Member member;
 	
 	public SecurityUser(Member member) {

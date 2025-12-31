@@ -12,9 +12,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import com.kdigital.miniproject.domain.LoginLog;
-import com.kdigital.miniproject.domain.LoginSession;
 import com.kdigital.miniproject.domain.Member;
-import com.kdigital.miniproject.domain.Role;
 import com.kdigital.miniproject.persistence.LoginLogRepository;
 import com.kdigital.miniproject.persistence.MemberRepository;
 import com.kdigital.miniproject.util.JWTUtil;
@@ -23,14 +21,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 	private final MemberRepository memberRepo;
-	private final PasswordEncoder encoder;
+//	private final PasswordEncoder encoder;
 	private final LoginLogRepository loginRepo;
 	
 	@Override
@@ -46,13 +43,13 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 		Optional<Member> find = null;
 		switch (provider) {
 			case "google":
-				find = memberRepo.getByGoogle(username);
+				find = memberRepo.findByGoogle(username);
 				break;
 			case "naver":
-				find = memberRepo.getByNaver(username);
+				find = memberRepo.findByNaver(username);
 				break;
 			case "kakao":
-				find = memberRepo.getByKakao(username);
+				find = memberRepo.findByKakao(username);
 				break;
 		}
 		

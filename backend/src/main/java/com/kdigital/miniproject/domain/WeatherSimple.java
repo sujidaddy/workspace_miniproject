@@ -5,7 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.kdigital.miniproject.controller.FishController;
-import com.kdigital.miniproject.service.FishService;
+import com.kdigital.miniproject.persistence.FishRepository;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +17,7 @@ public class WeatherSimple extends Weather {
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private Location location;
 	List<FishSimple> fish_list;
-	public WeatherSimple(Weather wea, FishService fishservice) {
+	public WeatherSimple(Weather wea, FishRepository fishRepo) {
 		this.weather_no = wea.weather_no;
 		this.predcYmd = wea.predcYmd;
 		this.predcNoonSeCd = wea.predcNoonSeCd;
@@ -32,6 +32,6 @@ public class WeatherSimple extends Weather {
 		this.minWspd = wea.minWspd;
 		this.maxWspd = wea.maxWspd;
 		this.location_no = wea.getLocation().getLocation_no();
-		this.fish_list = FishController.toSimple(fishservice.getFishList(Weather.builder().weather_no(this.weather_no).build()));
+		this.fish_list = FishController.toSimple(fishRepo.findByWeather(Weather.builder().weather_no(this.weather_no).build()));
 	}
 }
