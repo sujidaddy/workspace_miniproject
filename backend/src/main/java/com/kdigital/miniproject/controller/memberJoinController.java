@@ -1,6 +1,7 @@
 package com.kdigital.miniproject.controller;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.kdigital.miniproject.config.PasswordEncoder;
 import com.kdigital.miniproject.domain.Member;
+import com.kdigital.miniproject.domain.ModifyMemberDTO;
 import com.kdigital.miniproject.domain.RequestDTO;
 import com.kdigital.miniproject.domain.ResponseDTO;
 import com.kdigital.miniproject.domain.Role;
@@ -232,7 +234,7 @@ public class memberJoinController {
 	public ResponseEntity<Object> responseJoinUser(Member member) {
 		//System.out.println(member);
 		ResponseDTO res = ResponseDTO.builder()
-				.success(false)
+				.success(true)
 				.build();
 		String userid = member.getUserid(); 
 		String password = member.getPassword();
@@ -301,10 +303,95 @@ public class memberJoinController {
 			member.setCreateTime(LocalDateTime.now());
 			member.setLastLoginTime(LocalDateTime.now());
 			memberRepo.save(member);
-			System.out.println("getJoinUser result : " + member.getUser_no());
+			System.out.println("JoinUser result : " + member.getUser_no());
 			res.setSuccess(true);
 		}
 		
+		return ResponseEntity.ok(res);
+	}
+	
+	// 정보수정
+	@PostMapping("/v1/join/modifyUser")
+	public ResponseEntity<Object> modifyUser(
+			@RequestBody ModifyMemberDTO modifyMember) {
+		System.out.println(modifyMember);
+		return responseModifyUser(modifyMember);
+	}
+	
+	@GetMapping("/v1/join/modifyUser")
+	public ResponseEntity<Object> modifyUser(
+			@RequestParam("userno")long userno,
+			@RequestParam("userid")String userid,
+			@RequestParam("currentPassword")String currentPassword,
+			@RequestParam("password")String password,
+			@RequestParam("username")String username) {
+		ModifyMemberDTO member = new ModifyMemberDTO();
+		member.setUser_no(userno);
+		member.setUserid(userid);
+		member.setPassword(currentPassword);
+		member.setNewPassword(password);
+		member.setUsername(username);
+		return responseModifyUser(member);
+	}
+	
+	ResponseEntity<Object> responseModifyUser(ModifyMemberDTO modifyMember) {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		long userno = modifyMember.getUser_no();
+		String userid = modifyMember.getUserid();
+		String currnetPassword = modifyMember.getPassword();
+		String password = modifyMember.getNewPassword();
+		String username = modifyMember.getUsername();
+		if(userid == null || userid.length() == 0
+				|| currnetPassword == null || currnetPassword.length() == 0
+				|| password == null || password.length() == 0
+				|| username == null || username.length() == 0)
+		{
+			res.setSuccess(false);
+			res.setError("누락된 데이터가 있습니다.");
+		}
+		else if(!validateId(userid))
+		{
+			res.setSuccess(false);
+			res.setError("아이디는 7~16자의 영문, 숫자, 밑줄(_)만 사용 가능합니다.");
+		}
+		else if(!validatePassword(currnetPassword) || !validatePassword(password))
+		{
+			res.setSuccess(false);
+			res.setError("비밀번호는 10~20자이며, 영문 대/소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 합니다.");
+		}
+		else if(!validateName(username))
+		{
+			res.setSuccess(false);
+			res.setError("이름은 3~20자의 한글 또는 영문으로만 구성되어야 합니다.");
+		}
+		else
+		{
+			Optional<Member> opt = memberRepo.findByUserid(userid); 
+			if(opt.isEmpty()) {
+				res.setSuccess(false);
+				res.setError("회원 정보가 존재하지 않습니다.");
+			}
+			else
+			{
+				Member member = opt.get();
+				if(userno != member.getUser_no()
+						|| !encoder.matches(currnetPassword, member.getPassword()))
+				{
+					res.setSuccess(false);
+					res.setError("회원 정보가 존재하지 않습니다.");
+				}
+				else
+				{
+					member.setPassword(encoder.encode(password));
+					member.setUsername(username);
+					memberRepo.save(member);
+					System.out.println("ModifyUser result : " + member.getUser_no());
+					res.setSuccess(true);
+				}
+			}
+		}
 		return ResponseEntity.ok(res);
 	}
 }
