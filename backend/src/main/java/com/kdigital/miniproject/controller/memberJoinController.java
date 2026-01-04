@@ -43,13 +43,13 @@ public class memberJoinController {
 
 	// 등록된 ID 확인
 	@PostMapping("/v1/join/validateID")
-	public ResponseEntity<Object> validateID(@RequestBody RequestDTO request) throws Exception {
+	public ResponseEntity<Object> postValidateID(@RequestBody RequestDTO request) throws Exception {
 		System.out.println(request);
 		return responseValidateID(request.getText());
 	}
 	
 	@GetMapping("/v1/join/validateID")
-	public ResponseEntity<Object> validateID(@RequestParam("userid")String userid) throws Exception {
+	public ResponseEntity<Object> getValidateID(@RequestParam("userid")String userid) throws Exception {
 		return responseValidateID(userid);
 	}
 	
@@ -73,12 +73,12 @@ public class memberJoinController {
 	
 	// 등록된 이메일 확인
 	@PostMapping("/v1/join/validateEmail")
-	public ResponseEntity<Object> validateEmail(@RequestBody RequestDTO request) throws Exception {
+	public ResponseEntity<Object> postValidateEmail(@RequestBody RequestDTO request) throws Exception {
 		return responseValidateEmail(request.getText());
 	}
 	
 	@GetMapping("/v1/join/validateEmail")
-	public ResponseEntity<Object> validateEmail(@RequestParam("email")String email) throws Exception {
+	public ResponseEntity<Object> getValidateEmail(@RequestParam("email")String email) throws Exception {
 		return responseValidateEmail(email);
 	}
 	
@@ -102,12 +102,12 @@ public class memberJoinController {
 	
 	// 등록된 구글 계정 확인
 	@PostMapping("/v1/join/validategoogle")
-	public ResponseEntity<Object> validateGoogle(@RequestBody RequestDTO request) throws Exception {
+	public ResponseEntity<Object> postValidateGoogle(@RequestBody RequestDTO request) throws Exception {
 		return responseValidateGoogle(request.getText());
 	}
 	
 	@GetMapping("/v1/join/validategoogle")
-	public ResponseEntity<Object> validateGoogle(@RequestParam("google")String google) throws Exception {
+	public ResponseEntity<Object> postValidateGoogle(@RequestParam("google")String google) throws Exception {
 		return responseValidateGoogle(google);
 	}
 	
@@ -130,12 +130,12 @@ public class memberJoinController {
 	
 	// 등록된 네이버 계정 확인
 	@PostMapping("/v1/join/validatenaver")
-	public ResponseEntity<Object> validateNaver(@RequestBody RequestDTO request) throws Exception {
+	public ResponseEntity<Object> postValidateNaver(@RequestBody RequestDTO request) throws Exception {
 		return responseValidateNaver(request.getText());
 	}
 	
 	@GetMapping("/v1/join/validatenaver")
-	public ResponseEntity<Object> validateNaver(@RequestParam("naver")String naver) throws Exception {
+	public ResponseEntity<Object> getValidateNaver(@RequestParam("naver")String naver) throws Exception {
 		return responseValidateNaver(naver);
 	}
 	
@@ -159,12 +159,12 @@ public class memberJoinController {
 	
 	// 등록된 카카오 계정 확인
 	@PostMapping("/v1/join/validatekakao")
-	public ResponseEntity<Object> validateKakao(@RequestBody RequestDTO request) throws Exception {
+	public ResponseEntity<Object> postValidateKakao(@RequestBody RequestDTO request) throws Exception {
 		return responseValidateKakao(request.getText());
 	}
 	
 	@GetMapping("/v1/join/validatekakao")
-	public ResponseEntity<Object> validateKakao(@RequestParam("kakao")String kakao) throws Exception {
+	public ResponseEntity<Object> getValidateKakao(@RequestParam("kakao")String kakao) throws Exception {
 		return responseValidateKakao(kakao);
 	}
 	
@@ -188,14 +188,14 @@ public class memberJoinController {
 	
 	// 회원가입
 	@PostMapping("/v1/join/joinUser")
-	public ResponseEntity<Object> joinUser(
+	public ResponseEntity<Object> postJoinUser(
 			@RequestBody Member member) {
 		//System.out.println(member);
 		return responseJoinUser(member);
 	}
 	
 	@GetMapping("/v1/join/joinUser")
-	public ResponseEntity<Object> joinUser(
+	public ResponseEntity<Object> getJoinUser(
 			@RequestParam("userid")String userid,
 			@RequestParam("password")String password,
 			@RequestParam("username")String username,
@@ -312,14 +312,14 @@ public class memberJoinController {
 	
 	// 정보수정
 	@PostMapping("/v1/join/modifyUser")
-	public ResponseEntity<Object> modifyUser(
+	public ResponseEntity<Object> postModifyUser(
 			@RequestBody ModifyMemberDTO modifyMember) {
 		System.out.println(modifyMember);
 		return responseModifyUser(modifyMember);
 	}
 	
 	@GetMapping("/v1/join/modifyUser")
-	public ResponseEntity<Object> modifyUser(
+	public ResponseEntity<Object> getModifyUser(
 			@RequestParam("userno")long userno,
 			@RequestParam("userid")String userid,
 			@RequestParam("currentPassword")String currentPassword,

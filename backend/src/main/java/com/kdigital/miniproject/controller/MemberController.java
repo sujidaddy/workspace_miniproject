@@ -65,14 +65,13 @@ public class MemberController {
 //	}
 	
 	@PostMapping("/v1/loginid")
-	public ResponseEntity<Object> loginId(
-			HttpServletResponse response,
+	public ResponseEntity<Object> postloginId(
 			@RequestBody LoginRequestDTO request) {
 		return responseLoginId(request.getUserid(), request.getPassword());
 	}
 	
 	@GetMapping("/v1/loginid")
-	public ResponseEntity<Object> loginId(
+	public ResponseEntity<Object> getloginId(
 			@RequestParam("userid") String userid, @RequestParam("password")String password) {
 		return responseLoginId(userid, password);
 	}
@@ -113,14 +112,14 @@ public class MemberController {
 	}
 	
 	@PostMapping("/v1/logingoogle")
-	public ResponseEntity<Object> loginGoogle(
+	public ResponseEntity<Object> postLoginGoogle(
 			HttpServletResponse response,
 			@RequestBody RequestDTO request) {
 		return responseLoginGoogle(request.getText());
 	}
 	
 	@GetMapping("/v1/logingoogle")
-	public ResponseEntity<Object> loginGoogle(
+	public ResponseEntity<Object> getLoginGoogle(
 			@RequestParam("google") String google) {
 		return responseLoginGoogle(google);
 	}
@@ -155,13 +154,13 @@ public class MemberController {
 	}
 	
 	@PostMapping("/v1/loginnaver")
-	public ResponseEntity<Object> loginNaver(
+	public ResponseEntity<Object> postLoginNaver(
 			@RequestBody RequestDTO request) {
 		return responseLoginNaver(request.getText());
 	}
 	
 	@GetMapping("/v1/loginnaver")
-	public ResponseEntity<Object> loginNaver(
+	public ResponseEntity<Object> getLoginNaver(
 			@RequestParam("naver") String naver) {
 		return responseLoginNaver(naver);
 	}
@@ -196,13 +195,13 @@ public class MemberController {
 	}
 	
 	@PostMapping("/v1/loginkakao")
-	public ResponseEntity<Object> loginKakao(
+	public ResponseEntity<Object> postLoginKakao(
 			@RequestBody RequestDTO request) {
 		return responseLoginKakao(request.getText());
 	}
 	
 	@GetMapping("/v1/loginkakao")
-	public ResponseEntity<Object> loginKakao(
+	public ResponseEntity<Object> getLoginKakao(
 			@RequestParam("kakao") String kakao) {
 		return responseLoginKakao(kakao);
 	}

@@ -55,16 +55,16 @@ public class FishController {
 	
 	// 어종 이름 검색
 	@PostMapping("v1/fish/name")
-	public ResponseEntity<Object> getFishs(@RequestBody RequestDTO request) throws Exception {
-		return responseGetFishs(request.getText());
+	public ResponseEntity<Object> postFishs(@RequestBody RequestDTO request) throws Exception {
+		return responseFishs(request.getText());
 	}
 	
 	@GetMapping("v1/fish/name")
 	public ResponseEntity<Object> getFishs(@RequestParam("name")String name) throws Exception {
-		return responseGetFishs(name);
+		return responseFishs(name);
 	}
 	
-	ResponseEntity<Object> responseGetFishs(String name) throws Exception {
+	ResponseEntity<Object> responseFishs(String name) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
@@ -84,16 +84,16 @@ public class FishController {
 	
 	// 위치 별 어종 정보
 	@PostMapping("v1/fish/location")
-	public ResponseEntity<Object> getFishsByLocation(@RequestBody RequestDTO request) throws Exception {
-		return responseGetFishsByLocation(request.getNumber());
+	public ResponseEntity<Object> postFishsByLocation(@RequestBody RequestDTO request) throws Exception {
+		return responseFishsByLocation(request.getNumber());
 	}
 
 	@GetMapping("v1/fish/location")
 	public ResponseEntity<Object> getFishsByLocation(@RequestParam("location") Long location) throws Exception {
-		return responseGetFishsByLocation(location);
+		return responseFishsByLocation(location);
 	}
 
-	ResponseEntity<Object> responseGetFishsByLocation(Long location) throws Exception {
+	ResponseEntity<Object> responseFishsByLocation(Long location) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();

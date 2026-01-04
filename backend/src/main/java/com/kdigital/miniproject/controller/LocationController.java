@@ -19,16 +19,22 @@ import com.kdigital.miniproject.domain.Area;
 import com.kdigital.miniproject.domain.Fish;
 import com.kdigital.miniproject.domain.FishSimple;
 import com.kdigital.miniproject.domain.Location;
-import com.kdigital.miniproject.domain.LocationLog;
+import com.kdigital.miniproject.domain.LocationFavorite;
+import com.kdigital.miniproject.domain.LocationFavoriteSimple;
 import com.kdigital.miniproject.domain.LocationSimple;
 import com.kdigital.miniproject.domain.Member;
 import com.kdigital.miniproject.domain.RequestDTO;
+import com.kdigital.miniproject.domain.RequestWithTokenDTO;
 import com.kdigital.miniproject.domain.ResponseDTO;
 import com.kdigital.miniproject.persistence.FishRepository;
+import com.kdigital.miniproject.persistence.LocationFavoriteRepository;
 import com.kdigital.miniproject.persistence.LocationLogRepository;
 import com.kdigital.miniproject.persistence.LocationRepository;
 import com.kdigital.miniproject.persistence.MemberRepository;
+import com.kdigital.miniproject.util.JWTUtil;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -40,6 +46,7 @@ public class LocationController {
 	private final MemberRepository memberRepo;
 	private final LocationLogRepository logRepo;
 	private final FishRepository fishRepo;
+	private final LocationFavoriteRepository favoriteRepo;
 	
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex) {
@@ -65,17 +72,17 @@ public class LocationController {
 	
 	// 권역별 위치 정보 조회
 	@PostMapping("/v1/location/area")
-	public ResponseEntity<Object> getLocations(@RequestBody RequestDTO request) throws Exception {
+	public ResponseEntity<Object> postLocations(@RequestBody RequestDTO request) throws Exception {
 		//System.out.println(request.toString());
-		return responseGetLocations((int)request.getNumber());
+		return responseLocations((int)request.getNumber());
 	}
 	
 	@GetMapping("/v1/location/area")
 	public ResponseEntity<Object> getLocations(@RequestParam("area")int area) throws Exception {
-		return responseGetLocations(area);
+		return responseLocations(area);
 	}
 	
-	ResponseEntity<Object> responseGetLocations(int area) throws Exception {
+	ResponseEntity<Object> responseLocations(int area) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
@@ -88,16 +95,16 @@ public class LocationController {
 	
 	// 위치 선택(선택한 적이 있는 위치에 대한 History를 쌓기 위한 로그 만들기
 	@PostMapping("/v1/location/select")
-	public ResponseEntity<Object> getLocationSelect(@RequestBody RequestDTO request) throws Exception {
-		return responseGetLocationSelect(request.getNumber());
+	public ResponseEntity<Object> postLocationSelect(@RequestBody RequestDTO request) throws Exception {
+		return responseLocationSelect(request.getNumber());
 	}
 	
 	@GetMapping("/v1/location/select")
 	public ResponseEntity<Object> getLocationSelect(@RequestParam("location_no")Long location_no) throws Exception {
-		return responseGetLocationSelect(location_no);
+		return responseLocationSelect(location_no);
 	}
 	
-	public ResponseEntity<Object> responseGetLocationSelect(Long location_no) throws Exception {
+	public ResponseEntity<Object> responseLocationSelect(Long location_no) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build(); 
@@ -116,10 +123,132 @@ public class LocationController {
 		return ResponseEntity.ok().body(res);
 	}
 	
-//	@GetMapping("/v1/location/history")
-//	public Page<LocationLog> getLocationHistory(@RequestParam("username") String username) throws Exception {
-//		Pageable pageable= PageRequest.of(0, 10, Sort.Direction.DESC, "log_no");
-//		return logRepo.findByMember(Member.builder().username(username).build(), pageable);
-//	}
+	@PostMapping("/v1/location/favorite")
+	public ResponseEntity<Object> postLocationFavorite(
+			HttpServletRequest request) throws Exception {
+		return responseLocationFavorite(request);
+	}
 	
+	@GetMapping("/v1/location/favorite")
+	public ResponseEntity<Object> getLocationFavorite(
+			HttpServletRequest request) throws Exception {
+		return responseLocationFavorite(request);
+	}
+	
+	ResponseEntity<Object> responseLocationFavorite(
+			HttpServletRequest request) throws Exception {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		Member member = JWTUtil.parseToken(request, memberRepo);
+		if(member == null)
+		{
+			res.setSuccess(false);
+			res.setError("올바르지 않은 정보입니다.");
+		}
+		else
+		{
+			res.setSuccess(true);
+			List<LocationFavorite> list = favoriteRepo.findByMemberAndDeleteTimeIsNull(member);
+			for(LocationFavorite f : list)
+				res.addData(new LocationFavoriteSimple(f));
+		}
+		
+		return ResponseEntity.ok().body(res);
+	}
+	
+	@PostMapping("/v1/location/favorite/add")
+	public ResponseEntity<Object> postLocationFavoriteAdd(
+			HttpServletRequest request,
+			@RequestBody RequestDTO requestdto) throws Exception {
+		return responseLocationFavoriteAdd(request, requestdto.getNumber());
+	}
+	
+	@GetMapping("/v1/location/favorite/add")
+	public ResponseEntity<Object> getLocationFavoriteAdd(
+			HttpServletRequest request,
+			@RequestParam("location_no")long location) throws Exception {
+		return responseLocationFavoriteAdd(request, location);
+	}
+	
+	ResponseEntity<Object> responseLocationFavoriteAdd(
+			HttpServletRequest request,
+			long location) throws Exception {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		Member member = JWTUtil.parseToken(request, memberRepo);
+		if(member == null)
+		{
+			res.setSuccess(false);
+			res.setError("올바르지 않은 정보입니다.");
+		}
+		else
+		{
+			Optional<LocationFavorite> opt = favoriteRepo.findByMemberAndLocationAndDeleteTimeIsNull(member, Location.builder().location_no(location).build());
+			if(opt.isPresent())
+			{
+				res.setSuccess(false);
+				res.setError("이미 등록된 즐겨찾기입니다.");
+			}
+			else
+			{
+				res.setSuccess(true);
+				LocationFavorite favorite = LocationFavorite.builder()
+						.member(member)
+						.location(Location.builder().location_no(location).build())
+						.createTime(LocalDateTime.now())
+						.build();
+				favoriteRepo.save(favorite);
+			}
+		}
+		
+		return ResponseEntity.ok().body(res);
+	}	
+	
+	@PostMapping("/v1/location/favorite/remove")
+	public ResponseEntity<Object> postLocationFavoriteRemove(
+			HttpServletRequest request,
+			@RequestBody RequestDTO requestdto) throws Exception {
+		return responseLocationFavoriteRemove(request, requestdto.getNumber());
+	}
+	
+	@GetMapping("/v1/location/favorite/remove")
+	public ResponseEntity<Object> getLocationFavoriteRemove(
+			HttpServletRequest request,
+			@RequestParam("location_no")long location) throws Exception {
+		return responseLocationFavoriteAdd(request, location);
+	}
+	
+	ResponseEntity<Object> responseLocationFavoriteRemove(
+			HttpServletRequest request,
+			long location) throws Exception {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		Member member = JWTUtil.parseToken(request, memberRepo);
+		if(member == null)
+		{
+			res.setSuccess(false);
+			res.setError("올바르지 않은 정보입니다.");
+		}
+		else
+		{
+			Optional<LocationFavorite> opt = favoriteRepo.findByMemberAndLocationAndDeleteTimeIsNull(member, Location.builder().location_no(location).build());
+			if(opt.isEmpty())
+			{
+				res.setSuccess(false);
+				res.setError("존재하지 않는 즐겨찾기입니다.");
+			}
+			else
+			{
+				res.setSuccess(true);
+				LocationFavorite favorite = opt.get();
+				favorite.setDeleteTime(LocalDateTime.now());
+				favoriteRepo.save(favorite);
+			}
+		}
+		
+		return ResponseEntity.ok().body(res);
+	}	
 }

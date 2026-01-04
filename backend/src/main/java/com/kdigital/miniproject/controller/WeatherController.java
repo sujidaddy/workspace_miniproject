@@ -45,16 +45,16 @@ public class WeatherController {
 	
 	// 위치 별 날짜 검색
 	@PostMapping("/v1/weather")
-	public ResponseEntity<Object> getWeather(@RequestBody RequestDTO request) {
-		return responseGetWeather(request.getNumber(), request.getText());
+	public ResponseEntity<Object> postWeather(@RequestBody RequestDTO request) {
+		return responseWeather(request.getNumber(), request.getText());
 	}
 	
 	@GetMapping("/v1/weather")
 	public ResponseEntity<Object> getWeather(@RequestParam("location")long location_no, @RequestParam("date")String date) {
-		return responseGetWeather(location_no, date);
+		return responseWeather(location_no, date);
 	}
 	
-	ResponseEntity<Object> responseGetWeather(long location_no, String date) {
+	ResponseEntity<Object> responseWeather(long location_no, String date) {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
