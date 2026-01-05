@@ -1,7 +1,6 @@
 package com.kdigital.miniproject.controller;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.kdigital.miniproject.config.PasswordEncoder;
 import com.kdigital.miniproject.domain.Member;
@@ -39,6 +39,15 @@ public class memberJoinController {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(false)
 				.error(ex.getParameterName() + " 파라메터가 누락되었습니다.")
+				.build();
+		return ResponseEntity.ok().body(res);
+	}
+	
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	public ResponseEntity<Object> handleMismatchParams(MethodArgumentTypeMismatchException ex) {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(false)
+				.error(ex.getName() + " 파라메터의 형식이 올바르지 않습니다.")
 				.build();
 		return ResponseEntity.ok().body(res);
 	}
@@ -326,7 +335,7 @@ public class memberJoinController {
 			HttpServletRequest request,
 			@RequestParam("currentPassword")String currentPassword,
 			@RequestParam("newPassword")String newPassword,
-			@RequestParam("newUsearname")String newUsearname) {
+			@RequestParam("newUsername")String newUsearname) {
 		ModifyMemberDTO member = new ModifyMemberDTO();
 		member.setCurrentPassword(currentPassword);
 		member.setNewPassword(newPassword);

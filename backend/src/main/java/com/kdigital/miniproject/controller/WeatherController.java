@@ -1,8 +1,5 @@
 package com.kdigital.miniproject.controller;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,17 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import com.kdigital.miniproject.domain.Fish;
-import com.kdigital.miniproject.domain.FishSimple;
 import com.kdigital.miniproject.domain.Location;
 import com.kdigital.miniproject.domain.RequestDTO;
 import com.kdigital.miniproject.domain.ResponseDTO;
 import com.kdigital.miniproject.domain.Weather;
 import com.kdigital.miniproject.domain.WeatherChart;
-import com.kdigital.miniproject.domain.WeatherSimple;
-import com.kdigital.miniproject.persistence.FishRepository;
-import com.kdigital.miniproject.persistence.LocationLogRepository;
 import com.kdigital.miniproject.persistence.LocationRepository;
 import com.kdigital.miniproject.persistence.WeatherRepository;
 
@@ -38,7 +31,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WeatherController {
 	private final WeatherRepository weaRepo;
-	private final FishRepository fishRepo;
 	private final LocationRepository locRepo;
 	
 	@ExceptionHandler(MissingServletRequestParameterException.class)
@@ -50,7 +42,14 @@ public class WeatherController {
 		return ResponseEntity.ok().body(res);
 	}
 	
-	
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	public ResponseEntity<Object> handleMismatchParams(MethodArgumentTypeMismatchException ex) {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(false)
+				.error(ex.getName() + " 파라메터의 형식이 올바르지 않습니다.")
+				.build();
+		return ResponseEntity.ok().body(res);
+	}
 	
 	// 날씨 차트
 	@PostMapping("/v1/weather/chart")

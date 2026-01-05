@@ -1,12 +1,6 @@
 package com.kdigital.miniproject.domain;
 
 import java.util.Date;
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.kdigital.miniproject.controller.FishController;
-import com.kdigital.miniproject.persistence.FishRepository;
 
 import lombok.Getter;
 import lombok.Setter;

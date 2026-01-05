@@ -29,9 +29,6 @@ public class LocationLog {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long log_no;
 	@ManyToOne
-	@JoinColumn(name="user_no")
-	private Member member;
-	@ManyToOne
 	@JoinColumn(name="location_no")
 	private Location location;
 	@Temporal(TemporalType.TIMESTAMP)
