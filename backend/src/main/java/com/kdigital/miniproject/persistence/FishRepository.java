@@ -1,5 +1,6 @@
 package com.kdigital.miniproject.persistence;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +22,8 @@ public interface FishRepository extends JpaRepository<Fish, Long> {
 	@Query(value="SELECT distinct name FROM fish WHERE name IS NOT NULL;", nativeQuery=true)
 	List<String> findFishList();
 	@Query(value="SELECT fish.* FROM fish LEFT OUTER JOIN weather ON fish.weather_no = weather.weather_no LEFT OUTER JOIN location ON fish.location_no = location.location_no WHERE fish.location_no = :location_no AND weather.predc_ymd >= curdate() ORDER BY weather.predc_ymd;", nativeQuery=true)
-	List<Fish> findFishForecastByLocation(Long location_no);
+	List<Fish> findFishByLocation(Long location_no);
+	@Query(value="SELECT fish.* FROM fish LEFT OUTER JOIN weather ON fish.weather_no = weather.weather_no LEFT OUTER JOIN location ON fish.location_no = location.location_no WHERE fish.location_no = :location_no AND weather.predc_ymd = :predcYmd ORDER BY weather.predc_ymd;", nativeQuery=true)
+	List<Fish> findFishByLocationAndPredcYmd(Long location_no, String predcYmd);
 
 }

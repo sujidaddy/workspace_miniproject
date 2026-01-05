@@ -115,7 +115,7 @@ public class LocationController {
 			res.setError("위치정보 오류 입니다.");
 		}
 		else {
-			List<Fish> list = fishRepo.findFishForecastByLocation(lOpt.get().getLocation_no());
+			List<Fish> list = fishRepo.findFishByLocation(lOpt.get().getLocation_no());
 			for(Fish f : list)
 				res.addData(new FishSimple(f));
 		}
@@ -250,5 +250,5 @@ public class LocationController {
 		}
 		
 		return ResponseEntity.ok().body(res);
-	}	
+	}
 }

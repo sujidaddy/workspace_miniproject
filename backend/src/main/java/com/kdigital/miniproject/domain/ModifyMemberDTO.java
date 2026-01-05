@@ -7,6 +7,8 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class ModifyMemberDTO extends Member{
+public class ModifyMemberDTO{
+	private String currentPassword;
 	private String newPassword;
+	private String newUsername;
 }

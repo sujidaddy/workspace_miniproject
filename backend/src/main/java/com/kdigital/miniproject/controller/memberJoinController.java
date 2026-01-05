@@ -21,7 +21,9 @@ import com.kdigital.miniproject.domain.RequestDTO;
 import com.kdigital.miniproject.domain.ResponseDTO;
 import com.kdigital.miniproject.domain.Role;
 import com.kdigital.miniproject.persistence.MemberRepository;
+import com.kdigital.miniproject.util.JWTUtil;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -313,84 +315,59 @@ public class memberJoinController {
 	// 정보수정
 	@PostMapping("/v1/join/modifyUser")
 	public ResponseEntity<Object> postModifyUser(
+			HttpServletRequest request,
 			@RequestBody ModifyMemberDTO modifyMember) {
 		System.out.println(modifyMember);
-		return responseModifyUser(modifyMember);
+		return responseModifyUser(request, modifyMember);
 	}
 	
 	@GetMapping("/v1/join/modifyUser")
 	public ResponseEntity<Object> getModifyUser(
-			@RequestParam("userno")long userno,
-			@RequestParam("userid")String userid,
+			HttpServletRequest request,
 			@RequestParam("currentPassword")String currentPassword,
-			@RequestParam("password")String password,
-			@RequestParam("username")String username) {
+			@RequestParam("newPassword")String newPassword,
+			@RequestParam("newUsearname")String newUsearname) {
 		ModifyMemberDTO member = new ModifyMemberDTO();
-		member.setUser_no(userno);
-		member.setUserid(userid);
-		member.setPassword(currentPassword);
-		member.setNewPassword(password);
-		member.setUsername(username);
-		return responseModifyUser(member);
+		member.setCurrentPassword(currentPassword);
+		member.setNewPassword(newPassword);
+		member.setNewUsername(newUsearname);
+		return responseModifyUser(request, member);
 	}
 	
-	ResponseEntity<Object> responseModifyUser(ModifyMemberDTO modifyMember) {
+	ResponseEntity<Object> responseModifyUser(
+			HttpServletRequest request,
+			ModifyMemberDTO modifyMember) {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
-		long userno = modifyMember.getUser_no();
-		String userid = modifyMember.getUserid();
-		String currnetPassword = modifyMember.getPassword();
-		String password = modifyMember.getNewPassword();
-		String username = modifyMember.getUsername();
-		if(userid == null || userid.length() == 0
-				|| currnetPassword == null || currnetPassword.length() == 0
-				|| password == null || password.length() == 0
-				|| username == null || username.length() == 0)
+		Member member = JWTUtil.parseToken(request, memberRepo);
+		if(member == null)
 		{
 			res.setSuccess(false);
-			res.setError("누락된 데이터가 있습니다.");
+			res.setError("올바르지 않은 정보입니다.");
 		}
-		else if(!validateId(userid))
-		{
-			res.setSuccess(false);
-			res.setError("아이디는 7~16자의 영문, 숫자, 밑줄(_)만 사용 가능합니다.");
-		}
-		else if(!validatePassword(currnetPassword) || !validatePassword(password))
+		else if(!validatePassword(modifyMember.getNewPassword()))
 		{
 			res.setSuccess(false);
 			res.setError("비밀번호는 10~20자이며, 영문 대/소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 합니다.");
 		}
-		else if(!validateName(username))
+		else if(!validateName(modifyMember.getNewUsername()))
 		{
 			res.setSuccess(false);
 			res.setError("이름은 3~20자의 한글 또는 영문으로만 구성되어야 합니다.");
 		}
+		else if(!encoder.matches(modifyMember.getCurrentPassword(), member.getPassword()))
+		{
+			res.setSuccess(false);
+			res.setError("올바르지 않은 정보입니다.");
+		}
 		else
 		{
-			Optional<Member> opt = memberRepo.findByUserid(userid); 
-			if(opt.isEmpty()) {
-				res.setSuccess(false);
-				res.setError("회원 정보가 존재하지 않습니다.");
-			}
-			else
-			{
-				Member member = opt.get();
-				if(userno != member.getUser_no()
-						|| !encoder.matches(currnetPassword, member.getPassword()))
-				{
-					res.setSuccess(false);
-					res.setError("회원 정보가 존재하지 않습니다.");
-				}
-				else
-				{
-					member.setPassword(encoder.encode(password));
-					member.setUsername(username);
-					memberRepo.save(member);
-					System.out.println("ModifyUser result : " + member.getUser_no());
-					res.setSuccess(true);
-				}
-			}
+			member.setPassword(encoder.encode(modifyMember.getNewPassword()));
+			member.setUsername(modifyMember.getNewUsername());
+			memberRepo.save(member);
+			System.out.println("ModifyUser result : " + member.getUser_no());
+			res.setSuccess(true);
 		}
 		return ResponseEntity.ok(res);
 	}

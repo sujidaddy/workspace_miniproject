@@ -21,6 +21,8 @@ public class FetchScheduler {
 	//@Bean
 	// 매일 1시에 동작
 	@Scheduled(cron = "0 0 1 * * *")
+	// 매 짝수 시에 동작
+	@Scheduled(cron = "0 0 0/2 * * *")
 	public String Init() {
 		if(fetch == null)
 			return "fetch not load";
