@@ -170,7 +170,7 @@ public class FishController {
 				.build();
 		List<String> list =  fishRepo.findFishList();
 		for(String name : list) {
-			Optional<FishDetail> opt = fishDRepo.findByName(name);
+			Optional<FishDetail> opt = fishDRepo.findByNameAndDetailIsNotNull(name);
 			if(opt.isPresent())
 				res.addData(opt.get());
 		}

@@ -1,15 +1,12 @@
 package com.kdigital.miniproject.util;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.kdigital.miniproject.domain.Member;
-import com.kdigital.miniproject.domain.ResponseDTO;
 import com.kdigital.miniproject.domain.Role;
 import com.kdigital.miniproject.persistence.MemberRepository;
 
@@ -17,8 +14,8 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public class JWTUtil {
 	//private static final long ACCESS_TOKEN_MSEC = 24 * 60 * (60 * 1000);	// 1일
-	//private static final long ACCESS_TOKEN_MSEC = 60 * (60 * 1000);	// 1시간
-	private static final long ACCESS_TOKEN_MSEC = (60 * 1000);	// 1분
+	private static final long ACCESS_TOKEN_MSEC = 60 * (60 * 1000);	// 1시간
+	//private static final long ACCESS_TOKEN_MSEC = (60 * 1000);	// 1분
 	private static final String JWT_KEY = "com.kdigital.miniproject.jwtkey";
 	
 	public static final String prefix = "Bearer ";

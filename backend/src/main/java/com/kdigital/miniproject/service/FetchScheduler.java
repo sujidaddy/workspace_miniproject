@@ -8,14 +8,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import com.kdigital.miniproject.domain.FetchData;
+import lombok.RequiredArgsConstructor;
 
 @SuppressWarnings("unused")
 @Configuration
+@RequiredArgsConstructor
 public class FetchScheduler {
-	
-	@Autowired
-	private FetchData fetch;
+	private final FetchData fetch;
 	
 	// 실행시 동작
 	//@Bean
@@ -23,9 +22,9 @@ public class FetchScheduler {
 	@Scheduled(cron = "0 0 1 * * *")
 	// 매 짝수 시에 동작
 	@Scheduled(cron = "0 0 0/2 * * *")
-	public String Init() {
+	public void fetchStart() {
 		if(fetch == null)
-			return "fetch not load";
+			return ;
 		Calendar cal = Calendar.getInstance();
 		Date date = cal.getTime();
 		for(int i = 0; i < 7; ++i) {
@@ -35,6 +34,5 @@ public class FetchScheduler {
 			cal.add(Calendar.DATE, 1);
 			date = cal.getTime();
 		}
-		return "";
 	}
 }

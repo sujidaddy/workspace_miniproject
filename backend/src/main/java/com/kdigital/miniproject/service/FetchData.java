@@ -1,4 +1,4 @@
-package com.kdigital.miniproject.domain;
+package com.kdigital.miniproject.service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,6 +18,11 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kdigital.miniproject.domain.Fish;
+import com.kdigital.miniproject.domain.FishDetail;
+import com.kdigital.miniproject.domain.Location;
+import com.kdigital.miniproject.domain.Weather;
+import com.kdigital.miniproject.persistence.FishDetailRepository;
 import com.kdigital.miniproject.persistence.FishRepository;
 import com.kdigital.miniproject.persistence.LocationRepository;
 import com.kdigital.miniproject.persistence.WeatherRepository;
@@ -30,6 +35,7 @@ public class FetchData {
 	private final FishRepository fishRepo;
 	private final LocationRepository locRepo;
 	private final WeatherRepository weaRepo;
+	private final FishDetailRepository fishDeRepo;
 	
 	String[] gubunList = {"갯바위", "선상"};
 	int pageNo = 1;
@@ -165,6 +171,13 @@ public class FetchData {
 				Fish fish;
 				if(fishOpt.isEmpty())
 				{
+					// 등록되어 있지 않은 어종이 추가되면
+					if(fishDeRepo.findByNameAndDetailIsNotNull(seafsTgfshNm).isEmpty()) {
+						FishDetail detail = FishDetail.builder()
+											.name(seafsTgfshNm)
+											.build();
+						fishDeRepo.save(detail);
+					}
 					fish = Fish.builder()
 						.name(seafsTgfshNm)
 						.tdvHrScr(tdvHrScr)
