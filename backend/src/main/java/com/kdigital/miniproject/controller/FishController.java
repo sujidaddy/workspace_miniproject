@@ -179,6 +179,21 @@ public class FishController {
 		return ResponseEntity.ok().body(res);
 	}
 	
+	@GetMapping("v1/fishlistAll")
+	public ResponseEntity<Object> getFishsListAll() throws Exception {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		List<String> list =  fishRepo.findFishList();
+		for(String name : list) {
+			Optional<FishDetail> opt = fishDRepo.findByName(name);
+			if(opt.isPresent())
+				res.addData(opt.get());
+		}
+			
+		return ResponseEntity.ok().body(res);
+	}
+	
 	@PostMapping("v1/fish/modifyDetail")
 	public ResponseEntity<Object> postModifyFishDetail(
 			HttpServletRequest request,

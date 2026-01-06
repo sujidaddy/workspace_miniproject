@@ -1,8 +1,5 @@
 package com.kdigital.miniproject.domain;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,7 +21,6 @@ import lombok.ToString;
 public class FishDetail {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@JsonProperty(access = Access.WRITE_ONLY)
 	protected int data_no;
 	protected String name;
 	protected String detail;
