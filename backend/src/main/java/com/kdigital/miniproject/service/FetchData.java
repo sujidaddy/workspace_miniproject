@@ -171,13 +171,6 @@ public class FetchData {
 				Fish fish;
 				if(fishOpt.isEmpty())
 				{
-					// 등록되어 있지 않은 어종이 추가되면
-					if(fishDeRepo.findByNameAndDetailIsNotNull(seafsTgfshNm).isEmpty()) {
-						FishDetail detail = FishDetail.builder()
-											.name(seafsTgfshNm)
-											.build();
-						fishDeRepo.save(detail);
-					}
 					fish = Fish.builder()
 						.name(seafsTgfshNm)
 						.tdvHrScr(tdvHrScr)
@@ -195,6 +188,14 @@ public class FetchData {
 					++fishupdate;
 				}
 				fishRepo.save(fish);
+				
+				// 등록되어 있지 않은 어종이 추가되면
+				if(seafsTgfshNm != null && seafsTgfshNm.length() > 0 && fishDeRepo.findByName(seafsTgfshNm).isEmpty()) {
+					FishDetail detail = FishDetail.builder()
+										.name(seafsTgfshNm)
+										.build();
+					fishDeRepo.save(detail);
+				}
 			}
 			
 			this.dataSize += itemlist.size();

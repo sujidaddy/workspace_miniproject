@@ -28,6 +28,7 @@ import com.kdigital.miniproject.persistence.FishDetailRepository;
 import com.kdigital.miniproject.persistence.FishRepository;
 import com.kdigital.miniproject.persistence.LocationRepository;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -173,6 +174,82 @@ public class FishController {
 			Optional<FishDetail> opt = fishDRepo.findByNameAndDetailIsNotNull(name);
 			if(opt.isPresent())
 				res.addData(opt.get());
+		}
+			
+		return ResponseEntity.ok().body(res);
+	}
+	
+	@PostMapping("v1/fish/modifyDetail")
+	public ResponseEntity<Object> postModifyFishDetail(
+			HttpServletRequest request,
+			@RequestBody FishDetail detail) throws Exception {
+		return responseModifyFishDetail(request, detail);
+	}
+	
+	@GetMapping("v1/fish/modifyDetail")
+	public ResponseEntity<Object> getModifyFishDetail(
+			HttpServletRequest request,
+			@RequestParam("data_no") int data_no,
+			@RequestParam("name") String name,
+			@RequestParam("detail") String detail,
+			@RequestParam("url") String url) throws Exception {
+		return responseModifyFishDetail(request, FishDetail.builder()
+												.data_no(data_no)
+												.name(name)
+												.detail(detail)
+												.url(url)
+												.build());
+	}
+	
+	public ResponseEntity<Object> responseModifyFishDetail(
+			HttpServletRequest request, FishDetail detail) throws Exception {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		
+		if(fishDRepo.findById(detail.getData_no()).isEmpty())
+		{
+			res.setSuccess(false);
+			res.setError("데이터 고유번호가 올바르지 않습니다.");
+		}
+		else
+		{
+			fishDRepo.save(detail);
+		}
+		return ResponseEntity.ok().body(res);
+	}
+	
+	@PostMapping("v1/fish/removeDetail")
+	public ResponseEntity<Object> postRemoveFishDetail(
+			HttpServletRequest request,
+			@RequestBody FishDetail detail) throws Exception {
+		return responseRemoveFishDetail(request, detail);
+	}
+	
+	@GetMapping("v1/fish/removeDetail")
+	public ResponseEntity<Object> getRemoveFishDetail(
+			HttpServletRequest request,
+			@RequestParam("data_no")int data_no) throws Exception {
+		return responseRemoveFishDetail(request, FishDetail.builder()
+												.data_no(data_no)
+												.build());
+	}
+	
+	ResponseEntity<Object> responseRemoveFishDetail(
+			HttpServletRequest request,
+			FishDetail detail) throws Exception {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		
+		if(fishDRepo.findById(detail.getData_no()).isEmpty())
+		{
+			res.setSuccess(false);
+			res.setError("데이터 고유번호가 올바르지 않습니다.");
+		}
+		else
+		{
+			fishDRepo.delete(detail);
 		}
 			
 		return ResponseEntity.ok().body(res);
