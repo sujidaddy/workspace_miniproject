@@ -1,19 +1,29 @@
 package com.kdigital.miniproject.controller;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 
 import com.kdigital.miniproject.domain.Area;
+import com.kdigital.miniproject.domain.FishDetail;
 import com.kdigital.miniproject.domain.Member;
+import com.kdigital.miniproject.domain.PageDTO;
+import com.kdigital.miniproject.domain.RequestDTO;
 import com.kdigital.miniproject.domain.ResponseDTO;
 import com.kdigital.miniproject.domain.Role;
 import com.kdigital.miniproject.persistence.AreaRepository;
@@ -58,6 +68,15 @@ public class AdminController {
 		return ResponseEntity.ok().body(res);
 	}
 	
+	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+	public ResponseEntity<Object> handleMethodNotSupported(HttpRequestMethodNotSupportedException ext) {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(false)
+				.error(" 허용되지 않는 Method 입니다.")
+				.build();
+		return ResponseEntity.ok().body(res);
+	}
+	
 	// 데이터 갱신
 	@PostMapping("/v1/admin/fetchData")
 	public ResponseEntity<Object> postFetchData(HttpServletRequest request) throws Exception {
@@ -92,6 +111,216 @@ public class AdminController {
 		}
 		
 		return ResponseEntity.ok().body(res);
+	}
+	
+	@GetMapping("v1/admin/fishlistAll")
+	public ResponseEntity<Object> getFishListAll(
+			HttpServletRequest request) throws Exception {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		Member member = JWTUtil.parseToken(request, memberRepo);
+		if(member == null)
+		{
+			res.setSuccess(false);
+			res.setError("올바르지 않은 정보입니다.");
+		}
+		else if(member.getRole() != Role.ROLE_ADMIN)
+		{
+			res.setSuccess(false);
+			res.setError("권한이 올바르지 않습니다.");
+		}
+		else
+		{
+			List<String> list =  fishRepo.findFishList();
+			for(String name : list) {
+				Optional<FishDetail> opt = fishDeRepo.findByName(name);
+				if(opt.isPresent())
+					res.addData(opt.get());
+			}
+		}
+			
+		return ResponseEntity.ok().body(res);
+	}
+	
+	@PostMapping("v1/admin/modifyFishDetail")
+	public ResponseEntity<Object> postModifyFishDetail(
+			HttpServletRequest request,
+			@RequestBody FishDetail detail) throws Exception {
+		return responseModifyFishDetail(request, detail);
+	}
+	
+	@GetMapping("v1/admin/modifyFishDetail")
+	public ResponseEntity<Object> getModifyFishDetail(
+			HttpServletRequest request,
+			@RequestParam("data_no") int data_no,
+			@RequestParam("name") String name,
+			@RequestParam("detail") String detail,
+			@RequestParam("url") String url) throws Exception {
+		return responseModifyFishDetail(request, FishDetail.builder()
+												.data_no(data_no)
+												.name(name)
+												.detail(detail)
+												.url(url)
+												.build());
+	}
+	
+	public ResponseEntity<Object> responseModifyFishDetail(
+			HttpServletRequest request, FishDetail detail) throws Exception {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		Member member = JWTUtil.parseToken(request, memberRepo);
+		if(member == null)
+		{
+			res.setSuccess(false);
+			res.setError("올바르지 않은 정보입니다.");
+		}
+		else if(member.getRole() != Role.ROLE_ADMIN)
+		{
+			res.setSuccess(false);
+			res.setError("권한이 올바르지 않습니다.");
+		}
+		else if(fishDeRepo.findById(detail.getData_no()).isEmpty())
+		{
+			res.setSuccess(false);
+			res.setError("데이터 고유번호가 올바르지 않습니다.");
+		}
+		else
+		{
+			fishDeRepo.save(detail);
+		}
+		return ResponseEntity.ok().body(res);
+	}
+	
+	@PostMapping("v1/admin/removeFishDetail")
+	public ResponseEntity<Object> postRemoveFishDetail(
+			HttpServletRequest request,
+			@RequestBody FishDetail detail) throws Exception {
+		return responseRemoveFishDetail(request, detail);
+	}
+	
+	@GetMapping("v1/admin/removeFishDetail")
+	public ResponseEntity<Object> getRemoveFishDetail(
+			HttpServletRequest request,
+			@RequestParam("data_no")int data_no) throws Exception {
+		return responseRemoveFishDetail(request, FishDetail.builder()
+												.data_no(data_no)
+												.build());
+	}
+	
+	ResponseEntity<Object> responseRemoveFishDetail(
+			HttpServletRequest request,
+			FishDetail detail) throws Exception {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		Member member = JWTUtil.parseToken(request, memberRepo);
+		if(member == null)
+		{
+			res.setSuccess(false);
+			res.setError("올바르지 않은 정보입니다.");
+		}
+		else if(member.getRole() != Role.ROLE_ADMIN)
+		{
+			res.setSuccess(false);
+			res.setError("권한이 올바르지 않습니다.");
+		}
+		else if(fishDeRepo.findById(detail.getData_no()).isEmpty())
+		{
+			res.setSuccess(false);
+			res.setError("데이터 고유번호가 올바르지 않습니다.");
+		}
+		else
+		{
+			fishDeRepo.delete(detail);
+		}
+			
+		return ResponseEntity.ok().body(res);
+	}
+	
+
+	
+	@PostMapping("v1/admin/modifyUserEnabled")
+	public ResponseEntity<Object> postModifyUserEnabled(
+			HttpServletRequest request,
+			@RequestBody Member member) throws Exception {
+		return responseModifyUserEnabled(request, member.getUser_no(), member.getEnabled());
+	}
+	
+	@GetMapping("v1/admin/modifyUserEnabled")
+	public ResponseEntity<Object> getModifyUserEnabled(
+			HttpServletRequest request,
+			@RequestParam("user_no")long user_no,
+			@RequestParam("enabled")boolean enabled) throws Exception {
+		return responseModifyUserEnabled(request, user_no, enabled);
+	}
+	
+	ResponseEntity<Object> responseModifyUserEnabled(
+			HttpServletRequest request,
+			long user_no, boolean enabled) throws Exception {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		Member member = JWTUtil.parseToken(request, memberRepo);
+		Optional<Member> opt = memberRepo.findById(user_no);
+		if(member == null)
+		{
+			res.setSuccess(false);
+			res.setError("올바르지 않은 정보입니다.");
+		}
+		else if(member.getRole() != Role.ROLE_ADMIN)
+		{
+			res.setSuccess(false);
+			res.setError("권한이 올바르지 않습니다.");
+		}
+		else if(opt.isEmpty())
+		{
+			res.setSuccess(false);
+			res.setError("존재하지 않는 회원입니다.");
+		}
+		else
+		{
+			Member user = opt.get();
+			user.setEnabled(enabled);
+			memberRepo.save(user);
+		}
+			
+		return ResponseEntity.ok().body(res);
+	}
+	
+	@PostMapping("v1/admin/memberlist")
+	public ResponseEntity<Object> postMemberList(
+			HttpServletRequest request,
+			@RequestBody  PageDTO<Member> pagedto) throws Exception {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		int pageNo = pagedto.getPageNo() - 1;
+		int numOfRows = pagedto.getNumOfRows();
+		//System.out.println("pageNo : " + pageNo + ", numOfRows : " + numOfRows);
+		Member member = JWTUtil.parseToken(request, memberRepo);
+		if(member == null)
+		{
+			res.setSuccess(false);
+			res.setError("올바르지 않은 정보입니다.");
+		}
+		else if(member.getRole() != Role.ROLE_ADMIN)
+		{
+			res.setSuccess(false);
+			res.setError("권한이 올바르지 않습니다.");
+		}
+		else
+		{
+			Pageable pageable = PageRequest.of(pageNo, numOfRows);
+			Page<Member> page = memberRepo.findByRole(Role.ROLE_MEMBER, pageable);
+			PageDTO<Member> responsePage = new PageDTO<Member>(page);
+			res.addData(responsePage);
+			//res.addData(page);
+		}
+		
+		return ResponseEntity.ok().body(res);
+		
 	}
 
 }

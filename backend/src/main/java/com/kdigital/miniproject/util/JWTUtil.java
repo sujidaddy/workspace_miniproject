@@ -32,14 +32,14 @@ public class JWTUtil {
 	}
 	
 	public static String getJWT(Long userno, String userid, String username, String email, Role role, Boolean enabled) {
-		System.out.println("getJWT userno : " + userno);
+		//System.out.println("getJWT userno : " + userno);
 		String src = JWT.create()
 				.withClaim(usernoClaim, userno.toString())
 				.withClaim(useridClaim, userid)
 				.withClaim(usernameClaim, username)
 				.withClaim(emailClaim, email)
 				.withClaim(roleClaim, role.toString())
-				.withClaim(enabledClaim, enabled ? "True" : "False")
+				.withClaim(enabledClaim, enabled.toString())
 				.withExpiresAt(new Date(System.currentTimeMillis()+ACCESS_TOKEN_MSEC))
 				.sign(Algorithm.HMAC256(JWT_KEY));
 		return prefix + src;

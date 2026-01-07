@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,11 +23,15 @@ import com.kdigital.miniproject.domain.Fish;
 import com.kdigital.miniproject.domain.FishDetail;
 import com.kdigital.miniproject.domain.FishSimple;
 import com.kdigital.miniproject.domain.Location;
+import com.kdigital.miniproject.domain.Member;
 import com.kdigital.miniproject.domain.RequestDTO;
 import com.kdigital.miniproject.domain.ResponseDTO;
+import com.kdigital.miniproject.domain.Role;
 import com.kdigital.miniproject.persistence.FishDetailRepository;
 import com.kdigital.miniproject.persistence.FishRepository;
 import com.kdigital.miniproject.persistence.LocationRepository;
+import com.kdigital.miniproject.persistence.MemberRepository;
+import com.kdigital.miniproject.util.JWTUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +43,8 @@ import lombok.RequiredArgsConstructor;
 public class FishController {
 	private final FishRepository fishRepo;
 	private final LocationRepository locRepo;
-	private final FishDetailRepository fishDRepo;
+	private final FishDetailRepository fishDeRepo;
+	private final MemberRepository memberRepo;
 	
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex) {
@@ -54,6 +60,15 @@ public class FishController {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(false)
 				.error(ex.getName() + " 파라메터의 형식이 올바르지 않습니다.")
+				.build();
+		return ResponseEntity.ok().body(res);
+	}
+	
+	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+	public ResponseEntity<Object> handleMethodNotSupported(HttpRequestMethodNotSupportedException ext) {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(false)
+				.error(" 허용되지 않는 Method 입니다.")
 				.build();
 		return ResponseEntity.ok().body(res);
 	}
@@ -171,103 +186,11 @@ public class FishController {
 				.build();
 		List<String> list =  fishRepo.findFishList();
 		for(String name : list) {
-			Optional<FishDetail> opt = fishDRepo.findByNameAndDetailIsNotNull(name);
+			Optional<FishDetail> opt = fishDeRepo.findByNameAndDetailIsNotNull(name);
 			if(opt.isPresent())
 				res.addData(opt.get());
 		}
 			
 		return ResponseEntity.ok().body(res);
 	}
-	
-	@GetMapping("v1/fishlistAll")
-	public ResponseEntity<Object> getFishsListAll() throws Exception {
-		ResponseDTO res = ResponseDTO.builder()
-				.success(true)
-				.build();
-		List<String> list =  fishRepo.findFishList();
-		for(String name : list) {
-			Optional<FishDetail> opt = fishDRepo.findByName(name);
-			if(opt.isPresent())
-				res.addData(opt.get());
-		}
-			
-		return ResponseEntity.ok().body(res);
-	}
-	
-	@PostMapping("v1/fish/modifyDetail")
-	public ResponseEntity<Object> postModifyFishDetail(
-			HttpServletRequest request,
-			@RequestBody FishDetail detail) throws Exception {
-		return responseModifyFishDetail(request, detail);
-	}
-	
-	@GetMapping("v1/fish/modifyDetail")
-	public ResponseEntity<Object> getModifyFishDetail(
-			HttpServletRequest request,
-			@RequestParam("data_no") int data_no,
-			@RequestParam("name") String name,
-			@RequestParam("detail") String detail,
-			@RequestParam("url") String url) throws Exception {
-		return responseModifyFishDetail(request, FishDetail.builder()
-												.data_no(data_no)
-												.name(name)
-												.detail(detail)
-												.url(url)
-												.build());
-	}
-	
-	public ResponseEntity<Object> responseModifyFishDetail(
-			HttpServletRequest request, FishDetail detail) throws Exception {
-		ResponseDTO res = ResponseDTO.builder()
-				.success(true)
-				.build();
-		
-		if(fishDRepo.findById(detail.getData_no()).isEmpty())
-		{
-			res.setSuccess(false);
-			res.setError("데이터 고유번호가 올바르지 않습니다.");
-		}
-		else
-		{
-			fishDRepo.save(detail);
-		}
-		return ResponseEntity.ok().body(res);
-	}
-	
-	@PostMapping("v1/fish/removeDetail")
-	public ResponseEntity<Object> postRemoveFishDetail(
-			HttpServletRequest request,
-			@RequestBody FishDetail detail) throws Exception {
-		return responseRemoveFishDetail(request, detail);
-	}
-	
-	@GetMapping("v1/fish/removeDetail")
-	public ResponseEntity<Object> getRemoveFishDetail(
-			HttpServletRequest request,
-			@RequestParam("data_no")int data_no) throws Exception {
-		return responseRemoveFishDetail(request, FishDetail.builder()
-												.data_no(data_no)
-												.build());
-	}
-	
-	ResponseEntity<Object> responseRemoveFishDetail(
-			HttpServletRequest request,
-			FishDetail detail) throws Exception {
-		ResponseDTO res = ResponseDTO.builder()
-				.success(true)
-				.build();
-		
-		if(fishDRepo.findById(detail.getData_no()).isEmpty())
-		{
-			res.setSuccess(false);
-			res.setError("데이터 고유번호가 올바르지 않습니다.");
-		}
-		else
-		{
-			fishDRepo.delete(detail);
-		}
-			
-		return ResponseEntity.ok().body(res);
-	}
-	
 }

@@ -3,6 +3,7 @@ package com.kdigital.miniproject.controller;
 import java.time.LocalDateTime;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,6 +49,15 @@ public class memberJoinController {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(false)
 				.error(ex.getName() + " 파라메터의 형식이 올바르지 않습니다.")
+				.build();
+		return ResponseEntity.ok().body(res);
+	}
+	
+	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+	public ResponseEntity<Object> handleMethodNotSupported(HttpRequestMethodNotSupportedException ext) {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(false)
+				.error(" 허용되지 않는 Method 입니다.")
 				.build();
 		return ResponseEntity.ok().body(res);
 	}
@@ -314,7 +324,7 @@ public class memberJoinController {
 			member.setCreateTime(LocalDateTime.now());
 			member.setLastLoginTime(LocalDateTime.now());
 			memberRepo.save(member);
-			System.out.println("JoinUser result : " + member.getUser_no());
+			//System.out.println("JoinUser result : " + member.getUser_no());
 			res.setSuccess(true);
 		}
 		

@@ -34,6 +34,6 @@ public class WeatherChart{
 			this.minValue = wea.minCrsp;
 			this.maxValue = wea.maxCrsp;
 			break;
-	}
+		}
 	}
 }

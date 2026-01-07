@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,6 +52,15 @@ public class WeatherController {
 		return ResponseEntity.ok().body(res);
 	}
 	
+	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+	public ResponseEntity<Object> handleMethodNotSupported(HttpRequestMethodNotSupportedException ext) {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(false)
+				.error(" 허용되지 않는 Method 입니다.")
+				.build();
+		return ResponseEntity.ok().body(res);
+	}
+	
 	// 날씨 차트
 	@PostMapping("/v1/weather/chart")
 	public ResponseEntity<Object> postWeatherChart(@RequestBody RequestDTO request) throws Exception {
@@ -68,10 +78,23 @@ public class WeatherController {
 	public ResponseEntity<Object> responseWeatherChart(Long location_no, String query) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
-				.build(); 
-		
+				.build();
+		boolean invalidquery = false;
+		switch(query) {
+		case "파고":
+		case "풍속":
+		case "수온":
+		case "유속":
+			invalidquery = true;
+			break;
+		}
 		Optional<Location> lOpt = locRepo.findById(location_no);
-		if(lOpt.isEmpty()) {
+		if(!invalidquery)
+		{
+			res.setSuccess(false);
+			res.setError("올바른 요청이 아닙니다.");
+		}
+		else if(lOpt.isEmpty()) {
 			res.setSuccess(false);
 			res.setError("위치정보 오류 입니다.");
 		}
