@@ -239,6 +239,40 @@ public class AdminController {
 		return ResponseEntity.ok().body(res);
 	}
 	
+	@PostMapping("v1/admin/memberlist")
+	public ResponseEntity<Object> postMemberList(
+			HttpServletRequest request,
+			@RequestBody  PageDTO<Member> pagedto) throws Exception {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		int pageNo = pagedto.getPageNo() - 1;
+		int numOfRows = pagedto.getNumOfRows();
+		//System.out.println("pageNo : " + pageNo + ", numOfRows : " + numOfRows);
+		Member member = JWTUtil.parseToken(request, memberRepo);
+		if(member == null)
+		{
+			res.setSuccess(false);
+			res.setError("올바르지 않은 정보입니다.");
+		}
+		else if(member.getRole() != Role.ROLE_ADMIN)
+		{
+			res.setSuccess(false);
+			res.setError("권한이 올바르지 않습니다.");
+		}
+		else
+		{
+			Pageable pageable = PageRequest.of(pageNo, numOfRows);
+			Page<Member> page = memberRepo.findByRole(Role.ROLE_MEMBER, pageable);
+			PageDTO<Member> responsePage = new PageDTO<Member>(page);
+			res.addData(responsePage);
+			//res.addData(page);
+		}
+		
+		return ResponseEntity.ok().body(res);
+		
+	}
+	
 
 	
 	@PostMapping("v1/admin/modifyUserEnabled")
@@ -287,40 +321,6 @@ public class AdminController {
 		}
 			
 		return ResponseEntity.ok().body(res);
-	}
-	
-	@PostMapping("v1/admin/memberlist")
-	public ResponseEntity<Object> postMemberList(
-			HttpServletRequest request,
-			@RequestBody  PageDTO<Member> pagedto) throws Exception {
-		ResponseDTO res = ResponseDTO.builder()
-				.success(true)
-				.build();
-		int pageNo = pagedto.getPageNo() - 1;
-		int numOfRows = pagedto.getNumOfRows();
-		//System.out.println("pageNo : " + pageNo + ", numOfRows : " + numOfRows);
-		Member member = JWTUtil.parseToken(request, memberRepo);
-		if(member == null)
-		{
-			res.setSuccess(false);
-			res.setError("올바르지 않은 정보입니다.");
-		}
-		else if(member.getRole() != Role.ROLE_ADMIN)
-		{
-			res.setSuccess(false);
-			res.setError("권한이 올바르지 않습니다.");
-		}
-		else
-		{
-			Pageable pageable = PageRequest.of(pageNo, numOfRows);
-			Page<Member> page = memberRepo.findByRole(Role.ROLE_MEMBER, pageable);
-			PageDTO<Member> responsePage = new PageDTO<Member>(page);
-			res.addData(responsePage);
-			//res.addData(page);
-		}
-		
-		return ResponseEntity.ok().body(res);
-		
 	}
 
 }
