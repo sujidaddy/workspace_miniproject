@@ -1,5 +1,7 @@
 package com.kdigital.miniproject.service;
 
+import java.io.StringWriter;
+import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,10 +20,12 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kdigital.miniproject.domain.FetchLog;
 import com.kdigital.miniproject.domain.Fish;
 import com.kdigital.miniproject.domain.FishDetail;
 import com.kdigital.miniproject.domain.Location;
 import com.kdigital.miniproject.domain.Weather;
+import com.kdigital.miniproject.persistence.FetchLogRepository;
 import com.kdigital.miniproject.persistence.FishDetailRepository;
 import com.kdigital.miniproject.persistence.FishRepository;
 import com.kdigital.miniproject.persistence.LocationRepository;
@@ -36,6 +40,7 @@ public class FetchData {
 	private final LocationRepository locRepo;
 	private final WeatherRepository weaRepo;
 	private final FishDetailRepository fishDeRepo;
+	private final FetchLogRepository logRepo;
 	
 	String[] gubunList = {"갯바위", "선상"};
 	int pageNo = 1;
@@ -62,146 +67,180 @@ public class FetchData {
 		
 		String callUrl = Baseurl + DateParam + GubunParam + PageParam + NumParam;
 		ResponseEntity<Map<String, Object>> resultMap = fetch(callUrl);
-		int locationcount = 0;
-		int weathercount = 0;
-		int weatherupdate = 0;
-		int fishcount = 0;
-		int fishupdate = 0;
+		int tot = 0;
+		int pageNo = 0;
+		int totLocationcount = 0;
+		int totWeathercount = 0;
+		int totWeatherupdate = 0;
+		int totFishcount = 0;
+		int totFishupdate = 0;
 		ObjectMapper mapper = new ObjectMapper();
 		while(resultMap != null) {
-			//System.out.println("url = " + callUrl);
-			HashMap<String, Object> header = mapper.convertValue(resultMap.getBody().get("header"), new TypeReference<>() {});
-			//System.out.println("header = " + header);
-			//String resultCode = header.get("resultCode");
-			String resultCode = (String)header.get("resultCode");
-			//String resultMsg = (String)header.get("resultMsg");
-			if(!resultCode.equals("00"))
-				return;
-			
-			HashMap<String, Object> body = mapper.convertValue(resultMap.getBody().get("body"), new TypeReference<>() {});
-			//System.out.println(body);
-			int tot = Integer.parseInt(String.valueOf(body.get("totalCount")));
-			int pageNo = Integer.parseInt(String.valueOf(body.get("pageNo")));
-			//int numOfRows = Integer.parseInt(String.valueOf(body.get("numOfRows")));
-			//System.out.println(tot + ", " + pageNo + ", " + numOfRows);
-			HashMap<String, Object> items = mapper.convertValue(body.get("items"), new TypeReference<>() {});
-			//System.out.println(items);
-			ArrayList<HashMap<String, String>> itemlist = mapper.convertValue(items.get("item"), new TypeReference<>() {});
-			//System.out.println(itemlist);
-			for(HashMap<String, String> i : itemlist) {
-				// 위치 정보
-				String seafsPstnNm = i.get("seafsPstnNm");
-				Double lat = Double.parseDouble(String.valueOf(i.get("lat")));
-				Double lot = Double.parseDouble(String.valueOf(i.get("lot")));
-				Optional<Location> locOpt = locRepo.findByName(seafsPstnNm);
-				Location loc;
-				if(locOpt.isEmpty()) {
-					loc = Location.builder()
-						.name(seafsPstnNm)
-						.lat(lat)
-						.lot(lot)
-						.build();
-					locRepo.save(loc);
-					++locationcount;
-				}
-				else 
-					loc = locOpt.get();
-				// 날씨 정보
-				SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd");
-				Date predcYmd = null;
-				try {
-					predcYmd = format2.parse(i.get("predcYmd"));
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				String predcNoonSeCd = i.get("predcNoonSeCd");
-				Double minWvhgt = Double.parseDouble(String.valueOf(i.get("minWvhgt")));
-				Double maxWvhgt = Double.parseDouble(String.valueOf(i.get("maxWvhgt")));
-				Double minWtem = Double.parseDouble(String.valueOf(i.get("minWtem")));
-				Double maxWtem = Double.parseDouble(String.valueOf(i.get("maxWtem")));
-				Double minArtmp = Double.parseDouble(String.valueOf(i.get("minArtmp")));
-				Double maxArtmp = Double.parseDouble(String.valueOf(i.get("maxArtmp")));
-				Double minCrsp = Double.parseDouble(String.valueOf(i.get("minCrsp")));
-				Double maxCrsp = Double.parseDouble(String.valueOf(i.get("maxCrsp")));
-				Double minWspd = Double.parseDouble(String.valueOf(i.get("minWspd")));
-				Double maxWspd = Double.parseDouble(String.valueOf(i.get("maxWspd")));
+			int locationcount = 0;
+			int weathercount = 0;
+			int weatherupdate = 0;
+			int fishcount = 0;
+			int fishupdate = 0;
+			String errorLog = null;
+			try {
+				//System.out.println("url = " + callUrl);
+				HashMap<String, Object> header = mapper.convertValue(resultMap.getBody().get("header"), new TypeReference<>() {});
+				//System.out.println("header = " + header);
+				//String resultCode = header.get("resultCode");
+				String resultCode = (String)header.get("resultCode");
+				//String resultMsg = (String)header.get("resultMsg");
+				if(!resultCode.equals("00"))
+					return;
 				
-				
-				Optional<Weather> weaOpt = weaRepo.findByLocationAndPredcYmdAndPredcNoonSeCd(loc, predcYmd, predcNoonSeCd);
-				Weather wea;
-				if(weaOpt.isEmpty()) {
-					wea = Weather.builder()
-							.predcYmd(predcYmd)
-							.predcNoonSeCd(predcNoonSeCd)
-							.minWvhgt(minWvhgt)
-							.maxWvhgt(maxWvhgt)
-							.minWtem(minWtem)
-							.maxWtem(maxWtem)
-							.minArtmp(minArtmp)
-							.maxArtmp(maxArtmp)
-							.minCrsp(minCrsp)
-							.maxCrsp(maxCrsp)
-							.minWspd(minWspd)
-							.maxWspd(maxWspd)
+				HashMap<String, Object> body = mapper.convertValue(resultMap.getBody().get("body"), new TypeReference<>() {});
+				//System.out.println(body);
+				tot = Integer.parseInt(String.valueOf(body.get("totalCount")));
+				pageNo = Integer.parseInt(String.valueOf(body.get("pageNo")));
+				//int numOfRows = Integer.parseInt(String.valueOf(body.get("numOfRows")));
+				//System.out.println(tot + ", " + pageNo + ", " + numOfRows);
+				HashMap<String, Object> items = mapper.convertValue(body.get("items"), new TypeReference<>() {});
+				//System.out.println(items);
+				ArrayList<HashMap<String, String>> itemlist = mapper.convertValue(items.get("item"), new TypeReference<>() {});
+				//System.out.println(itemlist);
+				for(HashMap<String, String> i : itemlist) {
+					// 위치 정보
+					String seafsPstnNm = i.get("seafsPstnNm");
+					Double lat = Double.parseDouble(String.valueOf(i.get("lat")));
+					Double lot = Double.parseDouble(String.valueOf(i.get("lot")));
+					Optional<Location> locOpt = locRepo.findByName(seafsPstnNm);
+					Location loc;
+					if(locOpt.isEmpty()) {
+						loc = Location.builder()
+							.name(seafsPstnNm)
+							.lat(lat)
+							.lot(lot)
+							.build();
+						locRepo.save(loc);
+						++locationcount;
+					}
+					else 
+						loc = locOpt.get();
+					// 날씨 정보
+					SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd");
+					Date predcYmd = null;
+					try {
+						predcYmd = format2.parse(i.get("predcYmd"));
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					String predcNoonSeCd = i.get("predcNoonSeCd");
+					Double minWvhgt = Double.parseDouble(String.valueOf(i.get("minWvhgt")));
+					Double maxWvhgt = Double.parseDouble(String.valueOf(i.get("maxWvhgt")));
+					Double minWtem = Double.parseDouble(String.valueOf(i.get("minWtem")));
+					Double maxWtem = Double.parseDouble(String.valueOf(i.get("maxWtem")));
+					Double minArtmp = Double.parseDouble(String.valueOf(i.get("minArtmp")));
+					Double maxArtmp = Double.parseDouble(String.valueOf(i.get("maxArtmp")));
+					Double minCrsp = Double.parseDouble(String.valueOf(i.get("minCrsp")));
+					Double maxCrsp = Double.parseDouble(String.valueOf(i.get("maxCrsp")));
+					Double minWspd = Double.parseDouble(String.valueOf(i.get("minWspd")));
+					Double maxWspd = Double.parseDouble(String.valueOf(i.get("maxWspd")));
+					
+					
+					Optional<Weather> weaOpt = weaRepo.findByLocationAndPredcYmdAndPredcNoonSeCd(loc, predcYmd, predcNoonSeCd);
+					Weather wea;
+					if(weaOpt.isEmpty()) {
+						wea = Weather.builder()
+								.predcYmd(predcYmd)
+								.predcNoonSeCd(predcNoonSeCd)
+								.minWvhgt(minWvhgt)
+								.maxWvhgt(maxWvhgt)
+								.minWtem(minWtem)
+								.maxWtem(maxWtem)
+								.minArtmp(minArtmp)
+								.maxArtmp(maxArtmp)
+								.minCrsp(minCrsp)
+								.maxCrsp(maxCrsp)
+								.minWspd(minWspd)
+								.maxWspd(maxWspd)
+								.location(loc)
+								.build();
+						++weathercount;
+					} else {
+						wea = weaOpt.get();
+						wea.setMinWvhgt(minWvhgt);
+						wea.setMaxWvhgt(maxWvhgt);
+						wea.setMinWtem(minWtem);
+						wea.setMaxWtem(maxWtem);
+						wea.setMinArtmp(minArtmp);
+						wea.setMaxArtmp(maxArtmp);
+						wea.setMinCrsp(minCrsp);
+						wea.setMaxCrsp(maxCrsp);
+						wea.setMinWspd(minWspd);
+						wea.setMaxWspd(maxWspd);
+						++weatherupdate;
+					}
+					weaRepo.save(wea);
+					// 어종 정보
+					String seafsTgfshNm = i.get("seafsTgfshNm");
+					Double tdvHrScr = Double.parseDouble(String.valueOf(i.get("tdlvHrScr")));
+					String totalIndex = i.get("totalIndex");
+					Double lastScr = Double.parseDouble(String.valueOf(i.get("lastScr")));
+					Optional<Fish> fishOpt = fishRepo.findByLocationAndWeatherAndName(loc, wea, seafsTgfshNm); 
+					Fish fish;
+					if(fishOpt.isEmpty())
+					{
+						fish = Fish.builder()
+							.name(seafsTgfshNm)
+							.tdvHrScr(tdvHrScr)
+							.totalIndex(totalIndex)
+							.lastScr(lastScr)
+							.weather(wea)
 							.location(loc)
 							.build();
-					++weathercount;
-				} else {
-					wea = weaOpt.get();
-					wea.setMinWvhgt(minWvhgt);
-					wea.setMaxWvhgt(maxWvhgt);
-					wea.setMinWtem(minWtem);
-					wea.setMaxWtem(maxWtem);
-					wea.setMinArtmp(minArtmp);
-					wea.setMaxArtmp(maxArtmp);
-					wea.setMinCrsp(minCrsp);
-					wea.setMaxCrsp(maxCrsp);
-					wea.setMinWspd(minWspd);
-					wea.setMaxWspd(maxWspd);
-					++weatherupdate;
+						++fishcount;
+					} else {
+						fish = fishOpt.get();
+						fish.setTdvHrScr(tdvHrScr);
+						fish.setTotalIndex(totalIndex);
+						fish.setLastScr(lastScr);
+						++fishupdate;
+					}
+					fishRepo.save(fish);
+					
+					// 등록되어 있지 않은 어종이 추가되면
+					if(seafsTgfshNm != null && seafsTgfshNm.length() > 0 && fishDeRepo.findByName(seafsTgfshNm).isEmpty()) {
+						FishDetail detail = FishDetail.builder()
+											.name(seafsTgfshNm)
+											.build();
+						fishDeRepo.save(detail);
+					}
 				}
-				weaRepo.save(wea);
-				// 어종 정보
-				String seafsTgfshNm = i.get("seafsTgfshNm");
-				Double tdvHrScr = Double.parseDouble(String.valueOf(i.get("tdlvHrScr")));
-				String totalIndex = i.get("totalIndex");
-				Double lastScr = Double.parseDouble(String.valueOf(i.get("lastScr")));
-				Optional<Fish> fishOpt = fishRepo.findByLocationAndWeatherAndName(loc, wea, seafsTgfshNm); 
-				Fish fish;
-				if(fishOpt.isEmpty())
-				{
-					fish = Fish.builder()
-						.name(seafsTgfshNm)
-						.tdvHrScr(tdvHrScr)
-						.totalIndex(totalIndex)
-						.lastScr(lastScr)
-						.weather(wea)
-						.location(loc)
-						.build();
-					++fishcount;
-				} else {
-					fish = fishOpt.get();
-					fish.setTdvHrScr(tdvHrScr);
-					fish.setTotalIndex(totalIndex);
-					fish.setLastScr(lastScr);
-					++fishupdate;
-				}
-				fishRepo.save(fish);
-				
-				// 등록되어 있지 않은 어종이 추가되면
-				if(seafsTgfshNm != null && seafsTgfshNm.length() > 0 && fishDeRepo.findByName(seafsTgfshNm).isEmpty()) {
-					FishDetail detail = FishDetail.builder()
-										.name(seafsTgfshNm)
-										.build();
-					fishDeRepo.save(detail);
-				}
+				this.dataSize += itemlist.size();
+				//System.out.println("dataSize : " + this.dataSize + ", tot : " + tot);
+			} catch(Exception e) {
+				e.printStackTrace();
+				StringWriter sw = new StringWriter();
+			    e.printStackTrace(new PrintWriter(sw));
+				errorLog = sw.toString();
+				break;
+			} finally {
+				// 로그 추가
+				logRepo.save(FetchLog.builder().fetchUrl(callUrl)
+					.errorMsg(errorLog)
+					.locationCount(locationcount)
+					.weatherCount(weathercount)
+					.weatherUpdate(weatherupdate)
+					.fishCount(fishcount)
+					.fishUpdate(fishupdate)
+					.build());
 			}
 			
-			this.dataSize += itemlist.size();
-			//System.out.println("dataSize : " + this.dataSize + ", tot : " + tot);
+			totLocationcount += locationcount;
+			totWeathercount += weathercount;
+			totWeatherupdate += weatherupdate;
+			totFishcount += fishcount;
+			totFishupdate += fishupdate;
+			// 로그 추가
+
+			// 종료 조건
 			if(this.dataSize >= tot && gubunIndex == 1)
-				break;			
+				break;
 			++pageNo;
 			if(this.dataSize >= tot && gubunIndex == 0)
 			{
@@ -214,8 +253,8 @@ public class FetchData {
 			callUrl = Baseurl + DateParam + GubunParam + PageParam + NumParam;
 			resultMap = fetch(callUrl);
 		}
-		System.out.println(reqDate + " : " + locationcount + "개의 위치와 " + weathercount + "개의 날씨와 " + fishcount + "개의 어종이 추가되었습니다.");
-		System.out.println(weatherupdate + "개의 날씨와 " + fishupdate + "개의 어종이 갱신되었습니다.");
+		System.out.println(reqDate + " : " + totLocationcount + "개의 위치와 " + totWeathercount + "개의 날씨와 " + totFishcount + "개의 어종이 추가되었습니다.");
+		System.out.println(totWeatherupdate + "개의 날씨와 " + totFishupdate + "개의 어종이 갱신되었습니다.");
 	}
 	
 	public ResponseEntity<Map<String, Object>> fetch(String url) {

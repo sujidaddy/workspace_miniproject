@@ -7,13 +7,16 @@ import org.springframework.data.domain.Page;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 public class PageDTO<T> {
 	private int pageNo;
 	private int numOfRows;
+	private String type;
 	private List<T> items;
 	private long totalCount;
 	private int totalPage;

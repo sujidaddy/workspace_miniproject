@@ -6,7 +6,9 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,16 +19,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
 
-import com.kdigital.miniproject.domain.Area;
+import com.kdigital.miniproject.domain.FetchLog;
 import com.kdigital.miniproject.domain.FishDetail;
 import com.kdigital.miniproject.domain.Member;
 import com.kdigital.miniproject.domain.PageDTO;
-import com.kdigital.miniproject.domain.RequestDTO;
 import com.kdigital.miniproject.domain.ResponseDTO;
 import com.kdigital.miniproject.domain.Role;
-import com.kdigital.miniproject.persistence.AreaRepository;
+import com.kdigital.miniproject.persistence.FetchLogRepository;
 import com.kdigital.miniproject.persistence.FishDetailRepository;
 import com.kdigital.miniproject.persistence.FishRepository;
 import com.kdigital.miniproject.persistence.LocationRepository;
@@ -49,6 +49,7 @@ public class AdminController {
 	private final LocationRepository locRepo;
 	private final WeatherRepository weaRepo;
 	private final FishDetailRepository fishDeRepo;
+	private final FetchLogRepository logRepo;
 	
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex) {
@@ -105,7 +106,7 @@ public class AdminController {
 		}
 		else
 		{
-			FetchData data = new FetchData(fishRepo, locRepo, weaRepo, fishDeRepo);
+			FetchData data = new FetchData(fishRepo, locRepo, weaRepo, fishDeRepo, logRepo);
 			FetchScheduler scheduler = new FetchScheduler(data);
 			scheduler.fetchStart();
 		}
@@ -243,11 +244,24 @@ public class AdminController {
 	public ResponseEntity<Object> postMemberList(
 			HttpServletRequest request,
 			@RequestBody  PageDTO<Member> pagedto) throws Exception {
+		return responseMemberList(request, pagedto.getPageNo(), pagedto.getNumOfRows());
+	}
+	
+	@GetMapping("v1/admin/memberlist")
+	public ResponseEntity<Object> getMemberList(
+			HttpServletRequest request,
+			@RequestParam("pageNo")int pageNo,
+			@RequestParam("numOfRows")int numOfRows) throws Exception {
+		return responseMemberList(request, pageNo, numOfRows);
+	}
+	
+	public ResponseEntity<Object> responseMemberList(
+			HttpServletRequest request,
+			int pageNo, int numOfRows) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
-		int pageNo = pagedto.getPageNo() - 1;
-		int numOfRows = pagedto.getNumOfRows();
+		pageNo -= 1;
 		//System.out.println("pageNo : " + pageNo + ", numOfRows : " + numOfRows);
 		Member member = JWTUtil.parseToken(request, memberRepo);
 		if(member == null)
@@ -266,14 +280,11 @@ public class AdminController {
 			Page<Member> page = memberRepo.findByRole(Role.ROLE_MEMBER, pageable);
 			PageDTO<Member> responsePage = new PageDTO<Member>(page);
 			res.addData(responsePage);
-			//res.addData(page);
 		}
 		
 		return ResponseEntity.ok().body(res);
 		
 	}
-	
-
 	
 	@PostMapping("v1/admin/modifyUserEnabled")
 	public ResponseEntity<Object> postModifyUserEnabled(
@@ -318,6 +329,74 @@ public class AdminController {
 			Member user = opt.get();
 			user.setEnabled(enabled);
 			memberRepo.save(user);
+		}
+			
+		return ResponseEntity.ok().body(res);
+	}
+	
+	@PostMapping("v1/admin/FetchLogList")
+	public ResponseEntity<Object> postFetchLogList(
+			HttpServletRequest request,
+			@RequestBody PageDTO<FetchLog> pagedto) throws Exception {
+		//System.out.println(pagedto.toString());
+		return responseFetchLogList(request, pagedto.getType(), pagedto.getPageNo(), pagedto.getNumOfRows());
+	}
+	
+	@GetMapping("v1/admin/FetchLogList")
+	public ResponseEntity<Object> getFetchLogList(
+			HttpServletRequest request,
+			@RequestParam("logType")String logType,
+			@RequestParam("pageNo")int pageNo,
+			@RequestParam("numOfRows")int numOfRows) throws Exception {
+		return responseFetchLogList(request, logType, pageNo, numOfRows);
+	}
+	
+	ResponseEntity<Object> responseFetchLogList(
+			HttpServletRequest request,
+			String logType,
+			int pageNo,
+			int numOfRows) throws Exception {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		pageNo -= 1;
+		//System.out.println("pageNo : " + pageNo + ", numOfRows : " + numOfRows);
+		Member member = JWTUtil.parseToken(request, memberRepo);
+		if(member == null)
+		{
+			res.setSuccess(false);
+			res.setError("올바르지 않은 정보입니다.");
+		}
+		else if(member.getRole() != Role.ROLE_ADMIN)
+		{
+			res.setSuccess(false);
+			res.setError("권한이 올바르지 않습니다.");
+		}
+		else
+		{
+			Pageable pageable = PageRequest.of(pageNo, numOfRows, Sort.Direction.DESC, "logNo");
+			Page<FetchLog> page = null;
+			switch(logType)
+			{
+				case "All":
+					page = logRepo.findAll(pageable);
+					break;
+				case "Success":
+					page = logRepo.findByErrorMsgIsNull(pageable);
+					break;
+				case "Error":
+					page = logRepo.findByErrorMsgIsNotNull(pageable);
+					break;
+				default:
+					res.setSuccess(false);
+					res.setError("올바른 요청이 아닙니다.");
+					break;
+			}
+			if(page != null)
+			{
+				PageDTO<FetchLog> responsePage = new PageDTO<FetchLog>(page);
+				res.addData(responsePage);
+			}
 		}
 			
 		return ResponseEntity.ok().body(res);
