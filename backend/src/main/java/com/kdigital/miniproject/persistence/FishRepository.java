@@ -24,7 +24,7 @@ public interface FishRepository extends JpaRepository<Fish, Long> {
 	List<Fish> findFishByLocation(Long location_no);
 	@Query(value="SELECT fish.* FROM fish LEFT OUTER JOIN weather ON fish.weather_no = weather.weather_no LEFT OUTER JOIN location ON fish.location_no = location.location_no WHERE fish.location_no = :location_no AND weather.predc_ymd = :predcYmd ORDER BY weather.predc_ymd;", nativeQuery=true)
 	List<Fish> findFishByLocationAndPredcYmd(Long location_no, String predcYmd);
-	@Query(value="SELECT fish_no, fish_name, tdv_hr_scr, total_index, last_scr, weather_no, location_no FROM (SELECT ROW_NUMBER() OVER(PARTITION BY F.name ORDER BY F.last_scr DESC) as rn, F.name AS fish_name, F.* FROM fish F LEFT JOIN weather W ON W.weather_no = F.weather_no LEFT JOIN location L ON L.location_no = F.location_no WHERE predc_ymd >= curdate()) T WHERE rm <= :top ORDER BY fish_name, last_scr DESC;", nativeQuery=true)
+	@Query(value="SELECT * FROM (SELECT ROW_NUMBER() OVER(PARTITION BY name ORDER BY last_scr DESC) as rn, fish.* FROM fish LEFT OUTER JOIN weather ON weather.weather_no = fish.weather_no WHERE weather.predc_ymd >= curdate()) T WHERE rn <= :top;", nativeQuery=true)
 	List<Fish> findFishPointTop(int top);
 
 }
