@@ -193,4 +193,17 @@ public class FishController {
 			
 		return ResponseEntity.ok().body(res);
 	}
+	
+	@GetMapping("v1/fishPointTop")
+	public ResponseEntity<Object> getFishPointTop() throws Exception {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		List<Fish> list =  fishRepo.findFishPointTop(3);
+		for(Fish f : list) {
+			res.addData(new FishSimple(f));
+		}
+			
+		return ResponseEntity.ok().body(res);
+	}
 }
