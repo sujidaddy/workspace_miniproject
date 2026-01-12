@@ -334,7 +334,7 @@ public class AdminController {
 		return ResponseEntity.ok().body(res);
 	}
 	
-	@PostMapping("v1/admin/FetchLogList")
+	@PostMapping("v1/admin/fetchLogList")
 	public ResponseEntity<Object> postFetchLogList(
 			HttpServletRequest request,
 			@RequestBody PageDTO<FetchLog> pagedto) throws Exception {
@@ -342,7 +342,7 @@ public class AdminController {
 		return responseFetchLogList(request, pagedto.getType(), pagedto.getPageNo(), pagedto.getNumOfRows());
 	}
 	
-	@GetMapping("v1/admin/FetchLogList")
+	@GetMapping("v1/admin/fetchLogList")
 	public ResponseEntity<Object> getFetchLogList(
 			HttpServletRequest request,
 			@RequestParam("logType")String logType,

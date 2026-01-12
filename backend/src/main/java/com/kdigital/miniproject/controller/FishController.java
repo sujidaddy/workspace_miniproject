@@ -23,17 +23,12 @@ import com.kdigital.miniproject.domain.Fish;
 import com.kdigital.miniproject.domain.FishDetail;
 import com.kdigital.miniproject.domain.FishSimple;
 import com.kdigital.miniproject.domain.Location;
-import com.kdigital.miniproject.domain.Member;
 import com.kdigital.miniproject.domain.RequestDTO;
 import com.kdigital.miniproject.domain.ResponseDTO;
-import com.kdigital.miniproject.domain.Role;
 import com.kdigital.miniproject.persistence.FishDetailRepository;
 import com.kdigital.miniproject.persistence.FishRepository;
 import com.kdigital.miniproject.persistence.LocationRepository;
-import com.kdigital.miniproject.persistence.MemberRepository;
-import com.kdigital.miniproject.util.JWTUtil;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -44,7 +39,6 @@ public class FishController {
 	private final FishRepository fishRepo;
 	private final LocationRepository locRepo;
 	private final FishDetailRepository fishDeRepo;
-	private final MemberRepository memberRepo;
 	
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex) {
