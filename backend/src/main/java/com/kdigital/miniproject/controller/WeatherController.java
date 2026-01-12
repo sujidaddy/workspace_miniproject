@@ -93,17 +93,17 @@ public class WeatherController {
 		{
 			res.setSuccess(false);
 			res.setError("올바른 요청이 아닙니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else if(lOpt.isEmpty()) {
+		if(lOpt.isEmpty()) {
 			res.setSuccess(false);
 			res.setError("위치정보 오류 입니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else {
-			List<Weather> list = weaRepo.findByLocationChart(location_no);
-			for(Weather w : list)
-				res.addData(new WeatherChart(w, query));
-		}
-		
+
+		List<Weather> list = weaRepo.findByLocationChart(location_no);
+		for(Weather w : list)
+			res.addData(new WeatherChart(w, query));
 		return ResponseEntity.ok().body(res);
 	}
 }

@@ -359,6 +359,12 @@ public class memberJoinController {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
+		if(JWTUtil.isExpired(request))
+		{
+			res.setSuccess(false);
+			res.setError("토큰이 만료되었습니다.");
+			return ResponseEntity.ok().body(res);
+		}
 		Member member = JWTUtil.parseToken(request, memberRepo);
 		if(member == null)
 		{

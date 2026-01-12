@@ -104,13 +104,12 @@ public class FishController {
 		{
 			res.setSuccess(false);
 			res.setError("검색할 이름을 입력해주세요.");
+			return ResponseEntity.ok().body(res);
 		}
-		else
-		{
-			List<Fish> list =  fishRepo.findByNameContains(name);
-			for(Fish f : list)
-				res.addData(new FishSimple(f));
-		}
+
+		List<Fish> list =  fishRepo.findByNameContains(name);
+		for(Fish f : list)
+			res.addData(new FishSimple(f));
 		return ResponseEntity.ok().body(res);
 	}
 	
@@ -133,14 +132,12 @@ public class FishController {
 		{
 			res.setSuccess(false);
 			res.setError("위치 고유번호가 올바르지 않습니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else
-		{
-			List<Fish> list = fishRepo.findByLocation(Location.builder().location_no(location).build());
-			for(Fish f : list)
-				res.addData(new FishSimple(f));
-		}
-		
+
+		List<Fish> list = fishRepo.findByLocation(Location.builder().location_no(location).build());
+		for(Fish f : list)
+			res.addData(new FishSimple(f));
 		return ResponseEntity.ok().body(res);
 	}
 	
@@ -168,19 +165,18 @@ public class FishController {
 			e.printStackTrace();
 			res.setSuccess(false);
 			res.setError("날자 형식이 맞지 않습니다. yyyy-MM-dd");
+			return ResponseEntity.ok().body(res);
 		}
 		if(locRepo.findById(location).isEmpty())
 		{
 			res.setSuccess(false);
 			res.setError("위치 고유번호가 올바르지 않습니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else
-		{
-			List<Fish> list = fishRepo.findFishByLocationAndPredcYmd(location, date);
-			for(Fish f : list)
-				res.addData(new FishSimple(f));
-		}
-		
+
+		List<Fish> list = fishRepo.findFishByLocationAndPredcYmd(location, date);
+		for(Fish f : list)
+			res.addData(new FishSimple(f));
 		return ResponseEntity.ok().body(res);
 	}
 	
@@ -195,7 +191,6 @@ public class FishController {
 			if(opt.isPresent())
 				res.addData(opt.get());
 		}
-			
 		return ResponseEntity.ok().body(res);
 	}
 	
@@ -220,6 +215,7 @@ public class FishController {
 			data.fetchTop3(LocalDate.now());
 			list =  topRepo.findByCreateDate(LocalDate.now());
 		}
+		
 		for(TopLocationDTO top : list) {
 			res.addData(top);
 		}

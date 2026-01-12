@@ -102,32 +102,27 @@ public class MemberController {
 				.success(true)
 				.build();
 		Optional<Member> opt = memberRepo.findByUserid(userid);
-		Member member = null;
 		if(opt.isEmpty())
 		{
 			res.setSuccess(false);
 			res.setError("회원 정보가 존재하지 않습니다. ID와 비밀번호를 확인해주세요.");
+			return ResponseEntity.ok().body(res);
 		}
-		else
+
+		Member member = opt.get();
+		if(!encoder.matches(password, member.getPassword()))
 		{
-			member = opt.get();
-			if(!encoder.matches(password, member.getPassword()))
-			{
-				res.setSuccess(false);
-				res.setError("회원 정보가 존재하지 않습니다. ID와 비밀번호를 확인해주세요.");
-			}
+			res.setSuccess(false);
+			res.setError("회원 정보가 존재하지 않습니다. ID와 비밀번호를 확인해주세요.");
+			return ResponseEntity.ok().body(res);
 		}
 		
-		if(res.isSuccess()) 
-		{
-			loginRepo.save(LoginLog.builder()
-					.member(member)
-					.loginTime(LocalDateTime.now())
-					.build());
-			String token = JWTUtil.getJWT(member);
-			res.addData(token);
-		}
-		
+		loginRepo.save(LoginLog.builder()
+				.member(member)
+				.loginTime(LocalDateTime.now())
+				.build());
+		String token = JWTUtil.getJWT(member);
+		res.addData(token);
 		return ResponseEntity.ok().body(res);
 	}
 	
@@ -149,27 +144,20 @@ public class MemberController {
 				.success(true)
 				.build();
 		Optional<Member> opt = memberRepo.findByGoogle(google);
-		Member member = null;
 		if(opt.isEmpty())
 		{
 			res.setSuccess(false);
 			res.setError("가입한 구글 계정이 아닙니다.");
-		}
-		else
-		{
-			member = opt.get();
+			return ResponseEntity.ok().body(res);
 		}
 		
-		if(member != null) 
-		{
-			loginRepo.save(LoginLog.builder()
-					.member(member)
-					.loginTime(LocalDateTime.now())
-					.build());
-			String token = JWTUtil.getJWT(member);
-			res.addData(token);
-		}
-		
+		Member member = opt.get();
+		loginRepo.save(LoginLog.builder()
+				.member(member)
+				.loginTime(LocalDateTime.now())
+				.build());
+		String token = JWTUtil.getJWT(member);
+		res.addData(token);
 		return ResponseEntity.ok().body(res);
 	}
 	
@@ -190,27 +178,20 @@ public class MemberController {
 				.success(true)
 				.build();
 		Optional<Member> opt = memberRepo.findByNaver(naver);
-		Member member = null;
 		if(opt.isEmpty())
 		{
 			res.setSuccess(false);
 			res.setError("가입한 네이버 계정이 아닙니다.");
-		}
-		else
-		{
-			member = opt.get();
+			return ResponseEntity.ok().body(res);
 		}
 		
-		if(member != null) 
-		{
-			loginRepo.save(LoginLog.builder()
-					.member(member)
-					.loginTime(LocalDateTime.now())
-					.build());
-			String token = JWTUtil.getJWT(member);
-			res.addData(token);
-		}
-		
+		Member member = opt.get();
+		loginRepo.save(LoginLog.builder()
+				.member(member)
+				.loginTime(LocalDateTime.now())
+				.build());
+		String token = JWTUtil.getJWT(member);
+		res.addData(token);
 		return ResponseEntity.ok().body(res);
 	}
 	
@@ -231,27 +212,20 @@ public class MemberController {
 				.success(true)
 				.build();
 		Optional<Member> opt = memberRepo.findByKakao(kakao);
-		Member member = null;
 		if(opt.isEmpty())
 		{
 			res.setSuccess(false);
 			res.setError("가입한 카카오 계정이 아닙니다.");
-		}
-		else
-		{
-			member = opt.get();
+			return ResponseEntity.ok().body(res);
 		}
 		
-		if(member != null) 
-		{
-			loginRepo.save(LoginLog.builder()
-					.member(member)
-					.loginTime(LocalDateTime.now())
-					.build());
-			String token = JWTUtil.getJWT(member);
-			res.addData(token);
-		}
-		
+		Member member = opt.get();
+		loginRepo.save(LoginLog.builder()
+				.member(member)
+				.loginTime(LocalDateTime.now())
+				.build());
+		String token = JWTUtil.getJWT(member);
+		res.addData(token);
 		return ResponseEntity.ok().body(res);
 	}
 	

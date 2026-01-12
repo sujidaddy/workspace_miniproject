@@ -58,7 +58,7 @@ public class JWTUtil {
 		return claim.asString();
 	}
 	
-	public static boolean isExpired(String token) {
+	private static boolean isExpired(String token) {
 		boolean result = true;
 		try {
 			String tok = getJWTSource(token);
@@ -71,6 +71,20 @@ public class JWTUtil {
 			result = false;
 		}
 		return result;
+	}
+	
+	public static boolean isExpired(HttpServletRequest request)
+	{
+		try {
+			String token = request.getHeader("Authorization");
+			if(isExpired(token))
+				return true;
+		}
+		catch(Exception e)
+		{
+			return true;
+		}
+		return false;
 	}
 	
 	public static Member parseToken(HttpServletRequest request, MemberRepository memberRepo) {

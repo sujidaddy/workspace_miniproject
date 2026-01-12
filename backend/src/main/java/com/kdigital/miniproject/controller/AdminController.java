@@ -95,24 +95,29 @@ public class AdminController {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
+		if(JWTUtil.isExpired(request))
+		{
+			res.setSuccess(false);
+			res.setError("토큰이 만료되었습니다.");
+			return ResponseEntity.ok().body(res);
+		}
 		Member member = JWTUtil.parseToken(request, memberRepo);
 		if(member == null)
 		{
 			res.setSuccess(false);
 			res.setError("올바르지 않은 정보입니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else if(member.getRole() != Role.ROLE_ADMIN)
+		if(member.getRole() != Role.ROLE_ADMIN)
 		{
 			res.setSuccess(false);
 			res.setError("권한이 올바르지 않습니다.");
-		}
-		else
-		{
-			FetchData data = new FetchData(fishRepo, locRepo, weaRepo, fishDeRepo, logRepo, topRepo);
-			FetchScheduler scheduler = new FetchScheduler(data);
-			scheduler.fetchStart();
+			return ResponseEntity.ok().body(res);
 		}
 		
+		FetchData data = new FetchData(fishRepo, locRepo, weaRepo, fishDeRepo, logRepo, topRepo);
+		FetchScheduler scheduler = new FetchScheduler(data);
+		scheduler.fetchStart();
 		return ResponseEntity.ok().body(res);
 	}
 	
@@ -122,27 +127,32 @@ public class AdminController {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
+		if(JWTUtil.isExpired(request))
+		{
+			res.setSuccess(false);
+			res.setError("토큰이 만료되었습니다.");
+			return ResponseEntity.ok().body(res);
+		}
 		Member member = JWTUtil.parseToken(request, memberRepo);
 		if(member == null)
 		{
 			res.setSuccess(false);
 			res.setError("올바르지 않은 정보입니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else if(member.getRole() != Role.ROLE_ADMIN)
+		if(member.getRole() != Role.ROLE_ADMIN)
 		{
 			res.setSuccess(false);
 			res.setError("권한이 올바르지 않습니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else
-		{
-			List<String> list =  fishRepo.findFishList();
-			for(String name : list) {
-				Optional<FishDetail> opt = fishDeRepo.findByName(name);
-				if(opt.isPresent())
-					res.addData(opt.get());
-			}
+		
+		List<String> list =  fishRepo.findFishList();
+		for(String name : list) {
+			Optional<FishDetail> opt = fishDeRepo.findByName(name);
+			if(opt.isPresent())
+				res.addData(opt.get());
 		}
-			
 		return ResponseEntity.ok().body(res);
 	}
 	
@@ -173,26 +183,33 @@ public class AdminController {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
+		if(JWTUtil.isExpired(request))
+		{
+			res.setSuccess(false);
+			res.setError("토큰이 만료되었습니다.");
+			return ResponseEntity.ok().body(res);
+		}
 		Member member = JWTUtil.parseToken(request, memberRepo);
 		if(member == null)
 		{
 			res.setSuccess(false);
 			res.setError("올바르지 않은 정보입니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else if(member.getRole() != Role.ROLE_ADMIN)
+		if(member.getRole() != Role.ROLE_ADMIN)
 		{
 			res.setSuccess(false);
 			res.setError("권한이 올바르지 않습니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else if(fishDeRepo.findById(detail.getData_no()).isEmpty())
+		if(fishDeRepo.findById(detail.getData_no()).isEmpty())
 		{
 			res.setSuccess(false);
 			res.setError("데이터 고유번호가 올바르지 않습니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else
-		{
-			fishDeRepo.save(detail);
-		}
+		
+		fishDeRepo.save(detail);
 		return ResponseEntity.ok().body(res);
 	}
 	
@@ -218,27 +235,32 @@ public class AdminController {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
+		if(JWTUtil.isExpired(request))
+		{
+			res.setSuccess(false);
+			res.setError("토큰이 만료되었습니다.");
+			return ResponseEntity.ok().body(res);
+		}
 		Member member = JWTUtil.parseToken(request, memberRepo);
 		if(member == null)
 		{
 			res.setSuccess(false);
 			res.setError("올바르지 않은 정보입니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else if(member.getRole() != Role.ROLE_ADMIN)
+		if(member.getRole() != Role.ROLE_ADMIN)
 		{
 			res.setSuccess(false);
 			res.setError("권한이 올바르지 않습니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else if(fishDeRepo.findById(detail.getData_no()).isEmpty())
+		if(fishDeRepo.findById(detail.getData_no()).isEmpty())
 		{
 			res.setSuccess(false);
 			res.setError("데이터 고유번호가 올바르지 않습니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else
-		{
-			fishDeRepo.delete(detail);
-		}
-			
+		fishDeRepo.delete(detail);
 		return ResponseEntity.ok().body(res);
 	}
 	
@@ -265,25 +287,30 @@ public class AdminController {
 				.build();
 		pageNo -= 1;
 		//System.out.println("pageNo : " + pageNo + ", numOfRows : " + numOfRows);
+		if(JWTUtil.isExpired(request))
+		{
+			res.setSuccess(false);
+			res.setError("토큰이 만료되었습니다.");
+			return ResponseEntity.ok().body(res);
+		}
 		Member member = JWTUtil.parseToken(request, memberRepo);
 		if(member == null)
 		{
 			res.setSuccess(false);
 			res.setError("올바르지 않은 정보입니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else if(member.getRole() != Role.ROLE_ADMIN)
+		if(member.getRole() != Role.ROLE_ADMIN)
 		{
 			res.setSuccess(false);
 			res.setError("권한이 올바르지 않습니다.");
-		}
-		else
-		{
-			Pageable pageable = PageRequest.of(pageNo, numOfRows);
-			Page<Member> page = memberRepo.findByRole(Role.ROLE_MEMBER, pageable);
-			PageDTO<Member> responsePage = new PageDTO<Member>(page);
-			res.addData(responsePage);
+			return ResponseEntity.ok().body(res);
 		}
 		
+		Pageable pageable = PageRequest.of(pageNo, numOfRows);
+		Page<Member> page = memberRepo.findByRole(Role.ROLE_MEMBER, pageable);
+		PageDTO<Member> responsePage = new PageDTO<Member>(page);
+		res.addData(responsePage);
 		return ResponseEntity.ok().body(res);
 		
 	}
@@ -309,30 +336,36 @@ public class AdminController {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
+		if(JWTUtil.isExpired(request))
+		{
+			res.setSuccess(false);
+			res.setError("토큰이 만료되었습니다.");
+			return ResponseEntity.ok().body(res);
+		}
 		Member member = JWTUtil.parseToken(request, memberRepo);
 		Optional<Member> opt = memberRepo.findById(user_no);
 		if(member == null)
 		{
 			res.setSuccess(false);
 			res.setError("올바르지 않은 정보입니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else if(member.getRole() != Role.ROLE_ADMIN)
+		if(member.getRole() != Role.ROLE_ADMIN)
 		{
 			res.setSuccess(false);
 			res.setError("권한이 올바르지 않습니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else if(opt.isEmpty())
+		if(opt.isEmpty())
 		{
 			res.setSuccess(false);
 			res.setError("존재하지 않는 회원입니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else
-		{
-			Member user = opt.get();
-			user.setEnabled(enabled);
-			memberRepo.save(user);
-		}
-			
+
+		Member user = opt.get();
+		user.setEnabled(enabled);
+		memberRepo.save(user);
 		return ResponseEntity.ok().body(res);
 	}
 	
@@ -363,44 +396,47 @@ public class AdminController {
 				.build();
 		pageNo -= 1;
 		//System.out.println("pageNo : " + pageNo + ", numOfRows : " + numOfRows);
+		if(JWTUtil.isExpired(request))
+		{
+			res.setSuccess(false);
+			res.setError("토큰이 만료되었습니다.");
+			return ResponseEntity.ok().body(res);
+		}
 		Member member = JWTUtil.parseToken(request, memberRepo);
 		if(member == null)
 		{
 			res.setSuccess(false);
 			res.setError("올바르지 않은 정보입니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else if(member.getRole() != Role.ROLE_ADMIN)
+		if(member.getRole() != Role.ROLE_ADMIN)
 		{
 			res.setSuccess(false);
 			res.setError("권한이 올바르지 않습니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else
+
+		Pageable pageable = PageRequest.of(pageNo, numOfRows, Sort.Direction.DESC, "logNo");
+		Page<FetchLog> page = null;
+		switch(logType)
 		{
-			Pageable pageable = PageRequest.of(pageNo, numOfRows, Sort.Direction.DESC, "logNo");
-			Page<FetchLog> page = null;
-			switch(logType)
-			{
-				case "All":
-					page = logRepo.findAll(pageable);
-					break;
-				case "Success":
-					page = logRepo.findByErrorMsgIsNull(pageable);
-					break;
-				case "Error":
-					page = logRepo.findByErrorMsgIsNotNull(pageable);
-					break;
-				default:
-					res.setSuccess(false);
-					res.setError("올바른 요청이 아닙니다.");
-					break;
-			}
-			if(page != null)
-			{
-				PageDTO<FetchLog> responsePage = new PageDTO<FetchLog>(page);
-				res.addData(responsePage);
-			}
+			case "All":
+				page = logRepo.findAll(pageable);
+				break;
+			case "Success":
+				page = logRepo.findByErrorMsgIsNull(pageable);
+				break;
+			case "Error":
+				page = logRepo.findByErrorMsgIsNotNull(pageable);
+				break;
+			default:
+				res.setSuccess(false);
+				res.setError("올바른 요청이 아닙니다.");
+				return ResponseEntity.ok().body(res);
 		}
-			
+
+		PageDTO<FetchLog> responsePage = new PageDTO<FetchLog>(page);
+		res.addData(responsePage);
 		return ResponseEntity.ok().body(res);
 	}
 

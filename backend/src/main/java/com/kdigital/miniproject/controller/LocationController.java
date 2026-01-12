@@ -132,17 +132,16 @@ public class LocationController {
 		if(lOpt.isEmpty()) {
 			res.setSuccess(false);
 			res.setError("위치정보 오류 입니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else {
-			logRepo.save(LocationLog.builder()
-							.location(lOpt.get())
-							.selectTime(LocalDateTime.now())
-							.build());
-			List<Fish> list = fishRepo.findFishByLocation(lOpt.get().getLocation_no());
-			for(Fish f : list)
-				res.addData(new FishSimple(f));
-		}
-		
+
+		logRepo.save(LocationLog.builder()
+						.location(lOpt.get())
+						.selectTime(LocalDateTime.now())
+						.build());
+		List<Fish> list = fishRepo.findFishByLocation(lOpt.get().getLocation_no());
+		for(Fish f : list)
+			res.addData(new FishSimple(f));
 		return ResponseEntity.ok().body(res);
 	}
 	
@@ -163,20 +162,24 @@ public class LocationController {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
+		if(JWTUtil.isExpired(request))
+		{
+			res.setSuccess(false);
+			res.setError("토큰이 만료되었습니다.");
+			return ResponseEntity.ok().body(res);
+		}
 		Member member = JWTUtil.parseToken(request, memberRepo);
 		if(member == null)
 		{
 			res.setSuccess(false);
 			res.setError("올바르지 않은 정보입니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else
-		{
-			res.setSuccess(true);
-			List<LocationFavorite> list = favoriteRepo.findByMemberAndDeleteTimeIsNull(member);
-			for(LocationFavorite f : list)
-				res.addData(new LocationFavoriteSimple(f));
-		}
-		
+
+		res.setSuccess(true);
+		List<LocationFavorite> list = favoriteRepo.findByMemberAndDeleteTimeIsNull(member);
+		for(LocationFavorite f : list)
+			res.addData(new LocationFavoriteSimple(f));
 		return ResponseEntity.ok().body(res);
 	}
 	
@@ -200,32 +203,35 @@ public class LocationController {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
+		if(JWTUtil.isExpired(request))
+		{
+			res.setSuccess(false);
+			res.setError("토큰이 만료되었습니다.");
+			return ResponseEntity.ok().body(res);
+		}
 		Member member = JWTUtil.parseToken(request, memberRepo);
 		if(member == null)
 		{
 			res.setSuccess(false);
 			res.setError("올바르지 않은 정보입니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else
+
+		Optional<LocationFavorite> opt = favoriteRepo.findByMemberAndLocationAndDeleteTimeIsNull(member, Location.builder().location_no(location).build());
+		if(opt.isPresent())
 		{
-			Optional<LocationFavorite> opt = favoriteRepo.findByMemberAndLocationAndDeleteTimeIsNull(member, Location.builder().location_no(location).build());
-			if(opt.isPresent())
-			{
-				res.setSuccess(false);
-				res.setError("이미 등록된 즐겨찾기입니다.");
-			}
-			else
-			{
-				res.setSuccess(true);
-				LocationFavorite favorite = LocationFavorite.builder()
-						.member(member)
-						.location(Location.builder().location_no(location).build())
-						.createTime(LocalDateTime.now())
-						.build();
-				favoriteRepo.save(favorite);
-			}
+			res.setSuccess(false);
+			res.setError("이미 등록된 즐겨찾기입니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		
+
+		res.setSuccess(true);
+		LocationFavorite favorite = LocationFavorite.builder()
+				.member(member)
+				.location(Location.builder().location_no(location).build())
+				.createTime(LocalDateTime.now())
+				.build();
+		favoriteRepo.save(favorite);
 		return ResponseEntity.ok().body(res);
 	}	
 	
@@ -249,29 +255,32 @@ public class LocationController {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
+		if(JWTUtil.isExpired(request))
+		{
+			res.setSuccess(false);
+			res.setError("토큰이 만료되었습니다.");
+			return ResponseEntity.ok().body(res);
+		}
 		Member member = JWTUtil.parseToken(request, memberRepo);
 		if(member == null)
 		{
 			res.setSuccess(false);
 			res.setError("올바르지 않은 정보입니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else
+
+		Optional<LocationFavorite> opt = favoriteRepo.findByMemberAndLocationAndDeleteTimeIsNull(member, Location.builder().location_no(location).build());
+		if(opt.isEmpty())
 		{
-			Optional<LocationFavorite> opt = favoriteRepo.findByMemberAndLocationAndDeleteTimeIsNull(member, Location.builder().location_no(location).build());
-			if(opt.isEmpty())
-			{
-				res.setSuccess(false);
-				res.setError("존재하지 않는 즐겨찾기입니다.");
-			}
-			else
-			{
-				res.setSuccess(true);
-				LocationFavorite favorite = opt.get();
-				favorite.setDeleteTime(LocalDateTime.now());
-				favoriteRepo.save(favorite);
-			}
+			res.setSuccess(false);
+			res.setError("존재하지 않는 즐겨찾기입니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		
+
+		res.setSuccess(true);
+		LocationFavorite favorite = opt.get();
+		favorite.setDeleteTime(LocalDateTime.now());
+		favoriteRepo.save(favorite);
 		return ResponseEntity.ok().body(res);
 	}
 }
