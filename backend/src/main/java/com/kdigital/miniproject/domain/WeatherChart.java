@@ -1,6 +1,6 @@
 package com.kdigital.miniproject.domain;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class WeatherChart{
-	private Date predcYmd;
+	private LocalDate predcYmd;
 	private String type;
 	private double minValue;
 	private double maxValue;

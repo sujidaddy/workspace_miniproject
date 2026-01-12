@@ -1,7 +1,7 @@
 package com.kdigital.miniproject.service;
 
+import java.time.LocalDate;
 import java.util.Calendar;
-import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -27,14 +27,13 @@ public class FetchScheduler {
 	public void fetchStart() {
 		if(fetch == null)
 			return ;
-		Calendar cal = Calendar.getInstance();
-		Date date = cal.getTime();
+		LocalDate curDate = LocalDate.now();
 		for(int i = 0; i < 7; ++i) {
-			System.out.println(date.toString());
-			fetch.setDate(date);
+			System.out.println(curDate.toString());
+			fetch.setDate(curDate);
 			fetch.startFetch();
-			cal.add(Calendar.DATE, 1);
-			date = cal.getTime();
+			curDate.plusDays(1);
 		}
+		fetch.fetchTop3(LocalDate.now());
 	}
 }

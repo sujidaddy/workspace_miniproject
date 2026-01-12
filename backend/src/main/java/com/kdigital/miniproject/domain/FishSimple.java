@@ -1,6 +1,6 @@
 package com.kdigital.miniproject.domain;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class FishSimple extends Fish {
-	protected Date predcYmd;
+	protected LocalDate predcYmd;
 	protected String predcNoonSeCd;
 	protected double minWvhgt;
 	protected double maxWvhgt;
@@ -34,7 +34,7 @@ public class FishSimple extends Fish {
 	public FishSimple(Fish fish) {
 		this.fish_no = fish.fish_no;
 		this.name = fish.name;
-		this.tdvHrScr = fish.tdvHrScr;
+		this.tdlvHrScr = fish.tdlvHrScr;
 		this.totalIndex = fish.totalIndex;
 		this.lastScr = fish.lastScr;
 		Weather wea = fish.getWeather();

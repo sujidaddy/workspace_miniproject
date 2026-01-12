@@ -1,7 +1,8 @@
 package com.kdigital.miniproject.controller;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,9 +26,15 @@ import com.kdigital.miniproject.domain.FishSimple;
 import com.kdigital.miniproject.domain.Location;
 import com.kdigital.miniproject.domain.RequestDTO;
 import com.kdigital.miniproject.domain.ResponseDTO;
+import com.kdigital.miniproject.domain.TopLocationDTO;
+import com.kdigital.miniproject.persistence.FetchLogRepository;
 import com.kdigital.miniproject.persistence.FishDetailRepository;
 import com.kdigital.miniproject.persistence.FishRepository;
 import com.kdigital.miniproject.persistence.LocationRepository;
+import com.kdigital.miniproject.persistence.TopLocationRepository;
+import com.kdigital.miniproject.persistence.WeatherRepository;
+import com.kdigital.miniproject.service.FetchData;
+import com.kdigital.miniproject.service.FetchScheduler;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,6 +46,9 @@ public class FishController {
 	private final FishRepository fishRepo;
 	private final LocationRepository locRepo;
 	private final FishDetailRepository fishDeRepo;
+	private final TopLocationRepository topRepo;
+	private final WeatherRepository weaRepo;
+	private final FetchLogRepository logRepo;
 	
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex) {
@@ -149,10 +159,11 @@ public class FishController {
 				.success(true)
 				.build();
 		try {
-			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-			df.parse(date);
+//			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+//			df.parse(date);
+			LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 			
-		} catch (ParseException e) {
+		} catch (DateTimeParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			res.setSuccess(false);
@@ -189,24 +200,28 @@ public class FishController {
 	}
 	
 	@PostMapping("v1/fish/topPoint")
-	public ResponseEntity<Object> postFishPointTop(
-			@RequestBody RequestDTO requestdto) throws Exception {
-		return responseFishPointTop((int)requestdto.getNumber());
+	public ResponseEntity<Object> postFishPointTop() throws Exception {
+		return responseFishPointTop();
 	}
 	
 	@GetMapping("v1/fish/topPoint")
-	public ResponseEntity<Object> getFishPointTop(
-			@RequestParam("count")int count) throws Exception {
-		return responseFishPointTop(count);
+	public ResponseEntity<Object> getFishPointTop() throws Exception {
+		return responseFishPointTop();
 	}
 	
-	ResponseEntity<Object> responseFishPointTop(int count) throws Exception {
+	ResponseEntity<Object> responseFishPointTop() throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
-		List<Fish> list =  fishRepo.findFishPointTop(count);
-		for(Fish f : list) {
-			res.addData(new FishSimple(f));
+		List<TopLocationDTO> list =  topRepo.findByCreateDate(LocalDate.now());
+		if(list.size() == 0)
+		{
+			FetchData data = new FetchData(fishRepo, locRepo, weaRepo, fishDeRepo, logRepo, topRepo);
+			data.fetchTop3(LocalDate.now());
+			list =  topRepo.findByCreateDate(LocalDate.now());
+		}
+		for(TopLocationDTO top : list) {
+			res.addData(top);
 		}
 			
 		return ResponseEntity.ok().body(res);

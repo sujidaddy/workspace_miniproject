@@ -31,6 +31,7 @@ import com.kdigital.miniproject.persistence.FishDetailRepository;
 import com.kdigital.miniproject.persistence.FishRepository;
 import com.kdigital.miniproject.persistence.LocationRepository;
 import com.kdigital.miniproject.persistence.MemberRepository;
+import com.kdigital.miniproject.persistence.TopLocationRepository;
 import com.kdigital.miniproject.persistence.WeatherRepository;
 import com.kdigital.miniproject.service.FetchData;
 import com.kdigital.miniproject.service.FetchScheduler;
@@ -50,6 +51,7 @@ public class AdminController {
 	private final WeatherRepository weaRepo;
 	private final FishDetailRepository fishDeRepo;
 	private final FetchLogRepository logRepo;
+	private final TopLocationRepository topRepo;
 	
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex) {
@@ -106,7 +108,7 @@ public class AdminController {
 		}
 		else
 		{
-			FetchData data = new FetchData(fishRepo, locRepo, weaRepo, fishDeRepo, logRepo);
+			FetchData data = new FetchData(fishRepo, locRepo, weaRepo, fishDeRepo, logRepo, topRepo);
 			FetchScheduler scheduler = new FetchScheduler(data);
 			scheduler.fetchStart();
 		}

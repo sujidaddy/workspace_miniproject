@@ -1,8 +1,6 @@
 package com.kdigital.miniproject.domain;
 
-import java.util.Date;
-
-import org.springframework.boot.context.properties.bind.DefaultValue;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,6 +38,6 @@ public class FetchLog {
 	@Builder.Default
 	@Temporal(TemporalType.DATE)
 	@Column(columnDefinition = "date default (curdate())")
-	private Date createDate = new Date();
+	private LocalDate createDate = LocalDate.now();
 
 }

@@ -59,9 +59,18 @@ public class JWTUtil {
 	}
 	
 	public static boolean isExpired(String token) {
-		String tok = getJWTSource(token);
-		return JWT.require(Algorithm.HMAC256(JWT_KEY)).build()
-						.verify(tok).getExpiresAt().before(new Date());
+		boolean result = true;
+		try {
+			String tok = getJWTSource(token);
+			result = JWT.require(Algorithm.HMAC256(JWT_KEY)).build()
+							.verify(tok).getExpiresAt().before(new Date());
+		}catch(Exception e)
+		{
+			//e.printStackTrace();
+			System.out.println("쿠키 만료");
+			result = false;
+		}
+		return result;
 	}
 	
 	public static Member parseToken(HttpServletRequest request, MemberRepository memberRepo) {
@@ -81,7 +90,8 @@ public class JWTUtil {
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
+			//e.printStackTrace();
+			System.out.println("쿠키 오류");
 			return null;
 		}
 	}

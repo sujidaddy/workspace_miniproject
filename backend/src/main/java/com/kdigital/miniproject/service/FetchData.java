@@ -1,12 +1,16 @@
 package com.kdigital.miniproject.service;
 
-import java.io.StringWriter;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -24,11 +28,13 @@ import com.kdigital.miniproject.domain.FetchLog;
 import com.kdigital.miniproject.domain.Fish;
 import com.kdigital.miniproject.domain.FishDetail;
 import com.kdigital.miniproject.domain.Location;
+import com.kdigital.miniproject.domain.TopLocationDTO;
 import com.kdigital.miniproject.domain.Weather;
 import com.kdigital.miniproject.persistence.FetchLogRepository;
 import com.kdigital.miniproject.persistence.FishDetailRepository;
 import com.kdigital.miniproject.persistence.FishRepository;
 import com.kdigital.miniproject.persistence.LocationRepository;
+import com.kdigital.miniproject.persistence.TopLocationRepository;
 import com.kdigital.miniproject.persistence.WeatherRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -41,26 +47,28 @@ public class FetchData {
 	private final WeatherRepository weaRepo;
 	private final FishDetailRepository fishDeRepo;
 	private final FetchLogRepository logRepo;
+	private final TopLocationRepository topRepo;
 	
 	String[] gubunList = {"갯바위", "선상"};
 	int pageNo = 1;
-	Date reqDate;
+	LocalDate reqDate;
 	int dataSize = 0;
 	int totalCount = 0;
 	
-	public void setDate(Date date) {
+	public void setDate(LocalDate date) {
 		reqDate = date;
 	}
 	
 	public void startFetch(){
 		pageNo = 1;
 		if (reqDate == null)
-			reqDate = new Date();
+			reqDate = LocalDate.now();
 		dataSize = 0;
 		int gubunIndex = 0;
 		String Baseurl = "https://apis.data.go.kr/1192136/fcstFishing/GetFcstFishingApiService?serviceKey=2cff2e258e29ed84bb63d34cc6e6f3bb0fddea2816f5c5b9148cb659019c8d03&type=json";
-		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-		String DateParam = "&reqDate=" + format.format(reqDate);
+		//SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+		//String DateParam = "&reqDate=" + format.format(reqDate);
+		String DateParam = "&reqDate=" + reqDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 		String GubunParam = "&gubun=" + gubunList[gubunIndex];
 		String PageParam = "&pageNo=" + pageNo;
 		String NumParam = "&numOfRows=300";
@@ -121,11 +129,11 @@ public class FetchData {
 					else 
 						loc = locOpt.get();
 					// 날씨 정보
-					SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd");
-					Date predcYmd = null;
+					//SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd");
+					LocalDate predcYmd = null;
 					try {
-						predcYmd = format2.parse(i.get("predcYmd"));
-					} catch (ParseException e) {
+						predcYmd = LocalDate.parse(i.get("predcYmd"), DateTimeFormatter.ofPattern("yyyy-MM-dd"));;
+					} catch (DateTimeParseException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
@@ -178,7 +186,7 @@ public class FetchData {
 					weaRepo.save(wea);
 					// 어종 정보
 					String seafsTgfshNm = i.get("seafsTgfshNm");
-					Double tdvHrScr = Double.parseDouble(String.valueOf(i.get("tdlvHrScr")));
+					Double tdlvHrScr = Double.parseDouble(String.valueOf(i.get("tdlvHrScr")));
 					String totalIndex = i.get("totalIndex");
 					Double lastScr = Double.parseDouble(String.valueOf(i.get("lastScr")));
 					Optional<Fish> fishOpt = fishRepo.findByLocationAndWeatherAndName(loc, wea, seafsTgfshNm); 
@@ -187,7 +195,7 @@ public class FetchData {
 					{
 						fish = Fish.builder()
 							.name(seafsTgfshNm)
-							.tdvHrScr(tdvHrScr)
+							.tdlvHrScr(tdlvHrScr)
 							.totalIndex(totalIndex)
 							.lastScr(lastScr)
 							.weather(wea)
@@ -196,7 +204,7 @@ public class FetchData {
 						++fishcount;
 					} else {
 						fish = fishOpt.get();
-						fish.setTdvHrScr(tdvHrScr);
+						fish.setTdlvHrScr(tdlvHrScr);
 						fish.setTotalIndex(totalIndex);
 						fish.setLastScr(lastScr);
 						++fishupdate;
@@ -255,6 +263,19 @@ public class FetchData {
 		}
 		System.out.println(reqDate + " : " + totLocationcount + "개의 위치와 " + totWeathercount + "개의 날씨와 " + totFishcount + "개의 어종이 추가되었습니다.");
 		System.out.println(totWeatherupdate + "개의 날씨와 " + totFishupdate + "개의 어종이 갱신되었습니다.");
+	}
+	
+	public void fetchTop3(LocalDate curDate) {
+		List<TopLocationDTO> haveList =  topRepo.findByCreateDate(curDate);
+		//System.out.println("curDate : " + curDate);
+		//System.out.println("size : " + haveList.size());
+		if(haveList.size() > 0)
+			return;
+		int topCount = 3;
+		List<Fish> addList = fishRepo.findFishPointTop(topCount);
+		for(Fish f : addList) {
+			topRepo.save(new TopLocationDTO(f));
+		}
 	}
 	
 	public ResponseEntity<Map<String, Object>> fetch(String url) {

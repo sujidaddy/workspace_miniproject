@@ -106,45 +106,4 @@ public class WeatherController {
 		
 		return ResponseEntity.ok().body(res);
 	}
-/*	
-	// 위치 별 날짜 검색
-	@PostMapping("/v1/weather")
-	public ResponseEntity<Object> postWeather(@RequestBody RequestDTO request) {
-		return responseWeather(request.getNumber(), request.getText());
-	}
-	
-	@GetMapping("/v1/weather")
-	public ResponseEntity<Object> getWeather(@RequestParam("location")long location_no, @RequestParam("date")String date) {
-		return responseWeather(location_no, date);
-	}
-	
-	ResponseEntity<Object> responseWeather(long location_no, String date) {
-		ResponseDTO res = ResponseDTO.builder()
-				.success(true)
-				.build();
-		Date d = null;
-		try {
-			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-			 d = df.parse(date);
-			
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			res.setSuccess(false);
-			res.setError("날자 형식이 맞지 않습니다. yyyy-MM-dd");
-		}
-		
-		if(res.isSuccess()) {
-			List<Weather> list = weaRepo.findByLocationAndPredcYmd(Location.builder().location_no(location_no).build(), d);
-			for(Weather w : list)
-				res.addData(new WeatherSimple(w, fishRepo));
-//			System.out.println(location_no + " : " + d);
-//			List<Fish> list = fishRepo.findFishByLocationAndPredcYmd(location_no, date);
-//			for(Fish f : list)
-//				res.addData(new FishSimple(f));
-		}
-		return ResponseEntity.ok().body(res);
-		
-	}
-*/
 }
