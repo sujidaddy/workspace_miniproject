@@ -36,7 +36,7 @@ public class TopLocationDTO {
 	@CreatedDate
 	@Column(updatable = false)
 	LocalDate createDate = LocalDate.now();
-	String seafsPstnNM;
+	String seafsPstnNm;
 	double lat;
 	double lot;
 	@Temporal(TemporalType.DATE)
@@ -60,7 +60,7 @@ public class TopLocationDTO {
 	
 	public TopLocationDTO(Fish f) {
 		this.createDate = LocalDate.now();
-		this.seafsPstnNM = f.getLocation().name;
+		this.seafsPstnNm = f.getLocation().name;
 		this.lat = f.getLocation().lat;
 		this.lot = f.getLocation().lot;
 		this.predcYmd = f.getWeather().predcYmd;
