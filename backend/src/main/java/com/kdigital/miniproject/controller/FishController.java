@@ -25,9 +25,7 @@ import com.kdigital.miniproject.domain.FishDetail;
 import com.kdigital.miniproject.domain.FishSimple;
 import com.kdigital.miniproject.domain.Location;
 import com.kdigital.miniproject.domain.Member;
-import com.kdigital.miniproject.domain.RequestDTO;
 import com.kdigital.miniproject.domain.ResponseDTO;
-import com.kdigital.miniproject.domain.Role;
 import com.kdigital.miniproject.domain.TopLocationDTO;
 import com.kdigital.miniproject.persistence.FetchLogRepository;
 import com.kdigital.miniproject.persistence.FishDetailRepository;
@@ -54,6 +52,12 @@ public class FishController {
 	private final WeatherRepository weaRepo;
 	private final FetchLogRepository logRepo;
 	private final MemberRepository memberRepo;
+	
+	public static class RequestDTO {
+		public String fish_name;
+		public long location_no;
+		public String weather_date;
+	}
 	
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex) {
@@ -93,26 +97,26 @@ public class FishController {
 	// 어종 이름 검색
 	@PostMapping("v1/fish/name")
 	public ResponseEntity<Object> postFishs(@RequestBody RequestDTO request) throws Exception {
-		return responseFishs(request.getText());
+		return responseFishs(request.fish_name);
 	}
 	
 	@GetMapping("v1/fish/name")
-	public ResponseEntity<Object> getFishs(@RequestParam String name) throws Exception {
-		return responseFishs(name);
+	public ResponseEntity<Object> getFishs(@RequestParam String fish_name) throws Exception {
+		return responseFishs(fish_name);
 	}
 	
-	ResponseEntity<Object> responseFishs(String name) throws Exception {
+	ResponseEntity<Object> responseFishs(String fish_name) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
-		if(name == null || name.length() == 0)
+		if(fish_name == null || fish_name.length() == 0)
 		{
 			res.setSuccess(false);
 			res.setError("검색할 이름을 입력해주세요.");
 			return ResponseEntity.ok().body(res);
 		}
 
-		List<Fish> list =  fishRepo.findByNameContains(name);
+		List<Fish> list =  fishRepo.findByNameContains(fish_name);
 		for(Fish f : list)
 			res.addData(new FishSimple(f));
 		return ResponseEntity.ok().body(res);
@@ -121,26 +125,26 @@ public class FishController {
 	// 위치 별 어종 정보
 	@PostMapping("v1/fish/location")
 	public ResponseEntity<Object> postFishsByLocation(@RequestBody RequestDTO request) throws Exception {
-		return responseFishsByLocation(request.getNumber());
+		return responseFishsByLocation(request.location_no);
 	}
 
 	@GetMapping("v1/fish/location")
-	public ResponseEntity<Object> getFishsByLocation(@RequestParam Long location) throws Exception {
-		return responseFishsByLocation(location);
+	public ResponseEntity<Object> getFishsByLocation(@RequestParam long location_no) throws Exception {
+		return responseFishsByLocation(location_no);
 	}
 
-	ResponseEntity<Object> responseFishsByLocation(Long location) throws Exception {
+	ResponseEntity<Object> responseFishsByLocation(long location_no) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
-		if(locRepo.findById(location).isEmpty())
+		if(locRepo.findById(location_no).isEmpty())
 		{
 			res.setSuccess(false);
 			res.setError("위치 고유번호가 올바르지 않습니다.");
 			return ResponseEntity.ok().body(res);
 		}
 
-		List<Fish> list = fishRepo.findByLocation(Location.builder().location_no(location).build());
+		List<Fish> list = fishRepo.findByLocation(Location.builder().location_no(location_no).build());
 		for(Fish f : list)
 			res.addData(new FishSimple(f));
 		return ResponseEntity.ok().body(res);
@@ -148,22 +152,22 @@ public class FishController {
 	
 	@PostMapping("v1/fish/weather")
 	public ResponseEntity<Object> postFishsByWeather(@RequestBody RequestDTO request) throws Exception {
-		return responseFishsByWeather(request.getNumber(), request.getText());
+		return responseFishsByWeather(request.location_no, request.weather_date);
 	}
 
 	@GetMapping("v1/fish/weather")
-	public ResponseEntity<Object> getFishsByWeather(@RequestParam("location_no") Long location, @RequestParam("weather")String date) throws Exception {
-		return responseFishsByWeather(location, date);
+	public ResponseEntity<Object> getFishsByWeather(@RequestParam long location_no, @RequestParam String weather_date) throws Exception {
+		return responseFishsByWeather(location_no, weather_date);
 	}
 
-	ResponseEntity<Object> responseFishsByWeather(Long location, String date) throws Exception {
+	ResponseEntity<Object> responseFishsByWeather(long location_no, String weather_date) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
 		try {
 //			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 //			df.parse(date);
-			LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+			LocalDate.parse(weather_date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 			
 		} catch (DateTimeParseException e) {
 			// TODO Auto-generated catch block
@@ -172,14 +176,14 @@ public class FishController {
 			res.setError("날자 형식이 맞지 않습니다. yyyy-MM-dd");
 			return ResponseEntity.ok().body(res);
 		}
-		if(locRepo.findById(location).isEmpty())
+		if(locRepo.findById(location_no).isEmpty())
 		{
 			res.setSuccess(false);
 			res.setError("위치 고유번호가 올바르지 않습니다.");
 			return ResponseEntity.ok().body(res);
 		}
 
-		List<Fish> list = fishRepo.findFishByLocationAndPredcYmd(location, date);
+		List<Fish> list = fishRepo.findFishByLocationAndPredcYmd(location_no, weather_date);
 		for(Fish f : list)
 			res.addData(new FishSimple(f));
 		return ResponseEntity.ok().body(res);
@@ -260,14 +264,14 @@ public class FishController {
 		if(member == null)
 		{
 			res.setSuccess(false);
-			res.setError("올바르지 않은 정보입니다.");
+			res.setError("로그인이 필요합니다.");
 			return ResponseEntity.ok().body(res);
 		}
 		
 		List<Fish> list = fishRepo.findByLocationNameAndFishName(location_name, fish_name);
-		System.out.println("location_name : " + location_name);
-		System.out.println("fish_name : " + fish_name);
-		System.out.println("size : " + list.size());
+		//System.out.println("location_name : " + location_name);
+		//System.out.println("fish_name : " + fish_name);
+		//System.out.println("size : " + list.size());
 		for(Fish f : list)
 			res.addData(new FishSimple(f));
 		return ResponseEntity.ok().body(res);

@@ -18,7 +18,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import com.kdigital.miniproject.config.PasswordEncoder;
 import com.kdigital.miniproject.domain.Member;
 import com.kdigital.miniproject.domain.ModifyMemberDTO;
-import com.kdigital.miniproject.domain.RequestDTO;
 import com.kdigital.miniproject.domain.ResponseDTO;
 import com.kdigital.miniproject.domain.Role;
 import com.kdigital.miniproject.persistence.MemberRepository;
@@ -34,6 +33,14 @@ import lombok.RequiredArgsConstructor;
 public class memberJoinController {
 	private final MemberRepository memberRepo;
 	private PasswordEncoder encoder = new PasswordEncoder();
+	
+	public static class RequestDTO {
+		public String userid;
+		public String email;
+		public String google;
+		public String naver;
+		public String kakao;
+	}
 	
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex) {
@@ -66,7 +73,7 @@ public class memberJoinController {
 	@PostMapping("/v1/join/validateID")
 	public ResponseEntity<Object> postValidateID(@RequestBody RequestDTO request) throws Exception {
 		System.out.println(request);
-		return responseValidateID(request.getText());
+		return responseValidateID(request.userid);
 	}
 	
 	@GetMapping("/v1/join/validateID")
@@ -95,7 +102,7 @@ public class memberJoinController {
 	// 등록된 이메일 확인
 	@PostMapping("/v1/join/validateEmail")
 	public ResponseEntity<Object> postValidateEmail(@RequestBody RequestDTO request) throws Exception {
-		return responseValidateEmail(request.getText());
+		return responseValidateEmail(request.email);
 	}
 	
 	@GetMapping("/v1/join/validateEmail")
@@ -124,7 +131,7 @@ public class memberJoinController {
 	// 등록된 구글 계정 확인
 	@PostMapping("/v1/join/validategoogle")
 	public ResponseEntity<Object> postValidateGoogle(@RequestBody RequestDTO request) throws Exception {
-		return responseValidateGoogle(request.getText());
+		return responseValidateGoogle(request.google);
 	}
 	
 	@GetMapping("/v1/join/validategoogle")
@@ -152,7 +159,7 @@ public class memberJoinController {
 	// 등록된 네이버 계정 확인
 	@PostMapping("/v1/join/validatenaver")
 	public ResponseEntity<Object> postValidateNaver(@RequestBody RequestDTO request) throws Exception {
-		return responseValidateNaver(request.getText());
+		return responseValidateNaver(request.naver);
 	}
 	
 	@GetMapping("/v1/join/validatenaver")
@@ -181,7 +188,7 @@ public class memberJoinController {
 	// 등록된 카카오 계정 확인
 	@PostMapping("/v1/join/validatekakao")
 	public ResponseEntity<Object> postValidateKakao(@RequestBody RequestDTO request) throws Exception {
-		return responseValidateKakao(request.getText());
+		return responseValidateKakao(request.kakao);
 	}
 	
 	@GetMapping("/v1/join/validatekakao")
@@ -369,7 +376,7 @@ public class memberJoinController {
 		if(member == null)
 		{
 			res.setSuccess(false);
-			res.setError("올바르지 않은 정보입니다.");
+			res.setError("로그인이 필요합니다.");
 		}
 		else if(!validatePassword(modifyMember.getNewPassword()))
 		{

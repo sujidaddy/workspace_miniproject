@@ -105,7 +105,7 @@ public class AdminController {
 		if(member == null)
 		{
 			res.setSuccess(false);
-			res.setError("올바르지 않은 정보입니다.");
+			res.setError("로그인이 필요합니다.");
 			return ResponseEntity.ok().body(res);
 		}
 		if(member.getRole() != Role.ROLE_ADMIN)
@@ -137,7 +137,7 @@ public class AdminController {
 		if(member == null)
 		{
 			res.setSuccess(false);
-			res.setError("올바르지 않은 정보입니다.");
+			res.setError("로그인이 필요합니다.");
 			return ResponseEntity.ok().body(res);
 		}
 		if(member.getRole() != Role.ROLE_ADMIN)
@@ -193,7 +193,7 @@ public class AdminController {
 		if(member == null)
 		{
 			res.setSuccess(false);
-			res.setError("올바르지 않은 정보입니다.");
+			res.setError("로그인이 필요합니다.");
 			return ResponseEntity.ok().body(res);
 		}
 		if(member.getRole() != Role.ROLE_ADMIN)
@@ -245,7 +245,7 @@ public class AdminController {
 		if(member == null)
 		{
 			res.setSuccess(false);
-			res.setError("올바르지 않은 정보입니다.");
+			res.setError("로그인이 필요합니다.");
 			return ResponseEntity.ok().body(res);
 		}
 		if(member.getRole() != Role.ROLE_ADMIN)
@@ -297,7 +297,7 @@ public class AdminController {
 		if(member == null)
 		{
 			res.setSuccess(false);
-			res.setError("올바르지 않은 정보입니다.");
+			res.setError("로그인이 필요합니다.");
 			return ResponseEntity.ok().body(res);
 		}
 		if(member.getRole() != Role.ROLE_ADMIN)
@@ -347,7 +347,7 @@ public class AdminController {
 		if(member == null)
 		{
 			res.setSuccess(false);
-			res.setError("올바르지 않은 정보입니다.");
+			res.setError("로그인이 필요합니다.");
 			return ResponseEntity.ok().body(res);
 		}
 		if(member.getRole() != Role.ROLE_ADMIN)
@@ -406,7 +406,7 @@ public class AdminController {
 		if(member == null)
 		{
 			res.setSuccess(false);
-			res.setError("올바르지 않은 정보입니다.");
+			res.setError("로그인이 필요합니다.");
 			return ResponseEntity.ok().body(res);
 		}
 		if(member.getRole() != Role.ROLE_ADMIN)

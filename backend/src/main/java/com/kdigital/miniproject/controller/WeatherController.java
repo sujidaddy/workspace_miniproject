@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.kdigital.miniproject.domain.Location;
-import com.kdigital.miniproject.domain.RequestDTO;
 import com.kdigital.miniproject.domain.ResponseDTO;
 import com.kdigital.miniproject.domain.Weather;
 import com.kdigital.miniproject.domain.WeatherChart;
@@ -33,6 +32,11 @@ import lombok.RequiredArgsConstructor;
 public class WeatherController {
 	private final WeatherRepository weaRepo;
 	private final LocationRepository locRepo;
+	
+	public static class RequestDTO {
+		public long location_no;
+		public String query;
+	}
 	
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex) {
@@ -65,17 +69,17 @@ public class WeatherController {
 	@PostMapping("/v1/weather/chart")
 	public ResponseEntity<Object> postWeatherChart(@RequestBody RequestDTO request) throws Exception {
 //		System.out.println("request : " + request.toString());
-		return responseWeatherChart(request.getNumber(), request.getText());
+		return responseWeatherChart(request.location_no, request.query);
 	}
 	
 	@GetMapping("/v1/weather/chart")
-	public ResponseEntity<Object> getWeatherChart(@RequestParam Long location_no, @RequestParam String query) throws Exception {
+	public ResponseEntity<Object> getWeatherChart(@RequestParam long location_no, @RequestParam String query) throws Exception {
 //		System.out.println("location_no : " + location_no);
 //		System.out.println("query : " + query);
 		return responseWeatherChart(location_no, query);
 	}
 	
-	public ResponseEntity<Object> responseWeatherChart(Long location_no, String query) throws Exception {
+	public ResponseEntity<Object> responseWeatherChart(long location_no, String query) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();

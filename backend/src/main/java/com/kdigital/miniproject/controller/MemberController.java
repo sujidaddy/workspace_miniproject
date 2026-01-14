@@ -20,7 +20,6 @@ import com.kdigital.miniproject.config.PasswordEncoder;
 import com.kdigital.miniproject.domain.LoginLog;
 import com.kdigital.miniproject.domain.LoginRequestDTO;
 import com.kdigital.miniproject.domain.Member;
-import com.kdigital.miniproject.domain.RequestDTO;
 import com.kdigital.miniproject.domain.ResponseDTO;
 import com.kdigital.miniproject.persistence.LoginLogRepository;
 import com.kdigital.miniproject.persistence.MemberRepository;
@@ -38,6 +37,12 @@ public class MemberController {
 	private final MemberRepository memberRepo;
 	private final LoginLogRepository loginRepo;
 	private PasswordEncoder encoder = new PasswordEncoder();
+
+	public static class RequestDTO {
+		public String google;
+		public String naver;
+		public String kakao;
+	}
 	
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex) {
@@ -130,7 +135,7 @@ public class MemberController {
 	public ResponseEntity<Object> postLoginGoogle(
 			HttpServletResponse response,
 			@RequestBody RequestDTO request) {
-		return responseLoginGoogle(request.getText());
+		return responseLoginGoogle(request.google);
 	}
 	
 	@GetMapping("/v1/logingoogle")
@@ -164,7 +169,7 @@ public class MemberController {
 	@PostMapping("/v1/loginnaver")
 	public ResponseEntity<Object> postLoginNaver(
 			@RequestBody RequestDTO request) {
-		return responseLoginNaver(request.getText());
+		return responseLoginNaver(request.naver);
 	}
 	
 	@GetMapping("/v1/loginnaver")
@@ -198,7 +203,7 @@ public class MemberController {
 	@PostMapping("/v1/loginkakao")
 	public ResponseEntity<Object> postLoginKakao(
 			@RequestBody RequestDTO request) {
-		return responseLoginKakao(request.getText());
+		return responseLoginKakao(request.kakao);
 	}
 	
 	@GetMapping("/v1/loginkakao")

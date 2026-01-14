@@ -26,7 +26,6 @@ import com.kdigital.miniproject.domain.LocationFavoriteSimple;
 import com.kdigital.miniproject.domain.LocationLog;
 import com.kdigital.miniproject.domain.LocationSimple;
 import com.kdigital.miniproject.domain.Member;
-import com.kdigital.miniproject.domain.RequestDTO;
 import com.kdigital.miniproject.domain.ResponseDTO;
 import com.kdigital.miniproject.persistence.FishRepository;
 import com.kdigital.miniproject.persistence.LocationFavoriteRepository;
@@ -48,6 +47,11 @@ public class LocationController {
 	private final LocationLogRepository logRepo;
 	private final FishRepository fishRepo;
 	private final LocationFavoriteRepository favoriteRepo;
+	
+	public static class RequestDTO {
+		public int area_no;
+		public long location_no;
+	}
 	
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex) {
@@ -93,19 +97,19 @@ public class LocationController {
 	@PostMapping("/v1/location/area")
 	public ResponseEntity<Object> postLocations(@RequestBody RequestDTO request) throws Exception {
 		//System.out.println(request.toString());
-		return responseLocations((int)request.getNumber());
+		return responseLocations((int)request.area_no);
 	}
 	
 	@GetMapping("/v1/location/area")
-	public ResponseEntity<Object> getLocations(@RequestParam int area) throws Exception {
-		return responseLocations(area);
+	public ResponseEntity<Object> getLocations(@RequestParam int area_no) throws Exception {
+		return responseLocations(area_no);
 	}
 	
-	ResponseEntity<Object> responseLocations(int area) throws Exception {
+	ResponseEntity<Object> responseLocations(int area_no) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
-		List<Location> list = locRepo.findByArea(Area.builder().area_no(area).build());
+		List<Location> list = locRepo.findByArea(Area.builder().area_no(area_no).build());
 		for(Location loc : list)
 			//res.addData(loc);
 			res.addData(new LocationSimple(loc));
@@ -115,15 +119,15 @@ public class LocationController {
 	// 위치 선택(선택한 적이 있는 위치에 대한 History를 쌓기 위한 로그 만들기
 	@PostMapping("/v1/location/select")
 	public ResponseEntity<Object> postLocationSelect(@RequestBody RequestDTO request) throws Exception {
-		return responseLocationSelect(request.getNumber());
+		return responseLocationSelect(request.location_no);
 	}
 	
 	@GetMapping("/v1/location/select")
-	public ResponseEntity<Object> getLocationSelect(@RequestParam Long location_no) throws Exception {
+	public ResponseEntity<Object> getLocationSelect(@RequestParam long location_no) throws Exception {
 		return responseLocationSelect(location_no);
 	}
 	
-	public ResponseEntity<Object> responseLocationSelect(Long location_no) throws Exception {
+	public ResponseEntity<Object> responseLocationSelect(long location_no) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build(); 
@@ -172,7 +176,7 @@ public class LocationController {
 		if(member == null)
 		{
 			res.setSuccess(false);
-			res.setError("올바르지 않은 정보입니다.");
+			res.setError("로그인이 필요합니다.");
 			return ResponseEntity.ok().body(res);
 		}
 
@@ -187,19 +191,19 @@ public class LocationController {
 	public ResponseEntity<Object> postLocationFavoriteAdd(
 			HttpServletRequest request,
 			@RequestBody RequestDTO requestdto) throws Exception {
-		return responseLocationFavoriteAdd(request, requestdto.getNumber());
+		return responseLocationFavoriteAdd(request, requestdto.location_no);
 	}
 	
 	@GetMapping("/v1/location/favorite/add")
 	public ResponseEntity<Object> getLocationFavoriteAdd(
 			HttpServletRequest request,
-			@RequestParam("location_no")long location) throws Exception {
-		return responseLocationFavoriteAdd(request, location);
+			@RequestParam long location_no) throws Exception {
+		return responseLocationFavoriteAdd(request, location_no);
 	}
 	
 	ResponseEntity<Object> responseLocationFavoriteAdd(
 			HttpServletRequest request,
-			long location) throws Exception {
+			long location_no) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
@@ -213,11 +217,11 @@ public class LocationController {
 		if(member == null)
 		{
 			res.setSuccess(false);
-			res.setError("올바르지 않은 정보입니다.");
+			res.setError("로그인이 필요합니다.");
 			return ResponseEntity.ok().body(res);
 		}
 
-		Optional<LocationFavorite> opt = favoriteRepo.findByMemberAndLocationAndDeleteTimeIsNull(member, Location.builder().location_no(location).build());
+		Optional<LocationFavorite> opt = favoriteRepo.findByMemberAndLocationAndDeleteTimeIsNull(member, Location.builder().location_no(location_no).build());
 		if(opt.isPresent())
 		{
 			res.setSuccess(false);
@@ -228,7 +232,7 @@ public class LocationController {
 		res.setSuccess(true);
 		LocationFavorite favorite = LocationFavorite.builder()
 				.member(member)
-				.location(Location.builder().location_no(location).build())
+				.location(Location.builder().location_no(location_no).build())
 				.createTime(LocalDateTime.now())
 				.build();
 		favoriteRepo.save(favorite);
@@ -239,19 +243,19 @@ public class LocationController {
 	public ResponseEntity<Object> postLocationFavoriteRemove(
 			HttpServletRequest request,
 			@RequestBody RequestDTO requestdto) throws Exception {
-		return responseLocationFavoriteRemove(request, requestdto.getNumber());
+		return responseLocationFavoriteRemove(request, requestdto.location_no);
 	}
 	
 	@GetMapping("/v1/location/favorite/remove")
 	public ResponseEntity<Object> getLocationFavoriteRemove(
 			HttpServletRequest request,
-			@RequestParam("location_no")long location) throws Exception {
-		return responseLocationFavoriteAdd(request, location);
+			@RequestParam long location_no) throws Exception {
+		return responseLocationFavoriteAdd(request, location_no);
 	}
 	
 	ResponseEntity<Object> responseLocationFavoriteRemove(
 			HttpServletRequest request,
-			long location) throws Exception {
+			long location_no) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
@@ -265,11 +269,11 @@ public class LocationController {
 		if(member == null)
 		{
 			res.setSuccess(false);
-			res.setError("올바르지 않은 정보입니다.");
+			res.setError("로그인이 필요합니다.");
 			return ResponseEntity.ok().body(res);
 		}
 
-		Optional<LocationFavorite> opt = favoriteRepo.findByMemberAndLocationAndDeleteTimeIsNull(member, Location.builder().location_no(location).build());
+		Optional<LocationFavorite> opt = favoriteRepo.findByMemberAndLocationAndDeleteTimeIsNull(member, Location.builder().location_no(location_no).build());
 		if(opt.isEmpty())
 		{
 			res.setSuccess(false);
