@@ -70,7 +70,7 @@ public class memberJoinController {
 	}
 	
 	@GetMapping("/v1/join/validateID")
-	public ResponseEntity<Object> getValidateID(@RequestParam("userid")String userid) throws Exception {
+	public ResponseEntity<Object> getValidateID(@RequestParam String userid) throws Exception {
 		return responseValidateID(userid);
 	}
 	
@@ -99,7 +99,7 @@ public class memberJoinController {
 	}
 	
 	@GetMapping("/v1/join/validateEmail")
-	public ResponseEntity<Object> getValidateEmail(@RequestParam("email")String email) throws Exception {
+	public ResponseEntity<Object> getValidateEmail(@RequestParam String email) throws Exception {
 		return responseValidateEmail(email);
 	}
 	
@@ -128,7 +128,7 @@ public class memberJoinController {
 	}
 	
 	@GetMapping("/v1/join/validategoogle")
-	public ResponseEntity<Object> postValidateGoogle(@RequestParam("google")String google) throws Exception {
+	public ResponseEntity<Object> postValidateGoogle(@RequestParam String google) throws Exception {
 		return responseValidateGoogle(google);
 	}
 	
@@ -156,7 +156,7 @@ public class memberJoinController {
 	}
 	
 	@GetMapping("/v1/join/validatenaver")
-	public ResponseEntity<Object> getValidateNaver(@RequestParam("naver")String naver) throws Exception {
+	public ResponseEntity<Object> getValidateNaver(@RequestParam String naver) throws Exception {
 		return responseValidateNaver(naver);
 	}
 	
@@ -185,7 +185,7 @@ public class memberJoinController {
 	}
 	
 	@GetMapping("/v1/join/validatekakao")
-	public ResponseEntity<Object> getValidateKakao(@RequestParam("kakao")String kakao) throws Exception {
+	public ResponseEntity<Object> getValidateKakao(@RequestParam String kakao) throws Exception {
 		return responseValidateKakao(kakao);
 	}
 	
@@ -217,13 +217,13 @@ public class memberJoinController {
 	
 	@GetMapping("/v1/join/joinUser")
 	public ResponseEntity<Object> getJoinUser(
-			@RequestParam("userid")String userid,
-			@RequestParam("password")String password,
-			@RequestParam("username")String username,
-			@RequestParam("email")String email,
-			@RequestParam("google")String google,
-			@RequestParam("naver")String naver,
-			@RequestParam("kakao")String kakao) {
+			@RequestParam String userid,
+			@RequestParam String password,
+			@RequestParam String username,
+			@RequestParam String email,
+			@RequestParam String google,
+			@RequestParam String naver,
+			@RequestParam String kakao) {
 		return responseJoinUser(Member.builder()
 								.userid(userid)
 								.password(password)
@@ -343,9 +343,9 @@ public class memberJoinController {
 	@GetMapping("/v1/join/modifyUser")
 	public ResponseEntity<Object> getModifyUser(
 			HttpServletRequest request,
-			@RequestParam("currentPassword")String currentPassword,
-			@RequestParam("newPassword")String newPassword,
-			@RequestParam("newUsername")String newUsearname) {
+			@RequestParam String currentPassword,
+			@RequestParam String newPassword,
+			@RequestParam String newUsearname) {
 		ModifyMemberDTO member = new ModifyMemberDTO();
 		member.setCurrentPassword(currentPassword);
 		member.setNewPassword(newPassword);

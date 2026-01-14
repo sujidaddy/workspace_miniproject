@@ -92,7 +92,7 @@ public class MemberController {
 	
 	@GetMapping("/v1/loginid")
 	public ResponseEntity<Object> getloginId(
-			@RequestParam("userid") String userid, @RequestParam("password")String password) {
+			@RequestParam String userid, @RequestParam String password) {
 		return responseLoginId(userid, password);
 	}
 	
@@ -135,7 +135,7 @@ public class MemberController {
 	
 	@GetMapping("/v1/logingoogle")
 	public ResponseEntity<Object> getLoginGoogle(
-			@RequestParam("google") String google) {
+			@RequestParam String google) {
 		return responseLoginGoogle(google);
 	}
 	
@@ -169,7 +169,7 @@ public class MemberController {
 	
 	@GetMapping("/v1/loginnaver")
 	public ResponseEntity<Object> getLoginNaver(
-			@RequestParam("naver") String naver) {
+			@RequestParam String naver) {
 		return responseLoginNaver(naver);
 	}
 	
@@ -203,7 +203,7 @@ public class MemberController {
 	
 	@GetMapping("/v1/loginkakao")
 	public ResponseEntity<Object> getLoginKakao(
-			@RequestParam("kakao") String kakao) {
+			@RequestParam String kakao) {
 		return responseLoginKakao(kakao);
 	}
 	

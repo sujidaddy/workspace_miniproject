@@ -166,10 +166,10 @@ public class AdminController {
 	@GetMapping("v1/admin/modifyFishDetail")
 	public ResponseEntity<Object> getModifyFishDetail(
 			HttpServletRequest request,
-			@RequestParam("data_no") int data_no,
-			@RequestParam("name") String name,
-			@RequestParam("detail") String detail,
-			@RequestParam("url") String url) throws Exception {
+			@RequestParam int data_no,
+			@RequestParam String name,
+			@RequestParam String detail,
+			@RequestParam String url) throws Exception {
 		return responseModifyFishDetail(request, FishDetail.builder()
 												.data_no(data_no)
 												.name(name)
@@ -223,7 +223,7 @@ public class AdminController {
 	@GetMapping("v1/admin/removeFishDetail")
 	public ResponseEntity<Object> getRemoveFishDetail(
 			HttpServletRequest request,
-			@RequestParam("data_no")int data_no) throws Exception {
+			@RequestParam int data_no) throws Exception {
 		return responseRemoveFishDetail(request, FishDetail.builder()
 												.data_no(data_no)
 												.build());
@@ -274,8 +274,8 @@ public class AdminController {
 	@GetMapping("v1/admin/memberlist")
 	public ResponseEntity<Object> getMemberList(
 			HttpServletRequest request,
-			@RequestParam("pageNo")int pageNo,
-			@RequestParam("numOfRows")int numOfRows) throws Exception {
+			@RequestParam int pageNo,
+			@RequestParam int numOfRows) throws Exception {
 		return responseMemberList(request, pageNo, numOfRows);
 	}
 	
@@ -325,8 +325,8 @@ public class AdminController {
 	@GetMapping("v1/admin/modifyUserEnabled")
 	public ResponseEntity<Object> getModifyUserEnabled(
 			HttpServletRequest request,
-			@RequestParam("user_no")long user_no,
-			@RequestParam("enabled")boolean enabled) throws Exception {
+			@RequestParam long user_no,
+			@RequestParam boolean enabled) throws Exception {
 		return responseModifyUserEnabled(request, user_no, enabled);
 	}
 	
@@ -380,9 +380,9 @@ public class AdminController {
 	@GetMapping("v1/admin/fetchLogList")
 	public ResponseEntity<Object> getFetchLogList(
 			HttpServletRequest request,
-			@RequestParam("logType")String logType,
-			@RequestParam("pageNo")int pageNo,
-			@RequestParam("numOfRows")int numOfRows) throws Exception {
+			@RequestParam String logType,
+			@RequestParam int pageNo,
+			@RequestParam int numOfRows) throws Exception {
 		return responseFetchLogList(request, logType, pageNo, numOfRows);
 	}
 	

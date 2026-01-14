@@ -14,6 +14,7 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,37 +30,41 @@ import lombok.ToString;
 public class TopLocationDTO {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+//	@Builder.Default
+//	private long data_no = -1;
 	private long data_no;
 	@Builder.Default
 	@Temporal(TemporalType.DATE)
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	@CreatedDate
 	@Column(updatable = false)
-	LocalDate createDate = LocalDate.now();
-	String seafsPstnNm;
-	double lat;
-	double lot;
+	private LocalDate createDate = LocalDate.now();
+	private String seafsPstnNm;
+	private double lat;
+	private double lot;
 	@Temporal(TemporalType.DATE)
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	LocalDate predcYmd;
-	String predcNonSeCd;
-	String seafsTgfshNm;
-	double tdlvHrScr;
-	double minWvhgt;
-	double maxWvhgt;
-	double minWtem;
-	double maxWtem;
-	double minArtmp;
-	double maxArtmp;
-	double minCrsp;
-	double maxCrsp;
-	double minWspd;
-	double maxWspd;
-	String totalIndex;
-	double lastScr;
+	private LocalDate predcYmd;
+	private String predcNonSeCd;
+	private String seafsTgfshNm;
+	private double tdlvHrScr;
+	private double minWvhgt;
+	private double maxWvhgt;
+	private double minWtem;
+	private double maxWtem;
+	private double minArtmp;
+	private double maxArtmp;
+	private double minCrsp;
+	private double maxCrsp;
+	private double minWspd;
+	private double maxWspd;
+	private String totalIndex;
+	private double lastScr;
+	private long location_no;
 	
 	public TopLocationDTO(Fish f) {
 		this.createDate = LocalDate.now();
+		this.location_no = f.getLocation().location_no;
 		this.seafsPstnNm = f.getLocation().name;
 		this.lat = f.getLocation().lat;
 		this.lot = f.getLocation().lot;

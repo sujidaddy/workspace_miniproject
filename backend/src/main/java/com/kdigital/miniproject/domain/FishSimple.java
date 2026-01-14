@@ -28,6 +28,7 @@ public class FishSimple extends Fish {
 	protected String area_name;
 	protected double lat;
 	protected double lot;
+	protected long location_no;
 	
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private Weather weather;
@@ -39,6 +40,7 @@ public class FishSimple extends Fish {
 		this.lastScr = fish.lastScr;
 		Weather wea = fish.getWeather();
 		Location loc = fish.getLocation();
+		this.location_no = loc.location_no;
 		
 		this.predcYmd = wea.predcYmd;
 		this.predcNoonSeCd = wea.predcNoonSeCd;

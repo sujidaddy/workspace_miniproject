@@ -69,7 +69,7 @@ public class WeatherController {
 	}
 	
 	@GetMapping("/v1/weather/chart")
-	public ResponseEntity<Object> getWeatherChart(@RequestParam("location_no")Long location_no, @RequestParam("query")String query) throws Exception {
+	public ResponseEntity<Object> getWeatherChart(@RequestParam Long location_no, @RequestParam String query) throws Exception {
 //		System.out.println("location_no : " + location_no);
 //		System.out.println("query : " + query);
 		return responseWeatherChart(location_no, query);

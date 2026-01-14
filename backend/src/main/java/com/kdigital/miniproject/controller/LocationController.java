@@ -97,7 +97,7 @@ public class LocationController {
 	}
 	
 	@GetMapping("/v1/location/area")
-	public ResponseEntity<Object> getLocations(@RequestParam("area")int area) throws Exception {
+	public ResponseEntity<Object> getLocations(@RequestParam int area) throws Exception {
 		return responseLocations(area);
 	}
 	
@@ -119,7 +119,7 @@ public class LocationController {
 	}
 	
 	@GetMapping("/v1/location/select")
-	public ResponseEntity<Object> getLocationSelect(@RequestParam("location_no")Long location_no) throws Exception {
+	public ResponseEntity<Object> getLocationSelect(@RequestParam Long location_no) throws Exception {
 		return responseLocationSelect(location_no);
 	}
 	

@@ -27,12 +27,16 @@ public class FetchScheduler {
 	public void fetchStart() {
 		if(fetch == null)
 			return ;
-		LocalDate curDate = LocalDate.now();
-		for(int i = 0; i < 7; ++i) {
-			System.out.println(curDate.toString());
-			fetch.setDate(curDate);
-			fetch.startFetch();
-			curDate.plusDays(1);
+		boolean fetchAll = false;
+		if(fetchAll)
+		{
+			LocalDate curDate = LocalDate.now();
+			for(int i = 0; i < 7; ++i) {
+				System.out.println(curDate.toString());
+				fetch.setDate(curDate);
+				fetch.startFetch();
+				curDate.plusDays(1);
+			}
 		}
 		fetch.fetchTop3(LocalDate.now());
 	}
