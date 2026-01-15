@@ -15,7 +15,9 @@ public interface WeatherRepository extends JpaRepository<Weather, Long> {
 	List<Weather> findByPredcYmd(LocalDate predcYmd);
 	List<Weather> findByLocationAndPredcYmd(Location location, LocalDate predcYmd);
 	Optional<Weather> findByLocationAndPredcYmdAndPredcNoonSeCd(Location location, LocalDate predcYmd, String predcNoonSeCd);
-	@Query(value="SELECT weather.* FROM weather WHERE location_no = :location_no AND predc_ymd >= curdate() ORDER BY predc_ymd;", nativeQuery=true)
+	//@Query(value="SELECT weather.* FROM weather WHERE location_no = :location_no AND predc_ymd >= curdate() ORDER BY predc_ymd;", nativeQuery=true)
+	// Supabase 전환 curdate() => CURRENT_DATE
+	@Query(value="SELECT weather.* FROM weather WHERE location_no = :location_no AND predc_ymd >= CURRENT_DATE ORDER BY predc_ymd;", nativeQuery=true)
 	List<Weather> findByLocationChart(Long location_no);
 	
 }

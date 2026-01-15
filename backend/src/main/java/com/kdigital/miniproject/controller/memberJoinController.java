@@ -72,7 +72,7 @@ public class memberJoinController {
 	// 등록된 ID 확인
 	@PostMapping("/v1/join/validateID")
 	public ResponseEntity<Object> postValidateID(@RequestBody RequestDTO request) throws Exception {
-		System.out.println(request);
+		//System.out.println(request);
 		return responseValidateID(request.userid);
 	}
 	
@@ -116,7 +116,7 @@ public class memberJoinController {
 				.build();
 		try {
 			boolean validate = memberRepo.findByEmail(email).isPresent();
-			System.out.println("validateEmail result : " + validate);
+			//System.out.println("validateEmail result : " + validate);
 			res.setSuccess(!validate);
 			if(validate)
 				res.setError("이미 사용중인 Email 입니다.");
@@ -343,7 +343,7 @@ public class memberJoinController {
 	public ResponseEntity<Object> postModifyUser(
 			HttpServletRequest request,
 			@RequestBody ModifyMemberDTO modifyMember) {
-		System.out.println(modifyMember);
+		//System.out.println(modifyMember);
 		return responseModifyUser(request, modifyMember);
 	}
 	
@@ -383,7 +383,7 @@ public class memberJoinController {
 			res.setSuccess(false);
 			res.setError("비밀번호는 10~20자이며, 영문 대/소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 합니다.");
 		}
-		else if(!validateName(modifyMember.getNewUsername()))
+		else if(modifyMember.getNewUsername() != null && !validateName(modifyMember.getNewUsername()))
 		{
 			res.setSuccess(false);
 			res.setError("이름은 3~20자의 한글 또는 영문으로만 구성되어야 합니다.");
@@ -396,9 +396,10 @@ public class memberJoinController {
 		else
 		{
 			member.setPassword(encoder.encode(modifyMember.getNewPassword()));
-			member.setUsername(modifyMember.getNewUsername());
+			if(modifyMember.getNewUsername() != null)
+				member.setUsername(modifyMember.getNewUsername());
 			memberRepo.save(member);
-			System.out.println("ModifyUser result : " + member.getUser_no());
+			//System.out.println("ModifyUser result : " + member.getUser_no());
 			res.setSuccess(true);
 		}
 		return ResponseEntity.ok(res);
