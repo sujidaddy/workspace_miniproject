@@ -116,7 +116,7 @@ public class AdminController {
 		}
 		
 		FetchData data = new FetchData(fishRepo, locRepo, weaRepo, fishDeRepo, logRepo, topRepo);
-		FetchScheduler scheduler = new FetchScheduler(data);
+		FetchScheduler scheduler = new FetchScheduler(data, topRepo);
 		scheduler.fetchStart();
 		return ResponseEntity.ok().body(res);
 	}
@@ -166,7 +166,7 @@ public class AdminController {
 	@GetMapping("v1/admin/modifyFishDetail")
 	public ResponseEntity<Object> getModifyFishDetail(
 			HttpServletRequest request,
-			@RequestParam int data_no,
+			@RequestParam Integer data_no,
 			@RequestParam String name,
 			@RequestParam String detail,
 			@RequestParam String url) throws Exception {
@@ -223,7 +223,7 @@ public class AdminController {
 	@GetMapping("v1/admin/removeFishDetail")
 	public ResponseEntity<Object> getRemoveFishDetail(
 			HttpServletRequest request,
-			@RequestParam int data_no) throws Exception {
+			@RequestParam Integer data_no) throws Exception {
 		return responseRemoveFishDetail(request, FishDetail.builder()
 												.data_no(data_no)
 												.build());
@@ -325,14 +325,14 @@ public class AdminController {
 	@GetMapping("v1/admin/modifyUserEnabled")
 	public ResponseEntity<Object> getModifyUserEnabled(
 			HttpServletRequest request,
-			@RequestParam long user_no,
+			@RequestParam Long user_no,
 			@RequestParam boolean enabled) throws Exception {
 		return responseModifyUserEnabled(request, user_no, enabled);
 	}
 	
 	ResponseEntity<Object> responseModifyUserEnabled(
 			HttpServletRequest request,
-			long user_no, boolean enabled) throws Exception {
+			Long user_no, boolean enabled) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();

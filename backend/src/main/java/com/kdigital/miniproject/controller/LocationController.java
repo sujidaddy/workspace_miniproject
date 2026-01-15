@@ -123,11 +123,11 @@ public class LocationController {
 	}
 	
 	@GetMapping("/v1/location/select")
-	public ResponseEntity<Object> getLocationSelect(@RequestParam long location_no) throws Exception {
+	public ResponseEntity<Object> getLocationSelect(@RequestParam Long location_no) throws Exception {
 		return responseLocationSelect(location_no);
 	}
 	
-	public ResponseEntity<Object> responseLocationSelect(long location_no) throws Exception {
+	public ResponseEntity<Object> responseLocationSelect(Long location_no) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build(); 
@@ -197,13 +197,13 @@ public class LocationController {
 	@GetMapping("/v1/location/favorite/add")
 	public ResponseEntity<Object> getLocationFavoriteAdd(
 			HttpServletRequest request,
-			@RequestParam long location_no) throws Exception {
+			@RequestParam Long location_no) throws Exception {
 		return responseLocationFavoriteAdd(request, location_no);
 	}
 	
 	ResponseEntity<Object> responseLocationFavoriteAdd(
 			HttpServletRequest request,
-			long location_no) throws Exception {
+			Long location_no) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
@@ -249,13 +249,13 @@ public class LocationController {
 	@GetMapping("/v1/location/favorite/remove")
 	public ResponseEntity<Object> getLocationFavoriteRemove(
 			HttpServletRequest request,
-			@RequestParam long location_no) throws Exception {
+			@RequestParam Long location_no) throws Exception {
 		return responseLocationFavoriteAdd(request, location_no);
 	}
 	
 	ResponseEntity<Object> responseLocationFavoriteRemove(
 			HttpServletRequest request,
-			long location_no) throws Exception {
+			Long location_no) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();

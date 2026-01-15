@@ -129,11 +129,11 @@ public class FishController {
 	}
 
 	@GetMapping("v1/fish/location")
-	public ResponseEntity<Object> getFishsByLocation(@RequestParam long location_no) throws Exception {
+	public ResponseEntity<Object> getFishsByLocation(@RequestParam Long location_no) throws Exception {
 		return responseFishsByLocation(location_no);
 	}
 
-	ResponseEntity<Object> responseFishsByLocation(long location_no) throws Exception {
+	ResponseEntity<Object> responseFishsByLocation(Long location_no) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
@@ -156,11 +156,11 @@ public class FishController {
 	}
 
 	@GetMapping("v1/fish/weather")
-	public ResponseEntity<Object> getFishsByWeather(@RequestParam long location_no, @RequestParam String weather_date) throws Exception {
+	public ResponseEntity<Object> getFishsByWeather(@RequestParam Long location_no, @RequestParam String weather_date) throws Exception {
 		return responseFishsByWeather(location_no, weather_date);
 	}
 
-	ResponseEntity<Object> responseFishsByWeather(long location_no, String weather_date) throws Exception {
+	ResponseEntity<Object> responseFishsByWeather(Long location_no, String weather_date) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
@@ -237,20 +237,20 @@ public class FishController {
 			HttpServletRequest request,
 			@RequestBody TopLocationDTO requestdto) {
 		System.out.println(requestdto.toString());
-		return responseFishsByLocationForChart(request, requestdto.getSeafsPstnNm(), requestdto.getSeafsTgfshNm());
+		return responseFishsByLocationForChart(request, requestdto.getLocation_no(), requestdto.getSeafsTgfshNm());
 	}
 	
 	@GetMapping("v1/fish/topPoint/fishChart")
 	public ResponseEntity<Object> getFishsByLocationForChart(
 			HttpServletRequest request,
-			@RequestParam String location_name,
+			@RequestParam Long location_no,
 			@RequestParam String fish_name) {
-		return responseFishsByLocationForChart(request, location_name, fish_name);
+		return responseFishsByLocationForChart(request, location_no, fish_name);
 	}
 	
 	public ResponseEntity<Object> responseFishsByLocationForChart(
 			HttpServletRequest request,
-			String location_name, String fish_name) {
+			Long location_no, String fish_name) {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
@@ -268,7 +268,7 @@ public class FishController {
 			return ResponseEntity.ok().body(res);
 		}
 		
-		List<Fish> list = fishRepo.findByLocationNameAndFishName(location_name, fish_name);
+		List<Fish> list = fishRepo.findByLocationNoAndFishName(location_no, fish_name);
 		//System.out.println("location_name : " + location_name);
 		//System.out.println("fish_name : " + fish_name);
 		//System.out.println("size : " + list.size());

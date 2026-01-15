@@ -36,6 +36,7 @@ public class WeatherController {
 	public static class RequestDTO {
 		public long location_no;
 		public String query;
+		public String toString() {return location_no + ", " + query;}
 	}
 	
 	@ExceptionHandler(MissingServletRequestParameterException.class)
@@ -68,18 +69,18 @@ public class WeatherController {
 	// 날씨 차트
 	@PostMapping("/v1/weather/chart")
 	public ResponseEntity<Object> postWeatherChart(@RequestBody RequestDTO request) throws Exception {
-//		System.out.println("request : " + request.toString());
+		//System.out.println("request : " + request.toString());
 		return responseWeatherChart(request.location_no, request.query);
 	}
 	
 	@GetMapping("/v1/weather/chart")
-	public ResponseEntity<Object> getWeatherChart(@RequestParam long location_no, @RequestParam String query) throws Exception {
+	public ResponseEntity<Object> getWeatherChart(@RequestParam Long location_no, @RequestParam String query) throws Exception {
 //		System.out.println("location_no : " + location_no);
 //		System.out.println("query : " + query);
 		return responseWeatherChart(location_no, query);
 	}
 	
-	public ResponseEntity<Object> responseWeatherChart(long location_no, String query) throws Exception {
+	public ResponseEntity<Object> responseWeatherChart(Long location_no, String query) throws Exception {
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();

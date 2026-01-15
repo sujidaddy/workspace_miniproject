@@ -8,6 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class WeatherChart{
+	//private String predcYmd;
 	private LocalDate predcYmd;
 	private String type;
 	private double minValue;
@@ -16,6 +17,7 @@ public class WeatherChart{
 	public WeatherChart(Weather wea, String query)
 	{
 		type = query;
+		//this.predcYmd = wea.predcYmd + "(" + wea.predcNoonSeCd + ")";
 		this.predcYmd = wea.predcYmd;
 		switch(query) {
 		case "파고":

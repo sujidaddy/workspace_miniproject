@@ -2,11 +2,15 @@ package com.kdigital.miniproject.service;
 
 import java.time.LocalDate;
 import java.util.Calendar;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
+
+import com.kdigital.miniproject.domain.TopLocationDTO;
+import com.kdigital.miniproject.persistence.TopLocationRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FetchScheduler {
 	private final FetchData fetch;
+	private final TopLocationRepository topRepo;
 	
 	// 실행시 동작
 	//@Bean
@@ -38,6 +43,8 @@ public class FetchScheduler {
 				curDate.plusDays(1);
 			}
 		}
-		fetch.fetchTop3(LocalDate.now());
+		List<TopLocationDTO> list =  topRepo.findByCreateDate(LocalDate.now());
+		if(list.size() == 0)
+			fetch.fetchTop3(LocalDate.now());
 	}
 }

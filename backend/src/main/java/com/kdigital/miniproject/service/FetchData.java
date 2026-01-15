@@ -187,7 +187,7 @@ public class FetchData {
 					// 어종 정보
 					String seafsTgfshNm = i.get("seafsTgfshNm");
 					if(seafsTgfshNm == null || seafsTgfshNm.length() == 0)
-						seafsTgfshNm = "바다낚시";
+						seafsTgfshNm = "선상낚시";
 					Double tdlvHrScr = Double.parseDouble(String.valueOf(i.get("tdlvHrScr")));
 					String totalIndex = i.get("totalIndex");
 					Double lastScr = Double.parseDouble(String.valueOf(i.get("lastScr")));
