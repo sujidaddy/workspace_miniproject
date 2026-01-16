@@ -23,7 +23,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import com.kdigital.miniproject.domain.Fish;
 import com.kdigital.miniproject.domain.FishDetail;
 import com.kdigital.miniproject.domain.FishSimple;
-import com.kdigital.miniproject.domain.Location;
 import com.kdigital.miniproject.domain.Member;
 import com.kdigital.miniproject.domain.ResponseDTO;
 import com.kdigital.miniproject.domain.TopLocationDTO;
@@ -116,7 +115,9 @@ public class FishController {
 			return ResponseEntity.ok().body(res);
 		}
 
-		List<Fish> list =  fishRepo.findByNameContains(fish_name);
+		//List<Fish> list =  fishRepo.findByNameContains(fish_name);
+		//Supabase 에서 너무 느려서 금일이후의 데이터로 한정
+		List<Fish> list = fishRepo.findByName(fish_name);
 		for(Fish f : list)
 			res.addData(new FishSimple(f));
 		return ResponseEntity.ok().body(res);
@@ -144,7 +145,10 @@ public class FishController {
 			return ResponseEntity.ok().body(res);
 		}
 
-		List<Fish> list = fishRepo.findByLocation(Location.builder().location_no(location_no).build());
+		//List<Fish> list = fishRepo.findByLocation(Location.builder().location_no(location_no).build());
+		//Supabase 에서 너무 느려서 금일이후의 데이터로 한정
+		List<Fish> list = fishRepo.findByLocation(location_no);
+		System.out.println();
 		for(Fish f : list)
 			res.addData(new FishSimple(f));
 		return ResponseEntity.ok().body(res);
@@ -236,7 +240,7 @@ public class FishController {
 	public ResponseEntity<Object> postFishsByLocationForChart(
 			HttpServletRequest request,
 			@RequestBody TopLocationDTO requestdto) {
-		System.out.println(requestdto.toString());
+		//System.out.println(requestdto.toString());
 		return responseFishsByLocationForChart(request, requestdto.getLocation_no(), requestdto.getSeafsTgfshNm());
 	}
 	

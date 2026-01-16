@@ -13,7 +13,15 @@ import com.kdigital.miniproject.domain.Weather;
 public interface FishRepository extends JpaRepository<Fish, Long> {
 	Optional<Fish> findByLocationAndWeatherAndName(Location loc, Weather wea, String name);
 	List<Fish> findByNameContains(String name);
+	//@Query(value="SELECT fish.* FROM fish LEFT OUTER JOIN weather ON weather.weather_no = fish.weather_no WHERE fish.name LIKE CONCAT('%', :fish_name, '%') AND weather.predc_ymd >= curdate();", nativeQuery=true)
+	//Supabase 전환 curdate() => CURRENT_DATE
+	@Query(value="SELECT fish.* FROM fish LEFT OUTER JOIN weather ON weather.weather_no = fish.weather_no WHERE fish.name LIKE CONCAT('%', :fish_name, '%') AND weather.predc_ymd >= CURRENT_DATE;", nativeQuery=true)
+	List<Fish> findByName(String fish_name);
 	List<Fish> findByLocation(Location loc);
+	//@Query(value="SELECT fish.* FROM fish LEFT OUTER JOIN weather ON weather.weather_no = fish.weather_no WHERE fish.location_no = :location_no AND weather.predc_ymd >= curdate();", nativeQuery=true)
+	//Supabase 전환 curdate() => CURRENT_DATE
+	@Query(value="SELECT fish.* FROM fish LEFT OUTER JOIN weather ON weather.weather_no = fish.weather_no WHERE fish.location_no = :location_no AND weather.predc_ymd >= CURRENT_DATE;", nativeQuery=true)
+	List<Fish> findByLocation(long location_no);
 	List<Fish> findByWeather(Weather wea);
 	@Query(value="SELECT fish.* FROM fish LEFT OUTER JOIN weather ON weather.weather_no = fish.weather_no WHERE predc_ymd = :date;", nativeQuery=true)
 	List<Fish> findByDate(String date);

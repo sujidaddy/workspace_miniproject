@@ -53,6 +53,10 @@ public class AdminController {
 	private final FetchLogRepository logRepo;
 	private final TopLocationRepository topRepo;
 	
+	public static class RequestDTO {
+		public long log_no;
+	}
+	
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex) {
 		ResponseDTO res = ResponseDTO.builder()
@@ -282,6 +286,8 @@ public class AdminController {
 	public ResponseEntity<Object> responseMemberList(
 			HttpServletRequest request,
 			int pageNo, int numOfRows) throws Exception {
+		if(pageNo < 1) pageNo = 1;
+		if(numOfRows < 1) numOfRows = 10;
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
@@ -391,6 +397,8 @@ public class AdminController {
 			String logType,
 			int pageNo,
 			int numOfRows) throws Exception {
+		if(pageNo < 1) pageNo = 1;
+		if(numOfRows < 1) numOfRows = 10;
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
@@ -437,6 +445,64 @@ public class AdminController {
 
 		PageDTO<FetchLog> responsePage = new PageDTO<FetchLog>(page);
 		res.addData(responsePage);
+		return ResponseEntity.ok().body(res);
+	}
+	
+	@PostMapping("v1/admin/fetchErrorLogTryAgain")
+	public ResponseEntity<Object> postFetchErrorLogTryAgain(
+			HttpServletRequest request,
+			@RequestBody RequestDTO requestdto) throws Exception {
+		return responseFetchErrorLogTryAgain(request, requestdto.log_no);
+	}
+	
+	@GetMapping("v1/admin/fetchErrorLogTryAgain")
+	public ResponseEntity<Object> getFetchErrorLogTryAgain(
+			HttpServletRequest request,
+			@RequestParam long log_no) throws Exception {
+		return responseFetchErrorLogTryAgain(request, log_no);
+	}
+	
+	public ResponseEntity<Object> responseFetchErrorLogTryAgain(
+			HttpServletRequest request,
+			long log_no) throws Exception {
+		
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		if(JWTUtil.isExpired(request))
+		{
+			res.setSuccess(false);
+			res.setError("토큰이 만료되었습니다.");
+			return ResponseEntity.ok().body(res);
+		}
+		Member member = JWTUtil.parseToken(request, memberRepo);
+		if(member == null)
+		{
+			res.setSuccess(false);
+			res.setError("로그인이 필요합니다.");
+			return ResponseEntity.ok().body(res);
+		}
+		if(member.getRole() != Role.ROLE_ADMIN)
+		{
+			res.setSuccess(false);
+			res.setError("권한이 올바르지 않습니다.");
+			return ResponseEntity.ok().body(res);
+		}
+		
+		Optional<FetchLog> opt = logRepo.findById(log_no); 
+		if(opt.isEmpty())
+		{
+			res.setSuccess(false);
+			res.setError("고유번호가 올바르지 않습니다.");
+		}
+		FetchLog log = opt.get();
+		String url = log.getFetchUrl();
+		
+		FetchData data = new FetchData(fishRepo, locRepo, weaRepo, fishDeRepo, logRepo, topRepo); 
+		data.startFetch(url, true);
+		
+		//System.out.println(url);
+		
 		return ResponseEntity.ok().body(res);
 	}
 

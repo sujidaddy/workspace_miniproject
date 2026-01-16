@@ -39,12 +39,12 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 		if (username != null) {
 			Optional<Member> opt = memberRepo.findByUsername(username);
 			if(!opt.isPresent()) {
-				System.out.println("[JWTAuthorizationFilter]not found user!");
+				//System.out.println("[JWTAuthorizationFilter]not found user!");
 				filterChain.doFilter(request, response);
 				return;
 			}
 			member = opt.get();
-			System.out.println("[JWTAuthorizationFilter]" + member);
+			//System.out.println("[JWTAuthorizationFilter]" + member);
 		} else {
 //			String provider = JWTUtil.getClaim(jwtToken, JWTUtil.providerClaim);
 //			String email = JWTUtil.getClaim(jwtToken, JWTUtil.emailClaim);

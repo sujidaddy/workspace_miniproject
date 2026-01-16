@@ -86,7 +86,7 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 				.build());
 		// JWT 생성
 		String token = JWTUtil.getJWT(user);
-		System.out.println("token : " + token);
+		//System.out.println("token : " + token);
 		// Cookie에 jwt 추가
 		Cookie cookie = new Cookie("jwtToken", token.replaceAll(JWTUtil.prefix, ""));
 		cookie.setHttpOnly(true);	// JS에서 접근 못 하게

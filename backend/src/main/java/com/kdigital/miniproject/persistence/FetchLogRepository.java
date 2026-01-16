@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.kdigital.miniproject.domain.FetchLog;
 
-public interface FetchLogRepository extends JpaRepository<FetchLog, Integer> {
+public interface FetchLogRepository extends JpaRepository<FetchLog, Long> {
 	Page<FetchLog> findByErrorMsgIsNull(Pageable pageable);
 	Page<FetchLog> findByErrorMsgIsNotNull(Pageable pageable);
 }

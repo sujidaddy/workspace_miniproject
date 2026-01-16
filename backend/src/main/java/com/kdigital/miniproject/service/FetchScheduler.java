@@ -27,12 +27,12 @@ public class FetchScheduler {
 	//@Scheduled(cron = "0 0 1 * * *")
 	// 매 짝수 시에 동작
 	//@Scheduled(cron = "0 0 0/2 * * *")
-	// 매일 10시 22시에 동작
-	@Scheduled(cron = "0 0 10,22 * * *")
+	// 매일 10시 14시에 동작
+	@Scheduled(cron = "0 0 10,14 * * *")
 	public void fetchStart() {
 		if(fetch == null)
 			return ;
-		boolean fetchAll = false;
+		boolean fetchAll = true;
 		if(fetchAll)
 		{
 			LocalDate curDate = LocalDate.now();
