@@ -8,7 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class WeatherChart{
-	//private String predcYmd;
 	private LocalDate predcYmd;
 	private String type;
 	private double minValue;

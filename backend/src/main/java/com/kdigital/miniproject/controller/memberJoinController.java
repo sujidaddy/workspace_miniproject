@@ -86,6 +86,7 @@ public class memberJoinController {
 				.success(false)
 				.build();
 		try {
+			System.out.println("userid : " + userid);
 			boolean validate = memberRepo.findByUserid(userid).isPresent();
 			//System.out.println("validateID result : " + validate);
 			res.setSuccess(!validate);
@@ -377,31 +378,32 @@ public class memberJoinController {
 		{
 			res.setSuccess(false);
 			res.setError("로그인이 필요합니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else if(!validatePassword(modifyMember.getNewPassword()))
+		if(!validatePassword(modifyMember.getNewPassword()))
 		{
 			res.setSuccess(false);
 			res.setError("비밀번호는 10~20자이며, 영문 대/소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 합니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else if(modifyMember.getNewUsername() != null && !validateName(modifyMember.getNewUsername()))
+		if(modifyMember.getNewUsername() != null && !validateName(modifyMember.getNewUsername()))
 		{
 			res.setSuccess(false);
 			res.setError("이름은 3~20자의 한글 또는 영문으로만 구성되어야 합니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else if(!encoder.matches(modifyMember.getCurrentPassword(), member.getPassword()))
+		if(!encoder.matches(modifyMember.getCurrentPassword(), member.getPassword()))
 		{
 			res.setSuccess(false);
 			res.setError("올바르지 않은 정보입니다.");
+			return ResponseEntity.ok().body(res);
 		}
-		else
-		{
-			member.setPassword(encoder.encode(modifyMember.getNewPassword()));
-			if(modifyMember.getNewUsername() != null)
-				member.setUsername(modifyMember.getNewUsername());
-			memberRepo.save(member);
-			//System.out.println("ModifyUser result : " + member.getUser_no());
-			res.setSuccess(true);
-		}
+		member.setPassword(encoder.encode(modifyMember.getNewPassword()));
+		if(modifyMember.getNewUsername() != null)
+			member.setUsername(modifyMember.getNewUsername());
+		memberRepo.save(member);
+		//System.out.println("ModifyUser result : " + member.getUser_no());
+		res.setSuccess(true);
 		return ResponseEntity.ok(res);
 	}
 }

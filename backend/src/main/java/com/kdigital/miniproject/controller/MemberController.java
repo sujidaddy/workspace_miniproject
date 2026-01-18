@@ -122,6 +122,9 @@ public class MemberController {
 			return ResponseEntity.ok().body(res);
 		}
 		
+		member.setLastLoginTime(LocalDateTime.now());
+		memberRepo.save(member);
+		
 		loginRepo.save(LoginLog.builder()
 				.member(member)
 				.loginTime(LocalDateTime.now())
@@ -157,6 +160,10 @@ public class MemberController {
 		}
 		
 		Member member = opt.get();
+		
+		member.setLastLoginTime(LocalDateTime.now());
+		memberRepo.save(member);
+		
 		loginRepo.save(LoginLog.builder()
 				.member(member)
 				.loginTime(LocalDateTime.now())
@@ -191,6 +198,10 @@ public class MemberController {
 		}
 		
 		Member member = opt.get();
+		
+		member.setLastLoginTime(LocalDateTime.now());
+		memberRepo.save(member);
+		
 		loginRepo.save(LoginLog.builder()
 				.member(member)
 				.loginTime(LocalDateTime.now())
@@ -225,6 +236,10 @@ public class MemberController {
 		}
 		
 		Member member = opt.get();
+		
+		member.setLastLoginTime(LocalDateTime.now());
+		memberRepo.save(member);
+		
 		loginRepo.save(LoginLog.builder()
 				.member(member)
 				.loginTime(LocalDateTime.now())

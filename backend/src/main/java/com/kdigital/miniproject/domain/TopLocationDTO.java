@@ -45,7 +45,7 @@ public class TopLocationDTO {
 	@Temporal(TemporalType.DATE)
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate predcYmd;
-	private String predcNonSeCd;
+	private String predcNoonSeCd;
 	private String seafsTgfshNm;
 	private double tdlvHrScr;
 	private double minWvhgt;
@@ -69,7 +69,7 @@ public class TopLocationDTO {
 		this.lat = f.getLocation().lat;
 		this.lot = f.getLocation().lot;
 		this.predcYmd = f.getWeather().predcYmd;
-		this.predcNonSeCd = f.getWeather().predcNoonSeCd;
+		this.predcNoonSeCd = f.getWeather().predcNoonSeCd;
 		this.seafsTgfshNm = f.name;
 		this.tdlvHrScr = f.tdlvHrScr;
 		this.minWvhgt = f.getWeather().minWvhgt;

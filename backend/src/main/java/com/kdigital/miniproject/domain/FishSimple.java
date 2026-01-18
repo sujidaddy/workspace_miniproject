@@ -25,7 +25,7 @@ public class FishSimple extends Fish {
 	protected double maxWspd;
 	
 	@JsonProperty("seafsPstnNm")
-	protected String area_name;
+	protected String location_name;
 	protected double lat;
 	protected double lot;
 	protected long location_no;
@@ -55,7 +55,7 @@ public class FishSimple extends Fish {
 		this.minWspd = wea.minWspd;
 		this.maxWspd = wea.maxWspd;
 		
-		this.area_name = loc.name;
+		this.location_name = loc.name;
 		this.lat = loc.lat;
 		this.lot = loc.lot;
 	}
