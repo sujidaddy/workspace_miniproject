@@ -77,7 +77,7 @@ public class FetchData {
 		//String DateParam = "&reqDate=" + format.format(reqDate);
 		String DateParam = "&reqDate=" + reqDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 		String GubunParam = "&gubun=" + gubunList[gubunIndex];
-		String PageParam = "&pageNo=" + pageNo;
+		String PageParam = "&pageNo=" + this.pageNo;
 		String NumParam = "&numOfRows=300";
 
 		int tot = 0;
@@ -100,15 +100,15 @@ public class FetchData {
 			// 종료 조건
 			if(this.dataSize >= tot && gubunIndex == 1)
 				break;
-			++pageNo;
+			++this.pageNo;
 			if(this.dataSize >= tot && gubunIndex == 0)
 			{
-				pageNo = 1;
+				this.pageNo = 1;
 				++gubunIndex;
 				dataSize = 0;
 			}
 			GubunParam = "&gubun=" + gubunList[gubunIndex];
-			PageParam = "&pageNo=" + pageNo;
+			PageParam = "&pageNo=" + this.pageNo;
 			callUrl = Baseurl + DateParam + GubunParam + PageParam + NumParam;
 			result = startFetch(callUrl, false);
 		}
@@ -232,8 +232,9 @@ public class FetchData {
 					fishRepo.save(fish);
 
 				// 등록되어 있지 않은 어종이 추가되면
-				if (seafsTgfshNm != null && seafsTgfshNm.length() > 0
-						&& fishDeRepo.findByName(seafsTgfshNm).isEmpty()) {
+				//if (seafsTgfshNm != null && seafsTgfshNm.length() > 0
+				//		&& fishDeRepo.findByName(seafsTgfshNm).isEmpty()) {
+				if(fishDeRepo.findByName(seafsTgfshNm).isEmpty()) {
 					FishDetail detail = FishDetail.builder().name(seafsTgfshNm).build();
 					if(!bTest)
 						fishDeRepo.save(detail);

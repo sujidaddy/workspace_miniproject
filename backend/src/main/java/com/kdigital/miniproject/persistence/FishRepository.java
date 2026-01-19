@@ -44,5 +44,7 @@ public interface FishRepository extends JpaRepository<Fish, Long> {
 	// Supabase 전환 curdate() => CURRENT_DATE
 	@Query(value="SELECT fish.* FROM fish LEFT OUTER JOIN weather ON weather.weather_no = fish.weather_no WHERE fish.location_no = :location_no AND fish.name = :fish_name AND weather.predc_ymd >= CURRENT_DATE ORDER BY weather.predc_ymd ASC;", nativeQuery=true)
 	List<Fish> findByLocationNoAndFishName(long location_no, String fish_name);
+	@Query(value="SELECT fish.* FROM fish LEFT OUTER JOIN weather ON weather.weather_no = fish.weather_no WHERE fish.name = :fish_name AND weather.predc_ymd = :predcYmd :: DATE AND weather.predc_noon_se_cd = :predcNoonSeCd;", nativeQuery=true)
+	List<Fish> findByNameAndDate(String fish_name, String predcYmd, String predcNoonSeCd);
 
 }

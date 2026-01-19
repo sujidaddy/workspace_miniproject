@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,12 +21,16 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.kdigital.miniproject.domain.Fish;
 import com.kdigital.miniproject.domain.FishDetail;
 import com.kdigital.miniproject.domain.FishSimple;
+import com.kdigital.miniproject.domain.Location;
 import com.kdigital.miniproject.domain.Member;
 import com.kdigital.miniproject.domain.ResponseDTO;
 import com.kdigital.miniproject.domain.TopLocationDTO;
+import com.kdigital.miniproject.domain.Weather;
 import com.kdigital.miniproject.persistence.FetchLogRepository;
 import com.kdigital.miniproject.persistence.FishDetailRepository;
 import com.kdigital.miniproject.persistence.FishRepository;
@@ -36,6 +41,8 @@ import com.kdigital.miniproject.persistence.WeatherRepository;
 import com.kdigital.miniproject.service.FetchData;
 import com.kdigital.miniproject.util.JWTUtil;
 
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
@@ -244,12 +251,26 @@ public class FishController {
 		return responseFishsByLocationForChart(request, requestdto.getLocation_no(), requestdto.getSeafsTgfshNm());
 	}
 	
+	@PostMapping("v1/fish/fishChart")
+	public ResponseEntity<Object> postFishsByLocationForChart(
+			@RequestBody TopLocationDTO requestdto) {
+		//System.out.println(requestdto.toString());
+		return responseFishsByLocationForChart(requestdto.getLocation_no(), requestdto.getSeafsTgfshNm());
+	}
+	
 	@GetMapping("v1/fish/topPoint/fishChart")
 	public ResponseEntity<Object> getFishsByLocationForChart(
 			HttpServletRequest request,
 			@RequestParam Long location_no,
 			@RequestParam String fish_name) {
 		return responseFishsByLocationForChart(request, location_no, fish_name);
+	}
+	
+	@GetMapping("v1/fish/fishChart")
+	public ResponseEntity<Object> getFishsByLocationForChart(
+			@RequestParam Long location_no,
+			@RequestParam String fish_name) {
+		return responseFishsByLocationForChart(location_no, fish_name);
 	}
 	
 	public ResponseEntity<Object> responseFishsByLocationForChart(
@@ -280,4 +301,129 @@ public class FishController {
 			res.addData(new FishSimple(f));
 		return ResponseEntity.ok().body(res);
 	}
+	
+	public ResponseEntity<Object> responseFishsByLocationForChart(
+			Long location_no, String fish_name) {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();		
+		List<Fish> list = fishRepo.findByLocationNoAndFishName(location_no, fish_name);
+		//System.out.println("location_name : " + location_name);
+		//System.out.println("fish_name : " + fish_name);
+		//System.out.println("size : " + list.size());
+		for(Fish f : list)
+			res.addData(new FishSimple(f));
+		return ResponseEntity.ok().body(res);
+	}
+	
+	@PostMapping("v1/fish/fishDate")
+	public ResponseEntity<Object> postFishDate(
+			@RequestBody RequestDTO requestdto)
+	{
+		//System.out.println(requestdto);
+		return responseFishDate(requestdto.fish_name);
+	}
+	
+	@GetMapping("v1/fish/fishDate")
+	public ResponseEntity<Object> getFishDate(
+			@RequestParam String fish_name)
+	{
+		return responseFishDate(fish_name);
+	}
+	
+	static public class weather_date {
+		public String weather_date;
+		public weather_date(String date) {
+			this.weather_date = date;
+		}
+	}
+	
+	ResponseEntity<Object> responseFishDate(
+			String fish_name)
+	{
+		//System.out.println(fish_name);
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		List<Fish> list = fishRepo.findByName(fish_name);
+		List<String> dateList = new ArrayList<String>();
+		for(Fish f : list) {
+			//System.out.println(f.toString());
+			String date = f.getWeather().getPredcYmd() + " " + f.getWeather().getPredcNoonSeCd();
+			//System.out.println(date);
+			if(!dateList.contains(date))
+				dateList.add(date);
+		}
+		//System.out.println("before sort : " + dateList.size());
+		dateList.sort(Comparator.naturalOrder());
+		//System.out.println("after sort : " + dateList.size());
+		for(String date : dateList)
+		{
+			//System.out.println(date);
+			res.addData(new weather_date(date));
+		}
+		return ResponseEntity.ok().body(res);
+	}
+	
+	@PostMapping("v1/fish/fishListByDate")
+	public ResponseEntity<Object> postFishListByDate(
+			@RequestBody RequestDTO requestdto)
+	{
+		//System.out.println(requestdto);
+		return responseFishListByDate(requestdto.fish_name, requestdto.weather_date);
+	}
+	
+	@GetMapping("v1/fish/fishListByDate")
+	public ResponseEntity<Object> getFishListByDate(
+			@RequestParam String fish_name,
+			@RequestParam String weather_date)
+	{
+		return responseFishDate(fish_name);
+	}
+	
+	static class FishByDate {
+		public long fish_no;
+		public String seafsTgfshNm;
+		public double tdlvHrScr;
+		public String totalIndex;
+		public double lastScr;
+		public String weather_date;
+		public double lat;
+		public double lot;
+		public String seafsPstnNm;
+		
+		public FishByDate(Fish f) {
+			this.fish_no = f.getFish_no();
+			this.seafsTgfshNm = f.getName();
+			this.tdlvHrScr = f.getTdlvHrScr();
+			this.totalIndex = f.getTotalIndex();
+			this.lastScr = f.getLastScr();
+			this.weather_date = f.getWeather().getPredcYmd() + " " + f.getWeather().getPredcNoonSeCd();
+			this.lat = f.getLocation().getLat();
+			this.lot = f.getLocation().getLot();
+			this.seafsPstnNm = f.getLocation().getName();
+		}
+	}
+	
+	ResponseEntity<Object> responseFishListByDate(
+			String fish_name,
+			String weather_date)
+	{
+		//System.out.println(fish_name);
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		try {
+			String[] parts = weather_date.split(" ");
+			List<Fish> list = fishRepo.findByNameAndDate(fish_name, parts[0], parts[1]);
+			for(Fish f : list) {
+				res.addData(new FishByDate(f));
+			}
+		} catch(Exception e) {
+			res.setSuccess(false);
+			res.setError(e.getMessage());
+		}
+		return ResponseEntity.ok().body(res);
+	}
+	
 }
