@@ -21,16 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.kdigital.miniproject.domain.Fish;
 import com.kdigital.miniproject.domain.FishDetail;
 import com.kdigital.miniproject.domain.FishSimple;
-import com.kdigital.miniproject.domain.Location;
 import com.kdigital.miniproject.domain.Member;
 import com.kdigital.miniproject.domain.ResponseDTO;
 import com.kdigital.miniproject.domain.TopLocationDTO;
-import com.kdigital.miniproject.domain.Weather;
 import com.kdigital.miniproject.persistence.FetchLogRepository;
 import com.kdigital.miniproject.persistence.FishDetailRepository;
 import com.kdigital.miniproject.persistence.FishRepository;
@@ -41,8 +37,6 @@ import com.kdigital.miniproject.persistence.WeatherRepository;
 import com.kdigital.miniproject.service.FetchData;
 import com.kdigital.miniproject.util.JWTUtil;
 
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 

@@ -81,7 +81,6 @@ public class FetchData {
 		String NumParam = "&numOfRows=300";
 
 		int tot = 0;
-		int pageNo = 0;
 		int totLocationcount = 0;
 		int totWeathercount = 0;
 		int totWeatherupdate = 0;

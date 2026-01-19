@@ -37,9 +37,9 @@ public class FetchLog {
 	private int fishUpdate;
 	@Builder.Default
 	@Temporal(TemporalType.DATE)
-	//@Column(columnDefinition = "date default (curdate())")
+	@Column(columnDefinition = "date default (curdate())")
 	// Supabase 전환 curdate() => CURRENT_DATE
-	@Column(columnDefinition = "date default CURRENT_DATE")
+	//@Column(columnDefinition = "date default CURRENT_DATE")
 	private LocalDate createDate = LocalDate.now();
 
 }
