@@ -223,6 +223,7 @@ public class FishController {
 				.success(true)
 				.build();
 		List<TopLocationDTO> list =  topRepo.findByCreateDate(LocalDate.now());
+		// 금일 데이터가 없으면 생성
 		if(list.size() == 0)
 		{
 			FetchData data = new FetchData(fishRepo, locRepo, weaRepo, fishDeRepo, logRepo, topRepo);
@@ -372,7 +373,7 @@ public class FishController {
 			@RequestParam String fish_name,
 			@RequestParam String weather_date)
 	{
-		return responseFishDate(fish_name);
+		return responseFishListByDate(fish_name, weather_date);
 	}
 	
 	static class FishByDate {
@@ -403,7 +404,8 @@ public class FishController {
 			String fish_name,
 			String weather_date)
 	{
-		//System.out.println(fish_name);
+//		System.out.println(fish_name);
+//		System.out.println(weather_date);
 		ResponseDTO res = ResponseDTO.builder()
 				.success(true)
 				.build();
