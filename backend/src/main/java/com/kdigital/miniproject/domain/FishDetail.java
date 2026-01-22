@@ -1,15 +1,9 @@
 package com.kdigital.miniproject.domain;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,13 +18,11 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class LocationLog {
+public class FishDetail {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long log_no;
-	@ManyToOne
-	@JoinColumn(name="location_no")
-	private Location location;
-	@Temporal(TemporalType.TIMESTAMP)
-	private LocalDateTime selectTime;
+	protected int data_no;
+	protected String name;
+	protected String detail;
+	protected String url;
 }

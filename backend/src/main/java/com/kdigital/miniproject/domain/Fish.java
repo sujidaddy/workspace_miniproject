@@ -27,8 +27,9 @@ public class Fish {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	protected long fish_no;
+	@JsonProperty("seafsTgfshNm")
 	protected String name;
-	protected double tdvHrScr;
+	protected double tdlvHrScr;
 	protected String totalIndex;
 	protected double lastScr;
 	@ManyToOne

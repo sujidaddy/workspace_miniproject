@@ -12,9 +12,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import com.kdigital.miniproject.domain.LoginLog;
-import com.kdigital.miniproject.domain.LoginSession;
 import com.kdigital.miniproject.domain.Member;
-import com.kdigital.miniproject.domain.Role;
 import com.kdigital.miniproject.persistence.LoginLogRepository;
 import com.kdigital.miniproject.persistence.MemberRepository;
 import com.kdigital.miniproject.util.JWTUtil;
@@ -23,14 +21,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 	private final MemberRepository memberRepo;
-	private final PasswordEncoder encoder;
+//	private final PasswordEncoder encoder;
 	private final LoginLogRepository loginRepo;
 	
 	@Override
@@ -41,20 +38,18 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 
 		String provider = map.get("provider");
 		String name = map.get("name");
-		String userid = "";
 		String username = name + "@" + provider;
-		String email = "";
 		
 		Optional<Member> find = null;
 		switch (provider) {
 			case "google":
-				find = memberRepo.getByGoogle(username);
+				find = memberRepo.findByGoogle(username);
 				break;
 			case "naver":
-				find = memberRepo.getByNaver(username);
+				find = memberRepo.findByNaver(username);
 				break;
 			case "kakao":
-				find = memberRepo.getByKakao(username);
+				find = memberRepo.findByKakao(username);
 				break;
 		}
 		
@@ -90,8 +85,8 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 				.loginTime(LocalDateTime.now())
 				.build());
 		// JWT 생성
-		String token = JWTUtil.getJWT(userid, username, email);
-		System.out.println("token : " + token);
+		String token = JWTUtil.getJWT(user);
+		//System.out.println("token : " + token);
 		// Cookie에 jwt 추가
 		Cookie cookie = new Cookie("jwtToken", token.replaceAll(JWTUtil.prefix, ""));
 		cookie.setHttpOnly(true);	// JS에서 접근 못 하게

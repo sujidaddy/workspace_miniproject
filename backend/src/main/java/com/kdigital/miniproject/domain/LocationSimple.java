@@ -3,16 +3,14 @@ package com.kdigital.miniproject.domain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
-public class LocationSimple extends Location {
-	private long area_no;
+public class LocationSimple extends Location{
+	private int area_no;
+	private String area_name;
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private Area area;
 	public LocationSimple(Location loc) {
@@ -21,5 +19,6 @@ public class LocationSimple extends Location {
 		this.lat = loc.lat;
 		this.lot = loc.lot;
 		this.area_no = loc.getArea().getArea_no();
+		this.area_name = loc.getArea().getArea_name();
 	}
 }

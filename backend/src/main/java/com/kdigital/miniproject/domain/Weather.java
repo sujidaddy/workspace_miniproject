@@ -1,9 +1,8 @@
 package com.kdigital.miniproject.domain;
 
-import java.util.Date;
+import java.time.LocalDate;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -32,7 +31,8 @@ public class Weather {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	protected long weather_no;
 	@Temporal(TemporalType.DATE)
-	protected Date predcYmd;
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	protected LocalDate predcYmd;
 	protected String predcNoonSeCd;
 	protected double minWvhgt;
 	protected double maxWvhgt;

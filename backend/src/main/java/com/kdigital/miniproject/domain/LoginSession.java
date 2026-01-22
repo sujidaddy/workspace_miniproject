@@ -1,6 +1,5 @@
 package com.kdigital.miniproject.domain;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 

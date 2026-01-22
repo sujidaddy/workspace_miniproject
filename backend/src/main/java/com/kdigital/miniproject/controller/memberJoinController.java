@@ -2,129 +2,408 @@ package com.kdigital.miniproject.controller;
 
 import java.time.LocalDateTime;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.kdigital.miniproject.config.PasswordEncoder;
-import com.kdigital.miniproject.domain.LoginLog;
 import com.kdigital.miniproject.domain.Member;
+import com.kdigital.miniproject.domain.ModifyMemberDTO;
+import com.kdigital.miniproject.domain.ResponseDTO;
 import com.kdigital.miniproject.domain.Role;
-import com.kdigital.miniproject.persistence.LoginLogRepository;
 import com.kdigital.miniproject.persistence.MemberRepository;
 import com.kdigital.miniproject.util.JWTUtil;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
+@RestControllerAdvice
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class memberJoinController {
 	private final MemberRepository memberRepo;
-	private final LoginLogRepository loginRepo;
 	private PasswordEncoder encoder = new PasswordEncoder();
+	
+	public static class RequestDTO {
+		public String userid;
+		public String email;
+		public String google;
+		public String naver;
+		public String kakao;
+	}
+	
+	@ExceptionHandler(MissingServletRequestParameterException.class)
+	public ResponseEntity<Object> handleMissingParams(MissingServletRequestParameterException ex) {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(false)
+				.error(ex.getParameterName() + " 파라메터가 누락되었습니다.")
+				.build();
+		return ResponseEntity.ok().body(res);
+	}
+	
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	public ResponseEntity<Object> handleMismatchParams(MethodArgumentTypeMismatchException ex) {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(false)
+				.error(ex.getName() + " 파라메터의 형식이 올바르지 않습니다.")
+				.build();
+		return ResponseEntity.ok().body(res);
+	}
+	
+	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+	public ResponseEntity<Object> handleMethodNotSupported(HttpRequestMethodNotSupportedException ext) {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(false)
+				.error(" 허용되지 않는 Method 입니다.")
+				.build();
+		return ResponseEntity.ok().body(res);
+	}
 
 	// 등록된 ID 확인
-	@GetMapping("/v1/join/validateID/{id}")
-	public ResponseEntity<Object> validateID(@PathVariable String id) throws Exception {
-		String ret = memberRepo.getByUserid(id).isPresent() ? "False" : "True";
-		System.out.println("validateID result : " + ret);
-		return ResponseEntity.ok(ret);
+	@PostMapping("/v1/join/validateID")
+	public ResponseEntity<Object> postValidateID(@RequestBody RequestDTO request) throws Exception {
+		//System.out.println(request);
+		return responseValidateID(request.userid);
+	}
+	
+	@GetMapping("/v1/join/validateID")
+	public ResponseEntity<Object> getValidateID(@RequestParam String userid) throws Exception {
+		return responseValidateID(userid);
+	}
+	
+	ResponseEntity<Object> responseValidateID(String userid) throws Exception {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(false)
+				.build();
+		try {
+			System.out.println("userid : " + userid);
+			boolean validate = memberRepo.findByUserid(userid).isPresent();
+			//System.out.println("validateID result : " + validate);
+			res.setSuccess(!validate);
+			if(validate)
+				res.setError("이미 사용중인 ID 입니다.");
+		} catch(Exception e) {
+			res.setSuccess(false);
+			res.setError(e.getMessage());
+		}
+		
+		return ResponseEntity.ok(res);
 	}
 	
 	// 등록된 이메일 확인
-	@GetMapping("/v1/join/validateEmail/{email}")
-	public ResponseEntity<Object> validateEmail(@PathVariable String email) throws Exception {
-		String ret = memberRepo.getByEmail(email).isPresent() ? "False" : "True";
-		System.out.println("validateEmail result : " + ret);
-		return ResponseEntity.ok(ret);
+	@PostMapping("/v1/join/validateEmail")
+	public ResponseEntity<Object> postValidateEmail(@RequestBody RequestDTO request) throws Exception {
+		return responseValidateEmail(request.email);
+	}
+	
+	@GetMapping("/v1/join/validateEmail")
+	public ResponseEntity<Object> getValidateEmail(@RequestParam String email) throws Exception {
+		return responseValidateEmail(email);
+	}
+	
+	ResponseEntity<Object> responseValidateEmail(String email) throws Exception {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(false)
+				.build();
+		try {
+			boolean validate = memberRepo.findByEmail(email).isPresent();
+			//System.out.println("validateEmail result : " + validate);
+			res.setSuccess(!validate);
+			if(validate)
+				res.setError("이미 사용중인 Email 입니다.");
+		} catch(Exception e) {
+			res.setSuccess(false);
+			res.setError(e.getMessage());
+		}
+		
+		return ResponseEntity.ok(res);
 	}
 	
 	// 등록된 구글 계정 확인
-	@GetMapping("/v1/join/validateGoogle/{google}")
-	public ResponseEntity<Object> validateGoogle(@PathVariable String google) throws Exception {
-		String ret = memberRepo.getByGoogle(google).isPresent() ? "False" : "True";
-		System.out.println("validateGoogle result : " + ret);
-		return ResponseEntity.ok(ret);
+	@PostMapping("/v1/join/validategoogle")
+	public ResponseEntity<Object> postValidateGoogle(@RequestBody RequestDTO request) throws Exception {
+		return responseValidateGoogle(request.google);
+	}
+	
+	@GetMapping("/v1/join/validategoogle")
+	public ResponseEntity<Object> postValidateGoogle(@RequestParam String google) throws Exception {
+		return responseValidateGoogle(google);
+	}
+	
+	ResponseEntity<Object> responseValidateGoogle(String google) throws Exception {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(false)
+				.build();
+		try {
+			boolean validate = memberRepo.findByGoogle(google).isPresent();
+			res.setSuccess(!validate);
+			if(validate)
+				res.setError("이미 사용중인 구글 계정 입니다.");
+		} catch(Exception e) {
+			res.setSuccess(false);
+			res.setError(e.getMessage());
+		}
+		
+		return ResponseEntity.ok(res);
 	}
 	
 	// 등록된 네이버 계정 확인
-	@GetMapping("/v1/join/validateNaver/{naver}")
-	public ResponseEntity<Object> validateNaver(@PathVariable String naver) throws Exception {
-		String ret = memberRepo.getByNaver(naver).isPresent() ? "False" : "True";
-		System.out.println("validateNaver result : " + ret);
-		return ResponseEntity.ok(ret);
+	@PostMapping("/v1/join/validatenaver")
+	public ResponseEntity<Object> postValidateNaver(@RequestBody RequestDTO request) throws Exception {
+		return responseValidateNaver(request.naver);
+	}
+	
+	@GetMapping("/v1/join/validatenaver")
+	public ResponseEntity<Object> getValidateNaver(@RequestParam String naver) throws Exception {
+		return responseValidateNaver(naver);
+	}
+	
+	public ResponseEntity<Object> responseValidateNaver(String naver) throws Exception {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(false)
+				.build();
+		try {
+			boolean validate = memberRepo.findByNaver(naver).isPresent();
+			//System.out.println("validateID result : " + validate);
+			res.setSuccess(!validate);
+			if(validate)
+				res.setError("이미 사용중인 네이버 계정 입니다.");
+		} catch(Exception e) {
+			res.setSuccess(false);
+			res.setError(e.getMessage());
+		}
+		
+		return ResponseEntity.ok(res);
 	}
 	
 	// 등록된 카카오 계정 확인
-	@GetMapping("/vi/join/validateKakao/{kakao}")
-	public ResponseEntity<Object> validateKakao(@PathVariable String kakao) throws Exception {
-		String ret = memberRepo.getByKakao(kakao).isPresent() ? "False" : "True";
-		System.out.println("validateKakao result : " + ret);
-		return ResponseEntity.ok(ret);
+	@PostMapping("/v1/join/validatekakao")
+	public ResponseEntity<Object> postValidateKakao(@RequestBody RequestDTO request) throws Exception {
+		return responseValidateKakao(request.kakao);
+	}
+	
+	@GetMapping("/v1/join/validatekakao")
+	public ResponseEntity<Object> getValidateKakao(@RequestParam String kakao) throws Exception {
+		return responseValidateKakao(kakao);
+	}
+	
+	public ResponseEntity<Object> responseValidateKakao(String kakao) throws Exception {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(false)
+				.build();
+		try {
+			boolean validate = memberRepo.findByKakao(kakao).isPresent();
+			//System.out.println("validateID result : " + validate);
+			res.setSuccess(!validate);
+			if(validate)
+				res.setError("이미 사용중인 카카오 계정 입니다.");
+		} catch(Exception e) {
+			res.setSuccess(false);
+			res.setError(e.getMessage());
+		}
+		
+		return ResponseEntity.ok(res);
 	}
 	
 	// 회원가입
+	@PostMapping("/v1/join/joinUser")
+	public ResponseEntity<Object> postJoinUser(
+			@RequestBody Member member) {
+		//System.out.println(member);
+		return responseJoinUser(member);
+	}
+	
 	@GetMapping("/v1/join/joinUser")
 	public ResponseEntity<Object> getJoinUser(
-			HttpServletResponse response,
-			@RequestParam("userid") String userid,
-			@RequestParam("password") String password,
-			@RequestParam("username") String username,
-			@RequestParam("email") String email,
-			@RequestParam("google") String google,
-			@RequestParam("naver") String naver,
-			@RequestParam("kakao") String kakao) {
-		if(memberRepo.getByUserid(userid).isPresent())
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("이미 가입한 ID 입니다");
-		if(memberRepo.getByEmail(email).isPresent())
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("이미 가입한 이메일 입니다");
-		if(google != null && memberRepo.getByGoogle(google).isPresent())
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("이미 인증한 구글계정 입니다");
-		if(naver != null && memberRepo.getByNaver(naver).isPresent())
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("이미 인증한 네이버계정 입니다");
-		if(kakao != null && memberRepo.getByKakao(kakao).isPresent())
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("이미 인증한 카카오계정 입니다");
-		Member member = Member.builder()
-							.userid(userid)
-							.password(encoder.encode(password))
-							.username(username)
-							.email(email)
-							.role(Role.ROLE_MEMBER)
-							.enabled(true)
-							.createTime(LocalDateTime.now())
-							.lastLoginTime(LocalDateTime.now())
-							.build();
-		if(google != null)
-			member.setGoogle(google);
-		if(naver != null)
-			member.setNaver(naver);
-		if(kakao != null)
-			member.setKakao(kakao);
+			@RequestParam String userid,
+			@RequestParam String password,
+			@RequestParam String username,
+			@RequestParam String email,
+			@RequestParam String google,
+			@RequestParam String naver,
+			@RequestParam String kakao) {
+		return responseJoinUser(Member.builder()
+								.userid(userid)
+								.password(password)
+								.username(username)
+								.email(email)
+								.google(google)
+								.naver(naver)
+								.kakao(kakao)
+								.build());
+	}
+	
+	boolean validateId(String userid) {
+		String regex = "^[a-zA-Z0-9_]{7,16}$";
+		return userid.matches(regex);
+	}
+	
+	boolean validatePassword(String password) {
+		return password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{10,20}$");
+	}
+	
+	boolean validateName(String username) {
+		return username.matches("^[a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣]{3,20}$");
+	}
+	
+	boolean validateMail(String email) {
+		return email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
+	}
+	
+	public ResponseEntity<Object> responseJoinUser(Member member) {
+		//System.out.println(member);
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		String userid = member.getUserid(); 
+		String password = member.getPassword();
+		String username = member.getUsername();
+		String email = member.getEmail();
+		String google = member.getGoogle();
+		String naver = member.getNaver();
+		String kakao = member.getKakao();
+		if(userid == null || userid.length() == 0
+				|| password == null || password.length() == 0
+				|| username == null || username.length() == 0
+				|| email == null || email.length() == 0)
+		{
+			res.setSuccess(false);
+			res.setError("누락된 데이터가 있습니다.");
+		}
+		else if(!validateId(userid))
+		{
+			res.setSuccess(false);
+			res.setError("아이디는 7~16자의 영문, 숫자, 밑줄(_)만 사용 가능합니다.");
+		}
+		else if(!validatePassword(password))
+		{
+			res.setSuccess(false);
+			res.setError("비밀번호는 10~20자이며, 영문 대/소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 합니다.");
+		}
+		else if(!validateName(username))
+		{
+			res.setSuccess(false);
+			res.setError("이름은 3~20자의 한글 또는 영문으로만 구성되어야 합니다.");
+		}
+		else if(!validateMail(email))
+		{
+			res.setSuccess(false);
+			res.setError("유효하지 않은 이메일 주소입니다.");
+		}
+		else if(memberRepo.findByUserid(userid).isPresent())
+		{
+			res.setSuccess(false);
+			res.setError("이미 사용중인 ID 입니다.");
+		}
+		else if(memberRepo.findByEmail(email).isPresent())
+		{
+			res.setSuccess(false);
+			res.setError("이미 사용중인 Email 입니다.");
+		}
+		else if(google != null && memberRepo.findByGoogle(google).isPresent())
+		{
+			res.setSuccess(false);
+			res.setError("이미 사용중인 구글 계정 입니다.");
+		}
+		else if(naver != null && memberRepo.findByNaver(naver).isPresent())
+		{
+			res.setSuccess(false);
+			res.setError("이미 사용중인 네이버 계정 입니다.");
+		}
+		else if(kakao != null && memberRepo.findByKakao(kakao).isPresent())
+		{
+			res.setSuccess(false);
+			res.setError("이미 사용중인 카카오 계정 입니다.");
+		}
+		else {
+			member.setPassword(encoder.encode(member.getPassword()));
+			member.setRole(Role.ROLE_MEMBER);
+			member.setEnabled(true);
+			member.setCreateTime(LocalDateTime.now());
+			member.setLastLoginTime(LocalDateTime.now());
+			memberRepo.save(member);
+			//System.out.println("JoinUser result : " + member.getUser_no());
+			res.setSuccess(true);
+		}
+		
+		return ResponseEntity.ok(res);
+	}
+	
+	// 정보수정
+	@PostMapping("/v1/join/modifyUser")
+	public ResponseEntity<Object> postModifyUser(
+			HttpServletRequest request,
+			@RequestBody ModifyMemberDTO modifyMember) {
+		//System.out.println(modifyMember);
+		return responseModifyUser(request, modifyMember);
+	}
+	
+	@GetMapping("/v1/join/modifyUser")
+	public ResponseEntity<Object> getModifyUser(
+			HttpServletRequest request,
+			@RequestParam String currentPassword,
+			@RequestParam String newPassword,
+			@RequestParam String newUsearname) {
+		ModifyMemberDTO member = new ModifyMemberDTO();
+		member.setCurrentPassword(currentPassword);
+		member.setNewPassword(newPassword);
+		member.setNewUsername(newUsearname);
+		return responseModifyUser(request, member);
+	}
+	
+	ResponseEntity<Object> responseModifyUser(
+			HttpServletRequest request,
+			ModifyMemberDTO modifyMember) {
+		ResponseDTO res = ResponseDTO.builder()
+				.success(true)
+				.build();
+		if(JWTUtil.isExpired(request))
+		{
+			res.setSuccess(false);
+			res.setError("토큰이 만료되었습니다.");
+			return ResponseEntity.ok().body(res);
+		}
+		Member member = JWTUtil.parseToken(request, memberRepo);
+		if(member == null)
+		{
+			res.setSuccess(false);
+			res.setError("로그인이 필요합니다.");
+			return ResponseEntity.ok().body(res);
+		}
+		if(!validatePassword(modifyMember.getNewPassword()))
+		{
+			res.setSuccess(false);
+			res.setError("비밀번호는 10~20자이며, 영문 대/소문자, 숫자, 특수문자를 각각 1개 이상 포함해야 합니다.");
+			return ResponseEntity.ok().body(res);
+		}
+		if(modifyMember.getNewUsername() != null && !validateName(modifyMember.getNewUsername()))
+		{
+			res.setSuccess(false);
+			res.setError("이름은 3~20자의 한글 또는 영문으로만 구성되어야 합니다.");
+			return ResponseEntity.ok().body(res);
+		}
+		if(!encoder.matches(modifyMember.getCurrentPassword(), member.getPassword()))
+		{
+			res.setSuccess(false);
+			res.setError("올바르지 않은 정보입니다.");
+			return ResponseEntity.ok().body(res);
+		}
+		member.setPassword(encoder.encode(modifyMember.getNewPassword()));
+		if(modifyMember.getNewUsername() != null)
+			member.setUsername(modifyMember.getNewUsername());
 		memberRepo.save(member);
-		System.out.println("getJoinUser result : " + member.getUser_no());
-		// 로그인 기록 추가
-		loginRepo.save(LoginLog.builder()
-				.member(member)
-				.loginTime(LocalDateTime.now())
-				.build());
-		// JWT 생성
-		String token = JWTUtil.getJWT(member);
-		System.out.println("token : " + token);
-		// Cookie에 jwt 추가
-		Cookie cookie = new Cookie("jwtToken", token.replaceAll(JWTUtil.prefix, ""));
-		cookie.setHttpOnly(true);	// JS에서 접근 못 하게
-		cookie.setSecure(false);	// HTTPS에서만 동작
-		cookie.setPath("/");
-		cookie.setMaxAge(60 * 60);		// 60초 * 60 = 1시간
-		response.addCookie(cookie);			
-			
-		return ResponseEntity.ok(member);
+		//System.out.println("ModifyUser result : " + member.getUser_no());
+		res.setSuccess(true);
+		return ResponseEntity.ok(res);
 	}
 }
