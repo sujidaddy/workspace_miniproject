@@ -1,0 +1,56 @@
+-- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
+--
+-- Host: 127.0.0.1    Database: miniproject
+-- ------------------------------------------------------
+-- Server version	8.0.43
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `location`
+--
+
+DROP TABLE IF EXISTS `location`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `location` (
+  `location_no` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `lat` double NOT NULL,
+  `lot` double NOT NULL,
+  `area_no` int NOT NULL,
+  PRIMARY KEY (`location_no`),
+  KEY `FKm3378oux62x22p5lu2lalwvkv` (`area_no`),
+  CONSTRAINT `FKm3378oux62x22p5lu2lalwvkv` FOREIGN KEY (`area_no`) REFERENCES `area` (`area_no`)
+) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `location`
+--
+
+LOCK TABLES `location` WRITE;
+/*!40000 ALTER TABLE `location` DISABLE KEYS */;
+INSERT INTO `location` VALUES (1,'가거도',34.07308,125.08805,2),(2,'거문도',34.03041,127.34113,2),(3,'거제도',34.90544,128.76294,3),(4,'계마항',35.3924,126.4016,2),(5,'국화도',37.06027,126.55816,1),(6,'김녕',33.5622,126.7394,5),(7,'남애항',37.9425,128.7895,4),(8,'대진항',37.3472,129.2633,4),(9,'모항항',36.79456,126.11107,1),(10,'방포항',36.51383,126.30287,1),(11,'부산남부',35.0438,129.0774,3),(12,'부산동부',35.1851,129.2288,3),(13,'부산서부',35.0075,128.9118,3),(14,'비금도',34.7802,125.8963,2),(15,'비양도',33.4042,126.2306,5),(16,'상왕등도',35.6668,126.1108,2),(17,'상태도',34.43577,125.28555,2),(18,'서귀포',33.23797,126.60808,5),(19,'성산포',33.47744,126.93191,5),(20,'신시도',35.81,126.4488,2),(21,'신지도',34.3522,126.843,2),(22,'아야진항',38.27016,128.5591,4),(23,'어청도',36.12613,125.96686,2),(24,'연도',34.41282,127.78882,2),(25,'영흥도',37.26944,126.43074,1),(26,'외옹치항',38.17729,128.6124,4),(27,'욕지도',34.62111,128.25611,3),(28,'울릉도',37.4925,130.9141,3),(29,'울산',35.4725,129.41246,3),(30,'울진 후정',37.07441,129.41017,3),(31,'추자도',33.96186,126.30037,2),(32,'포항',36.11622,129.43144,3),(33,'하조도',34.27757,126.09372,2),(34,'후포',36.67376,129.45634,3),(35,'강릉항 북동(2km)',37.7842,128.968,4),(36,'공현진항 동남동(5km)',38.325,128.5754,4),(37,'도두항 북서(2km)',33.52516,126.4583,5),(38,'목포북항 서측(53km)',34.78435,125.7365,2),(39,'서망항남측(27km)',34.119,126.152,2),(40,'안흥항 북측(30km)',36.965,126.135,1),(41,'안흥항서측(40km)',36.649,125.701,1),(42,'양포항 남동(3km)',35.82482,129.5892,3),(43,'인천항 서측(24km)',37.3578,126.375,1),(44,'임원항동북동(10km)',37.267,129.45,4),(45,'척포항 남남서(25km)',34.5504,128.3339,3),(46,'하리항 남서(14km)',35.0104,129.0445,3);
+/*!40000 ALTER TABLE `location` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-01-22 13:54:10
