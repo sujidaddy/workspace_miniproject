@@ -3,11 +3,13 @@
 
 import React, { useState, useEffect } from "react"; // [해결] React 명시적 가져오기 추가
 import { Map, useKakaoLoader, Circle, CustomOverlayMap } from "react-kakao-maps-sdk"
+<<<<<<< HEAD
+=======
+import { useState, useRef } from "react";
+>>>>>>> 93772b8e32b270eaca1a1591be514e21dc05134e
 import { useAtom } from "jotai";
 import { fetchAreaData } from "./atomLocation";
 import Popup from "@/components/Popup";
-import getAuthHeaders from "@/components/Token";
-import type { TokenType } from "@/components/Token";
 
 interface KaKaoMapAreaProps {
     fishLocations: Location[]; 
@@ -33,6 +35,7 @@ export default function KakaoMapArea({ fishLocations, selectedFish }: KaKaoMapAr
         level: 13,
     };
 
+<<<<<<< HEAD
     const [mapData, setMapData] = useState(INITIAL_MAP_DATA);
     const [area] = useAtom(fetchAreaData);
     const [selecAreaNo, setSelecAreaNo] = useState<number>(0);
@@ -47,6 +50,33 @@ export default function KakaoMapArea({ fishLocations, selectedFish }: KaKaoMapAr
         case "나쁨": return { stroke: "#7C3AED", fill: "#8B5CF6", bg: "bg-violet-500" };
         case "매우나쁨": return { stroke: "#BE185D", fill: "#DB2777", bg: "bg-pink-600" };
         default: return { stroke: "#4B5563", fill: "#9CA3AF", bg: "bg-gray-500" };
+=======
+    const [isMapLoaded, setIsMapLoaded] = useState(false);
+
+    // 리셋 함수
+    const handleReset = () => {
+        setMapData(INITIAL_MAP_DATA);
+        setSelecAreaNo(0);
+        setIsCircleHover(false);
+        setIsMapLoaded(false);
+    };
+
+    // 권역 선택시 처리
+    const onClickCircle = (area_no: number) => {
+        setIsCircleHover(false);
+        //console.log("Circle clicked! Area No:", area_no);
+        setSelecAreaNo(area_no);
+        const selectArea = area?.find(a => a.area_no === area_no);
+        const moveLocation = {
+            center: { lat: selectArea?.center_lat!, lng: selectArea?.center_lng! },
+            level: selectArea?.level ?? INITIAL_MAP_DATA.level,
+            draggable: true,
+            zoomable: true,
+            disableDoubleClick : false,
+        };
+        //setMapData(moveLocation as { center: { lat: number; lng: number }; level: number; dragable: boolean; zoomable: boolean;});
+        setMapData(moveLocation);
+>>>>>>> 93772b8e32b270eaca1a1591be514e21dc05134e
     }
 };
 
@@ -58,6 +88,7 @@ export default function KakaoMapArea({ fishLocations, selectedFish }: KaKaoMapAr
     if (loading) return <div className="p-4 text-xs font-medium">지도를 불러오는 중...</div>;
 
     return (
+<<<<<<< HEAD
         <div className="w-full h-full flex flex-col">
             {/* 상단 텍스트 폰트 크기 축소 */}
             <div className="mb-2 px-4 flex justify-between items-center">
@@ -138,6 +169,123 @@ export default function KakaoMapArea({ fishLocations, selectedFish }: KaKaoMapAr
                     />
                 )}
             </div>
+=======
+        // 권역 선택 후 초기화시 마우스 커서 동작을 위한 스타일 처리 추가
+        <div className={`w-full h-full flex relative ${isCircleHover ? 'map-cursor-pointer' : ''}`}>
+            <style>{`
+                .map-cursor-pointer, .map-cursor-pointer * {
+                    cursor: pointer !important;
+                }
+            `}</style>
+            {/* 카카오 맵 */}
+            <Map // 지도를 표시할 Container
+                onCreate={() => setIsMapLoaded(true)}
+                center={mapData.center}
+                level={mapData.level} // 지도의 확대 레벨
+                draggable={mapData.draggable}
+                zoomable={mapData.zoomable}
+                disableDoubleClick={mapData.disableDoubleClick}
+                // 지도 크기
+                style={{
+                    // 지도의 크기
+                    width: "1800px",
+                    height: "950px",
+                }}
+                // 위치 이동, 크기 변경시의 데이터 저장
+                // 초기화를 위해서 필요
+                onCenterChanged={(map) => {
+                    const newCenter = map.getCenter();
+                    setMapData(prev => ({
+                        ...prev,
+                        center: {
+                            lat: newCenter.getLat(),
+                            lng: newCenter.getLng(),
+                        },
+                    }));
+                }}
+                onZoomChanged={(map) => {
+                    setMapData(prev => ({
+                        ...prev,
+                        level: map.getLevel(),
+                    }));
+                }}
+            >
+                {
+                    // 권역별 영역 원 표시
+                    isMapLoaded && 
+                    selecAreaNo === 0 && area &&
+                    area.map((item) => {
+                        //console.log(item);
+                        return(
+                        <div key={item.area_no}>
+                            <Circle
+                                center={{ lat: item.center_lat, lng: item.center_lng}} // 원의 중심좌표
+                                radius={item.radius}
+                                strokeWeight={2}
+                                strokeColor='#FF6347'
+                                strokeOpacity={1}
+                                strokeStyle={"solid"}
+                                fillColor={item.fillColor}
+                                fillOpacity={0.7}
+                                // 권역 선택
+                                onClick={() => onClickCircle(item.area_no)}
+                                // 마우스 커서 처리
+                                onMouseover={() => {setIsCircleHover(true)}}
+                                onMouseout={() => {setIsCircleHover(false)}}
+                            />
+                            {/* 권역 이름 표시 */}
+                            <CustomOverlayMap
+                                position={{ lat: item.center_lat, lng: item.center_lng}} // 마커가 표시될 위치입니다
+                            >
+                                <div style={{ color: 'black', fontWeight: 'bold', textShadow: '1px 1px 2px #333', pointerEvents: 'none' }}>
+                                    {item.area_name}
+                                </div>
+                            </CustomOverlayMap>
+                        </div>
+                    )})
+                }
+                {
+                    // 표시할 위치 데이터
+                    // 권역 선택시 해당 권역의 위치만 표시
+                    location && 
+                    location.filter(data => data.area.area_no == selecAreaNo).map(data => {
+                        return (
+                            <CustomOverlayMap // 마커를 생성합니다
+                                key={data.location_no}
+                                position={{
+                                    // 마커가 표시될 위치입니다
+                                    lat: data.lat,
+                                    lng: data.lot,
+                                }}
+                            >
+                                <div className='rounded-2xl border 
+                                            bg-amber-50/50'>
+                                    <span className="text-center text-black m-2">{data.name}</span>
+                                </div>
+                            </CustomOverlayMap>
+                        )
+                    })
+                }
+            </Map>
+            {/* 초기화 버튼 */}
+            <button
+                onClick={() =>setIsPopup(true)}
+                className="absolute top-4 right-4 bg-white text-black px-4 py-2 rounded-md shadow-md z-10 hover:bg-gray-100"
+            >
+                초기화
+            </button>
+            {/* 초기화 팝업 */}
+            {isPopup &&
+                <Popup
+                    message="초기화 하시겠습니까?"
+                    onConfirm={() => {
+                        handleReset();
+                        setIsPopup(false);
+                    }}
+                    onCancel={() => setIsPopup(false)}
+                />
+            }
+>>>>>>> 93772b8e32b270eaca1a1591be514e21dc05134e
         </div>
     )
 }

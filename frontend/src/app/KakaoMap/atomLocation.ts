@@ -111,9 +111,10 @@ export interface LocationData {
     name: string,
     lat: number,
     lot: number,
-    area_no: number,
+    area: AreaData,
 }
 
+<<<<<<< HEAD
 // Area 데이터 fetch atom
 export const fetchAreaData = atom<AreaData[]>(async () => {
   try {
@@ -124,6 +125,37 @@ export const fetchAreaData = atom<AreaData[]>(async () => {
     console.error("Area 데이터 로드 실패:", error);
     return [];
   }
+=======
+export const locationData = atom(null);
+
+export const fetchLocationData = atom( async() => {
+    try {
+        const response = await fetch('http://localhost:8080/api/v1/location', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if(!response.ok) {
+            return null;
+        }
+
+        const result = await response.json();
+        console.log(result);
+        if(!result.success)
+            alert('위치 정보 로딩에 실패했습니다.');
+        else
+        {
+            const data: LocationData[] = result.data;
+            return data;
+        }
+
+    } catch(error) {
+        console.log(error);
+    }
+    return null;
+>>>>>>> 93772b8e32b270eaca1a1591be514e21dc05134e
 });
 
 // Location 데이터 fetch atom
@@ -138,6 +170,7 @@ export const fetchLocationData = atom<LocationData[]>(async () => {
   }
 });
 
+<<<<<<< HEAD
 // Fish Location 조회 함수 (일반 async 함수)
 export const fetchFishLocationSearch = async (location_no: number) => {
   try {
@@ -163,3 +196,32 @@ export const fetchFishLocationSearch = async (location_no: number) => {
     return null;
   }
 };
+=======
+export const fetchAreaData = atom( async() => {
+    try {
+        const response = await fetch('http://localhost:8080/api/v1/area', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if(!response.ok) {
+            return null;
+        }
+
+        const result = await response.json();
+        if(!result.success)
+            alert('권역 정보 로딩에 실패했습니다.');
+        else
+        {
+            const data: AreaData[] = result.data;
+            return data;
+        }
+
+    } catch(error) {
+        console.log(error);
+    }
+    return null;
+});
+>>>>>>> 93772b8e32b270eaca1a1591be514e21dc05134e

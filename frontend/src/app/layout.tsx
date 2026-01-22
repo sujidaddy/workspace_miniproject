@@ -2,9 +2,16 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import localFont from 'next/font/local';
 import "./globals.css";
+<<<<<<< HEAD
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WaveHeros from "@/components/WaveHeros"
+=======
+import NextAuthProvider from "@/components/NextAuthProvider";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+// import WaveHeros from "@/components/layout/WaveHeros"
+>>>>>>> 93772b8e32b270eaca1a1591be514e21dc05134e
 
 const inter = Inter({
   subsets: ['latin'],
@@ -34,14 +41,16 @@ export default function RootLayout({
        <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
       >
-        <div className="w-full h-screen flex flex-col overflow-y-hidden">
-          <Header />
-          <div className="container mx-auto flex flex-col grow overflow-y-auto">
-            <WaveHeros/>
-            {children}
+        <NextAuthProvider>
+          <div className="w-full h-screen flex flex-col overflow-y-hidden">
+            <Header />
+            <div className="container mx-auto flex flex-col grow overflow-y-auto">
+              {/* <WaveHeros/> */}
+              {children}
+            </div>
+            <Footer />
           </div>
-          <Footer />
-        </div>
+        </NextAuthProvider>
       </body>
     </html>
   );
