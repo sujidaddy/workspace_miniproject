@@ -1,19 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
+import localFont from 'next/font/local';
 import "./globals.css";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import WaveHeros from "@/components/layout/WaveHeros"
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import WaveHeros from "@/components/WaveHeros"
 
-const geistSans = Geist({
+const inter = Inter({
+  subsets: ['latin'],
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
 });
+
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -27,8 +31,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+       <body
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
       >
         <div className="w-full h-screen flex flex-col overflow-y-hidden">
           <Header />

@@ -20,9 +20,9 @@ import lombok.ToString;
 @Entity
 public class Area {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Builder.Default
-	private int area_no = -1;
+	//@GeneratedValue(strategy = GenerationType.IDENTITY)
+	//@Builder.Default
+	private int area_no;
 	private String area_name;
 	private double center_lat;
 	private double center_lng;

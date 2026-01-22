@@ -1,7 +1,6 @@
 'use client';
 import Image from 'next/image';
-import img_wave_01 from '../../../public/images/img_wave_01.png';
-import img_wave_02 from '../../../public/images/img_wave_02.png';
+// import img_wave_01 from '../';
 import { motion } from 'framer-motion';
 
 export default function WaveHero() {
@@ -14,7 +13,7 @@ export default function WaveHero() {
     <div className="relative w-full h-screen overflow-hidden bg-slate-900">
       <div className="relative w-full h-screen overflow-hidden">
         <Image
-          src={img_wave_01}
+          src="/images/img_wave_01.png"  // public/images/img_wave_01.png 경로
           alt="바다 낚시"
           fill
           className="object-cover"
@@ -23,7 +22,7 @@ export default function WaveHero() {
         <div
           className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] scale-110 animate-pulse-slow"
           style={{
-            backgroundImage: "url(/images/img_wave_02.png)", // public 폴더에 위치 확인
+            backgroundImage: "url(/images/img_wave_01.png)", // public 폴더에 위치 확인
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40"></div>
