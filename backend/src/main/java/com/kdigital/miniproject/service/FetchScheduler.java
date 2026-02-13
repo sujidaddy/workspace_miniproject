@@ -1,6 +1,7 @@
 package com.kdigital.miniproject.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.List;
 
@@ -35,12 +36,9 @@ public class FetchScheduler {
 		boolean fetchAll = true;
 		if(fetchAll)
 		{
-			LocalDate curDate = LocalDate.now();
+			LocalDateTime now = LocalDateTime.now();
 			for(int i = 0; i < 7; ++i) {
-				System.out.println(curDate.toString());
-				fetch.setDate(curDate);
-				fetch.startFetch();
-				curDate.plusDays(1);
+				fetch.startFetch(now.plusDays(i));
 			}
 		}
 		List<TopLocationDTO> list =  topRepo.findByCreateDate(LocalDate.now());

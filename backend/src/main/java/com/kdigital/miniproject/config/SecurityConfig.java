@@ -62,8 +62,7 @@ public class SecurityConfig {
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowedOriginPatterns(
 			Arrays.asList(
-					"http://localhost:3000", 
-					"http://127.0.0.1:3000"));
+					"*"));
 		config.addAllowedMethod(CorsConfiguration.ALL);		// 요청을 허용할 Method
 		config.addAllowedHeader(CorsConfiguration.ALL);		// 요청을 허용할 Header
 		config.setAllowCredentials(true);					// 요청/응답에 자격증명정보/쿠키 포함을 허용 여부
