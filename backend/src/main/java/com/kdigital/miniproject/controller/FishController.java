@@ -40,7 +40,10 @@ import com.kdigital.miniproject.service.FetchData;
 import com.kdigital.miniproject.util.JWTUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @RestController
 @RestControllerAdvice
@@ -233,7 +236,7 @@ public class FishController {
 			data.fetchTop3(LocalDate.now());
 			list =  topRepo.findByCreateDate(LocalDate.now());
 		}
-		
+		//System.out.println("list size : " + list.size());
 		for(TopLocationDTO top : list) {
 			res.addData(top);
 		}
@@ -241,19 +244,35 @@ public class FishController {
 		return ResponseEntity.ok().body(res);
 	}
 	
-	@PostMapping("v1/fish/topPoint/fishChart")
-	public ResponseEntity<Object> postFishsByLocationForChart(
-			HttpServletRequest request,
-			@RequestBody TopLocationDTO requestdto) {
-		//System.out.println(requestdto.toString());
-		return responseFishsByLocationForChart(request, requestdto.getLocation_no(), requestdto.getSeafsTgfshNm());
+	@Getter
+	@Setter
+	@ToString
+	static public class FishChartDTO {
+		long location_no;
+		String fish_name;
+		
 	}
 	
 	@PostMapping("v1/fish/fishChart")
 	public ResponseEntity<Object> postFishsByLocationForChart(
-			@RequestBody TopLocationDTO requestdto) {
+			@RequestBody FishChartDTO requestdto) {
 		//System.out.println(requestdto.toString());
-		return responseFishsByLocationForChart(requestdto.getLocation_no(), requestdto.getSeafsTgfshNm());
+		return responseFishsByLocationForChart(requestdto.getLocation_no(), requestdto.getFish_name());
+	}
+	
+	@GetMapping("v1/fish/fishChart")
+	public ResponseEntity<Object> getFishsByLocationForChart(
+			@RequestParam Long location_no,
+			@RequestParam String fish_name) {
+		return responseFishsByLocationForChart(location_no, fish_name);
+	}
+	
+	@PostMapping("v1/fish/topPoint/fishChart")
+	public ResponseEntity<Object> postFishsByLocationForChart(
+			HttpServletRequest request,
+			@RequestBody FishChartDTO requestdto) {
+		//System.out.println(requestdto.toString());
+		return responseFishsByLocationForChart(request, requestdto.getLocation_no(), requestdto.getFish_name());
 	}
 	
 	@GetMapping("v1/fish/topPoint/fishChart")
@@ -262,13 +281,6 @@ public class FishController {
 			@RequestParam Long location_no,
 			@RequestParam String fish_name) {
 		return responseFishsByLocationForChart(request, location_no, fish_name);
-	}
-	
-	@GetMapping("v1/fish/fishChart")
-	public ResponseEntity<Object> getFishsByLocationForChart(
-			@RequestParam Long location_no,
-			@RequestParam String fish_name) {
-		return responseFishsByLocationForChart(location_no, fish_name);
 	}
 	
 	public ResponseEntity<Object> responseFishsByLocationForChart(
@@ -306,9 +318,9 @@ public class FishController {
 				.success(true)
 				.build();		
 		List<Fish> list = fishRepo.findByLocationNoAndFishName(location_no, fish_name);
-		//System.out.println("location_name : " + location_name);
-		//System.out.println("fish_name : " + fish_name);
-		//System.out.println("size : " + list.size());
+		System.out.println("location_no : " + location_no);
+		System.out.println("fish_name : " + fish_name);
+		System.out.println("size : " + list.size());
 		for(Fish f : list)
 			res.addData(new FishSimple(f));
 		return ResponseEntity.ok().body(res);
