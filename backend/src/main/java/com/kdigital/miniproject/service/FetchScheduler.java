@@ -25,11 +25,11 @@ public class FetchScheduler {
 	// 실행시 동작
 	//@Bean
 	// 매일 1시에 동작
-	//@Scheduled(cron = "0 0 1 * * *")
+	//@Scheduled(cron = "0 0 1 * * *", zone="Asia/Seoul")
 	// 매 짝수 시에 동작
-	//@Scheduled(cron = "0 0 0/2 * * *")
+	//@Scheduled(cron = "0 0 0/2 * * *", zone="Asia/Seoul")
 	// 매일 10시 14시에 동작
-	@Scheduled(cron = "0 0 10,14 * * *")
+	@Scheduled(cron = "0 5 0/8 * * *", zone="Asia/Seoul")
 	public void fetchStart() {
 		if(fetch == null)
 			return ;
