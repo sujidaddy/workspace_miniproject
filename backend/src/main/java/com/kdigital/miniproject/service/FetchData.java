@@ -296,9 +296,19 @@ public class FetchData {
 				if (seafsTgfshNm == null || seafsTgfshNm.length() == 0)
 					seafsTgfshNm = "선상낚시";
 				
-				Double tdlvHrScr = Double.parseDouble(String.valueOf(i.get("tdlvHrScr")));
+				Double tdlvHrScr = 0.0;
+				try {
+					tdlvHrScr =  Double.parseDouble(String.valueOf(i.get("tdlvHrScr")));
+				}catch(Exception e) {
+					tdlvHrScr = 0.0;
+				}
 				String totalIndex = i.get("totalIndex");
-				Double lastScr = Double.parseDouble(String.valueOf(i.get("lastScr")));
+				Double lastScr = 0.0;
+				try {
+					lastScr = Double.parseDouble(String.valueOf(i.get("lastScr")));
+				}catch(Exception e) {
+					lastScr = 0.0;
+				}
 				String fishKey = loc.getName() + "_" + wea.getWeather_no() + "_" + seafsTgfshNm;
 				
 				Fish fish;
