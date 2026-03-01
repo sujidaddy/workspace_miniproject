@@ -13,4 +13,4 @@ FrontEnd
     사용 라이브러리 : framer-motion, jotai, lucide-react, react-kakao-maps-sdk, react-markdown, recharts
 
 테스트를 위한 페이지 구성
-http://www.projectwwtp.kro.kr:3001/
+https://workspace-fish.vercel.app
