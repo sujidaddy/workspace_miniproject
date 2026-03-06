@@ -1,30 +1,20 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
-import localFont from 'next/font/local';
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-<<<<<<< HEAD
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import WaveHeros from "@/components/WaveHeros"
-=======
 import NextAuthProvider from "@/components/NextAuthProvider";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 // import WaveHeros from "@/components/layout/WaveHeros"
->>>>>>> 93772b8e32b270eaca1a1591be514e21dc05134e
 
-const inter = Inter({
-  subsets: ['latin'],
+const geistSans = Geist({
   variable: "--font-geist-sans",
-  display: "swap",
+  subsets: ["latin"],
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
+const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
-  display: "swap",
+  subsets: ["latin"],
 });
-
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -38,8 +28,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <NextAuthProvider>
           <div className="w-full h-screen flex flex-col overflow-y-hidden">

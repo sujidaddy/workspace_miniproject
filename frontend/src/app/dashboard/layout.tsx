@@ -1,6 +1,6 @@
 // src/app/dashboard/layout.tsx
-import Header from "@/components/Header";
-import { ReactNode } from "react";
+import Sidebar from "@/components/layout/SideBar";
+import Header from "@/components/layout/Header";
 
 export default function DashboardLayout({
   children,
@@ -9,7 +9,8 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="flex h-screen bg-[#F8F9FA] overflow-hidden">
-      {/* 1. 좌측 사이드바 (구조도의 Sidebar.tsx) - page.tsx에서 렌더링하므로 여기서는 제거 */}
+      {/* 1. 좌측 사이드바 (구조도의 Sidebar.tsx) */}
+      <Sidebar />
 
       <div className="flex-1 flex flex-col min-w-0">
         {/* 2. 상단 헤더 (구조도의 Header.tsx + SearchBar 포함) */}

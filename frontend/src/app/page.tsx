@@ -1,6 +1,6 @@
 "use client";
-import WaveHero from "@/components/WaveHeros";
-import BoardSection from "@/app/BoardSection";
+import WaveHero from "@/components/layout/WaveHeros";
+import BoardSection from "@/components/dashboard/BoardSection";
 
 export default function Home() {
   return (
